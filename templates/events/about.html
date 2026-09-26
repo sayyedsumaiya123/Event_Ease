@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}About EventEase — DevOps Project{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container text-center">
+        <h1 class="page-title">About EventEase</h1>
+        <p class="page-subtitle">A containerized event management system built with DevOps best practices</p>
+    </div>
+</section>
+
+<section class="section-padding">
+    <div class="container">
+        <div class="row g-5 align-items-center mb-5">
+            <div class="col-lg-6">
+                <h2>What is EventEase?</h2>
+                <p class="lead">
+                    EventEase is a full-featured event management platform that demonstrates the complete
+                    DevOps software delivery lifecycle — from code to deployment and monitoring.
+                </p>
+                <p>
+                    Built as a college DevOps project, it showcases how modern software teams
+                    use tools like Docker, Jenkins, Prometheus, and Grafana to build reliable,
+                    scalable applications.
+                </p>
+                <div class="devops-pipeline-steps mt-4">
+                    <div class="step"><span class="step-num">1</span><span>Code in Django</span></div>
+                    <div class="step"><span class="step-num">2</span><span>Push to GitHub</span></div>
+                    <div class="step"><span class="step-num">3</span><span>Jenkins CI/CD</span></div>
+                    <div class="step"><span class="step-num">4</span><span>Docker Build</span></div>
+                    <div class="step"><span class="step-num">5</span><span>Deploy to Server</span></div>
+                    <div class="step"><span class="step-num">6</span><span>Monitor with Grafana</span></div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="tech-showcase">
+                    <h5 class="mb-3">Technology Stack</h5>
+                    <div class="tech-stack-list">
+                        <div class="tech-stack-item">
+                            <i class="bi bi-filetype-py text-primary"></i>
+                            <div>
+                                <strong>Django 5.0</strong>
+                                <span>Python web framework</span>
+                            </div>
+                        </div>
+                        <div class="tech-stack-item">
+                            <i class="bi bi-database text-success"></i>
+                            <div>
+                                <strong>PostgreSQL 16</strong>
+                                <span>Relational database</span>
+                            </div>
+                        </div>
+                        <div class="tech-stack-item">
+                            <i class="bi bi-box text-info"></i>
+                            <div>
+                                <strong>Docker & Compose</strong>
+                                <span>Containerization</span>
+                            </div>
+                        </div>
+                        <div class="tech-stack-item">
+                            <i class="bi bi-gear-wide-connected text-warning"></i>
+                            <div>
+                                <strong>Jenkins</strong>
+                                <span>CI/CD automation</span>
+                            </div>
+                        </div>
+                        <div class="tech-stack-item">
+                            <i class="bi bi-shield-check text-danger"></i>
+                            <div>
+                                <strong>Nginx</strong>
+                                <span>Reverse proxy & static files</span>
+                            </div>
+                        </div>
+                        <div class="tech-stack-item">
+                            <i class="bi bi-activity text-success"></i>
+                            <div>
+                                <strong>Prometheus + Grafana</strong>
+                                <span>Monitoring & dashboards</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DevOps Architecture -->
+        <div class="detail-card mb-5">
+            <h3 class="detail-section-title"><i class="bi bi-diagram-3 me-2"></i>DevOps Architecture</h3>
+            <div class="architecture-diagram">
+                <div class="arch-layer">
+                    <div class="arch-label">Users</div>
+                    <div class="arch-box user-box"><i class="bi bi-people-fill"></i> Browser</div>
+                </div>
+                <div class="arch-arrow">↓</div>
+                <div class="arch-layer">
+                    <div class="arch-label">Proxy</div>
+                    <div class="arch-box nginx-box"><i class="bi bi-shield-check"></i> Nginx :80</div>
+                </div>
+                <div class="arch-arrow">↓</div>
+                <div class="arch-layer">
+                    <div class="arch-label">App</div>
+                    <div class="arch-box app-box"><i class="bi bi-filetype-py"></i> Django :8000</div>
+                </div>
+                <div class="arch-arrow">↓</div>
+                <div class="arch-layer">
+                    <div class="arch-label">Data</div>
+                    <div class="arch-box db-box"><i class="bi bi-database"></i> PostgreSQL :5432</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

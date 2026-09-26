@@ -1,0 +1,302 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Home — EventEase{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="hero-bg-animation">
+        <div class="hero-orb orb-1"></div>
+        <div class="hero-orb orb-2"></div>
+        <div class="hero-orb orb-3"></div>
+    </div>
+    <div class="container">
+        <div class="row align-items-center min-vh-hero">
+            <div class="col-lg-6">
+                <div class="hero-content">
+                    <div class="hero-badge">
+                        <i class="bi bi-stars me-2"></i>
+                        #1 Event Management Platform
+                    </div>
+                    <h1 class="hero-title">
+                        Manage Your Events
+                        <span class="gradient-text">With Ease</span>
+                    </h1>
+                    <p class="hero-subtitle">
+                        Discover, register, and manage amazing events. From tech workshops to cultural festivals —
+                        everything in one beautiful platform.
+                    </p>
+                    <div class="hero-actions">
+                        <a href="{% url 'events:event_list' %}" class="btn btn-primary btn-lg btn-glow" id="exploreEventsBtn">
+                            <i class="bi bi-rocket-takeoff me-2"></i>Explore Events
+                        </a>
+                        {% if not user.is_authenticated %}
+                        <a href="{% url 'accounts:register' %}" class="btn btn-outline-light btn-lg ms-3" id="getStartedBtn">
+                            <i class="bi bi-person-plus me-2"></i>Get Started Free
+                        </a>
+                        {% endif %}
+                    </div>
+                    <div class="hero-stats">
+                        <div class="hero-stat">
+                            <span class="stat-number">{{ total_events|intcomma }}</span>
+                            <span class="stat-label">Events</span>
+                        </div>
+                        <div class="hero-stat-divider"></div>
+                        <div class="hero-stat">
+                            <span class="stat-number">{{ total_users|intcomma }}</span>
+                            <span class="stat-label">Members</span>
+                        </div>
+                        <div class="hero-stat-divider"></div>
+                        <div class="hero-stat">
+                            <span class="stat-number">{{ total_registrations|intcomma }}</span>
+                            <span class="stat-label">Registrations</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 d-none d-lg-flex justify-content-center">
+                <div class="hero-visual">
+                    <div class="floating-card card-1">
+                        <i class="bi bi-calendar-check text-success"></i>
+                        <span>Event Registered!</span>
+                    </div>
+                    <div class="floating-card card-2">
+                        <i class="bi bi-people text-primary"></i>
+                        <span>{{ upcoming_count }} Upcoming</span>
+                    </div>
+                    <div class="floating-card card-3">
+                        <i class="bi bi-ticket-perforated text-warning"></i>
+                        <span>Ticket Issued!</span>
+                    </div>
+                    <div class="hero-main-card">
+                        <div class="main-card-icon">
+                            <i class="bi bi-calendar-star-fill"></i>
+                        </div>
+                        <h4>EventEase</h4>
+                        <p>Your event companion</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Bar -->
+<section class="stats-bar">
+    <div class="container">
+        <div class="row">
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <i class="bi bi-calendar3"></i>
+                    <div>
+                        <div class="stat-value">{{ total_events }}</div>
+                        <div class="stat-name">Total Events</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <i class="bi bi-people-fill"></i>
+                    <div>
+                        <div class="stat-value">{{ total_users }}</div>
+                        <div class="stat-name">Registered Users</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <i class="bi bi-ticket-fill"></i>
+                    <div>
+                        <div class="stat-value">{{ total_registrations }}</div>
+                        <div class="stat-name">Registrations</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <i class="bi bi-clock-fill"></i>
+                    <div>
+                        <div class="stat-value">{{ upcoming_count }}</div>
+                        <div class="stat-name">Upcoming Events</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Categories -->
+{% if categories %}
+<section class="section-padding">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Browse by Category</h2>
+            <p class="section-subtitle">Find events that match your interests</p>
+        </div>
+        <div class="row g-3">
+            {% for category in categories %}
+            <div class="col-6 col-md-4 col-lg-3">
+                <a href="{% url 'events:category_events' category.slug %}" class="category-card" id="cat-{{ category.slug }}">
+                    <div class="category-icon" style="background: {{ category.color }}20; color: {{ category.color }}">
+                        <i class="bi {{ category.icon }}"></i>
+                    </div>
+                    <div class="category-info">
+                        <h6>{{ category.name }}</h6>
+                        <span>{{ category.event_count }} event{{ category.event_count|pluralize }}</span>
+                    </div>
+                    <i class="bi bi-arrow-right category-arrow"></i>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Featured Events -->
+{% if featured_events %}
+<section class="section-padding bg-dark-subtle">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-badge">
+                <i class="bi bi-star-fill me-2"></i>Featured
+            </div>
+            <h2 class="section-title">Featured Events</h2>
+            <p class="section-subtitle">Hand-picked events you shouldn't miss</p>
+        </div>
+        <div class="row g-4">
+            {% for event in featured_events %}
+            <div class="col-md-6 col-lg-4">
+                {% include 'events/partials/event_card.html' with event=event %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Upcoming Events -->
+<section class="section-padding">
+    <div class="container">
+        <div class="section-header d-flex justify-content-between align-items-center flex-wrap">
+            <div>
+                <h2 class="section-title">Upcoming Events</h2>
+                <p class="section-subtitle">Don't miss out — register before spots fill up</p>
+            </div>
+            <a href="{% url 'events:event_list' %}" class="btn btn-outline-primary" id="viewAllEventsBtn">
+                View All <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+        {% if upcoming_events %}
+        <div class="row g-4">
+            {% for event in upcoming_events %}
+            <div class="col-md-6 col-lg-4">
+                {% include 'events/partials/event_card.html' with event=event %}
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="bi bi-calendar-x"></i>
+            <h4>No upcoming events</h4>
+            <p>Check back soon for exciting new events!</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- DevOps Pipeline Banner -->
+<section class="devops-banner section-padding">
+    <div class="container">
+        <div class="devops-banner-inner">
+            <div class="row align-items-center">
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                    <div class="devops-badge-sm">
+                        <i class="bi bi-infinity me-2"></i>DevOps Powered
+                    </div>
+                    <h2 class="devops-title">Built with a Complete DevOps Pipeline</h2>
+                    <p class="devops-desc">
+                        This application is containerized with Docker, continuously integrated via Jenkins/GitHub Actions,
+                        monitored with Prometheus & Grafana, and deployed with zero-downtime rolling updates.
+                    </p>
+                    <div class="pipeline-steps">
+                        <div class="pipeline-step">
+                            <i class="bi bi-code-square"></i>
+                            <span>Code</span>
+                        </div>
+                        <i class="bi bi-arrow-right pipeline-arrow"></i>
+                        <div class="pipeline-step">
+                            <i class="bi bi-git"></i>
+                            <span>Git</span>
+                        </div>
+                        <i class="bi bi-arrow-right pipeline-arrow"></i>
+                        <div class="pipeline-step">
+                            <i class="bi bi-gear"></i>
+                            <span>CI/CD</span>
+                        </div>
+                        <i class="bi bi-arrow-right pipeline-arrow"></i>
+                        <div class="pipeline-step">
+                            <i class="bi bi-box"></i>
+                            <span>Docker</span>
+                        </div>
+                        <i class="bi bi-arrow-right pipeline-arrow"></i>
+                        <div class="pipeline-step">
+                            <i class="bi bi-cloud-check"></i>
+                            <span>Deploy</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="tech-grid">
+                        <div class="tech-item">
+                            <i class="bi bi-box"></i>
+                            <span>Docker</span>
+                        </div>
+                        <div class="tech-item">
+                            <i class="bi bi-github"></i>
+                            <span>GitHub</span>
+                        </div>
+                        <div class="tech-item">
+                            <i class="bi bi-gear-wide-connected"></i>
+                            <span>Jenkins</span>
+                        </div>
+                        <div class="tech-item">
+                            <i class="bi bi-database"></i>
+                            <span>PostgreSQL</span>
+                        </div>
+                        <div class="tech-item">
+                            <i class="bi bi-activity"></i>
+                            <span>Prometheus</span>
+                        </div>
+                        <div class="tech-item">
+                            <i class="bi bi-bar-chart"></i>
+                            <span>Grafana</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+{% if not user.is_authenticated %}
+<section class="cta-section section-padding">
+    <div class="container text-center">
+        <h2 class="cta-title">Ready to join the community?</h2>
+        <p class="cta-subtitle">Create your free account and start discovering amazing events today.</p>
+        <div class="cta-actions">
+            <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-lg btn-glow" id="ctaRegisterBtn">
+                <i class="bi bi-person-plus me-2"></i>Create Free Account
+            </a>
+            <a href="{% url 'events:event_list' %}" class="btn btn-outline-secondary btn-lg ms-3" id="ctaBrowseBtn">
+                <i class="bi bi-search me-2"></i>Browse Events
+            </a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% endblock %}

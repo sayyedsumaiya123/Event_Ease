@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ form_title }} — EventEase Admin{% endblock %}
+
+{% block content %}
+<section class="page-header admin-page-header">
+    <div class="container">
+        <div class="breadcrumb-nav mb-2">
+            <a href="{% url 'events:admin_dashboard' %}">Dashboard</a>
+            <i class="bi bi-chevron-right"></i>
+            <a href="{% url 'events:admin_event_list' %}">Events</a>
+            <i class="bi bi-chevron-right"></i>
+            <span>{{ form_title }}</span>
+        </div>
+        <h1 class="page-title"><i class="bi bi-calendar-plus me-2"></i>{{ form_title }}</h1>
+    </div>
+</section>
+
+<section class="section-padding">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-9">
+                <div class="detail-card">
+                    <form method="POST" enctype="multipart/form-data" id="eventForm">
+                        {% csrf_token %}
+
+                        <!-- Basic Info -->
+                        <h5 class="form-section-title"><i class="bi bi-info-circle me-2"></i>Basic Information</h5>
+                        <div class="row g-3 mb-4">
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Event Title *</label>
+                                {{ form.title }}
+                                {% if form.title.errors %}
+                                <div class="text-danger small">{{ form.title.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Category</label>
+                                {{ form.category }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Status</label>
+                                {{ form.status }}
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Short Description</label>
+                                {{ form.short_description }}
+                                <small class="text-muted">Shown on event cards (auto-generated if empty)</small>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Full Description *</label>
+                                {{ form.description }}
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Tags</label>
+                                {{ form.tags }}
+                            </div>
+                        </div>
+
+                        <!-- Date & Time -->
+                        <h5 class="form-section-title"><i class="bi bi-calendar3 me-2"></i>Date & Time</h5>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Start Date *</label>
+                                {{ form.date }}
+                                {% if form.date.errors %}
+                                <div class="text-danger small">{{ form.date.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Start Time *</label>
+                                {{ form.time }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">End Date</label>
+                                {{ form.end_date }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">End Time</label>
+                                {{ form.end_time }}
+                            </div>
+                        </div>
+
+                        <!-- Venue -->
+                        <h5 class="form-section-title"><i class="bi bi-geo-alt me-2"></i>Venue</h5>
+                        <div class="row g-3 mb-4">
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Venue Name *</label>
+                                {{ form.venue }}
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Venue Address</label>
+                                {{ form.venue_address }}
+                            </div>
+                        </div>
+
+                        <!-- Capacity & Pricing -->
+                        <h5 class="form-section-title"><i class="bi bi-ticket me-2"></i>Capacity & Pricing</h5>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Capacity *</label>
+                                {{ form.capacity }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Is Free?</label>
+                                <div class="form-check mt-2">
+                                    {{ form.is_free }}
+                                    <label class="form-check-label">Yes, this event is free</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Price (₹)</label>
+                                {{ form.price }}
+                            </div>
+                        </div>
+
+                        <!-- Image & Options -->
+                        <h5 class="form-section-title"><i class="bi bi-image me-2"></i>Media & Options</h5>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-8">
+                                <label class="form-label fw-semibold">Event Image</label>
+                                {{ form.image }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Featured Event?</label>
+                                <div class="form-check mt-2">
+                                    {{ form.featured }}
+                                    <label class="form-check-label">Show in featured section</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit -->
+                        <div class="d-flex gap-3 justify-content-end">
+                            <a href="{% url 'events:admin_event_list' %}" class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg" id="submitEventBtn">
+                                <i class="bi bi-check-circle me-2"></i>{{ btn_label }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

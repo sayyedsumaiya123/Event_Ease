@@ -1,0 +1,74 @@
+{% load humanize %}
+<div class="event-card" id="event-{{ event.pk }}">
+    {% if event.image %}
+    <div class="event-card-img">
+        <img src="{{ event.image.url }}" alt="{{ event.title }}">
+        {% if event.featured %}
+        <span class="event-featured-badge"><i class="bi bi-star-fill me-1"></i>Featured</span>
+        {% endif %}
+        {% if event.is_free %}
+        <span class="event-price-badge free">Free</span>
+        {% else %}
+        <span class="event-price-badge paid">₹{{ event.price }}</span>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="event-card-img-placeholder" style="background: {% if event.category %}{{ event.category.color }}{% else %}#6366f1{% endif %}20">
+        {% if event.featured %}
+        <span class="event-featured-badge"><i class="bi bi-star-fill me-1"></i>Featured</span>
+        {% endif %}
+        {% if event.is_free %}
+        <span class="event-price-badge free">Free</span>
+        {% else %}
+        <span class="event-price-badge paid">₹{{ event.price }}</span>
+        {% endif %}
+        <i class="bi {% if event.category %}{{ event.category.icon }}{% else %}bi-calendar-event{% endif %} placeholder-icon"
+           style="color: {% if event.category %}{{ event.category.color }}{% else %}#6366f1{% endif %}"></i>
+    </div>
+    {% endif %}
+
+    <div class="event-card-body">
+        {% if event.category %}
+        <span class="event-category-tag" style="background: {{ event.category.color }}20; color: {{ event.category.color }}">
+            {{ event.category.name }}
+        </span>
+        {% endif %}
+
+        <h5 class="event-card-title">{{ event.title }}</h5>
+        <p class="event-card-desc">{{ event.short_description }}</p>
+
+        <div class="event-card-meta">
+            <div class="meta-item">
+                <i class="bi bi-calendar3"></i>
+                <span>{{ event.date|date:"M d, Y" }}</span>
+            </div>
+            <div class="meta-item">
+                <i class="bi bi-clock"></i>
+                <span>{{ event.time|time:"h:i A" }}</span>
+            </div>
+            <div class="meta-item">
+                <i class="bi bi-geo-alt"></i>
+                <span>{{ event.venue }}</span>
+            </div>
+        </div>
+
+        <div class="event-card-footer">
+            <div class="seats-info">
+                <div class="seats-bar">
+                    <div class="seats-fill {% if event.registration_percentage > 80 %}critical{% elif event.registration_percentage > 50 %}warning{% endif %}"
+                         style="width: {{ event.registration_percentage }}%"></div>
+                </div>
+                <small>
+                    {% if event.is_full %}
+                    <span class="text-danger fw-bold">Fully Booked</span>
+                    {% else %}
+                    <span class="text-success">{{ event.available_seats }} seats left</span>
+                    {% endif %}
+                </small>
+            </div>
+            <a href="{% url 'events:event_detail' event.slug %}" class="btn btn-sm btn-primary event-card-btn">
+                View Details <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+    </div>
+</div>

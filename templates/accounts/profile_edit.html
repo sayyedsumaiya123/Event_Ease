@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Profile — EventEase{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1 class="page-title"><i class="bi bi-pencil me-2"></i>Edit Profile</h1>
+    </div>
+</section>
+
+<section class="section-padding">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-7">
+                <div class="detail-card">
+                    <form method="POST" enctype="multipart/form-data" id="profileEditForm">
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">First Name</label>
+                                {{ form.first_name }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Last Name</label>
+                                {{ form.last_name }}
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Email</label>
+                                {{ form.email }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Phone</label>
+                                {{ form.phone }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Organization</label>
+                                {{ form.organization }}
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Location</label>
+                                {{ form.location }}
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Bio</label>
+                                {{ form.bio }}
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Website</label>
+                                {{ form.website }}
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Avatar</label>
+                                {{ form.avatar }}
+                            </div>
+                        </div>
+                        <div class="d-flex gap-3 justify-content-end mt-4">
+                            <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary" id="saveProfileBtn">
+                                <i class="bi bi-check me-1"></i>Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

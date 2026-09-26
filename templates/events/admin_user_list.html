@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Users — EventEase Admin{% endblock %}
+
+{% block content %}
+<section class="page-header admin-page-header">
+    <div class="container">
+        <h1 class="page-title"><i class="bi bi-people me-2"></i>Manage Users</h1>
+        <p class="page-subtitle">{{ page_obj.paginator.count }} total registered users</p>
+    </div>
+</section>
+
+<section class="section-padding">
+    <div class="container">
+        <div class="detail-card">
+            <div class="table-responsive">
+                <table class="table admin-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>User</th>
+                            <th>Email</th>
+                            <th>Joined</th>
+                            <th>Registrations</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in users %}
+                        <tr class="{% if not u.is_active %}table-row-inactive{% endif %}">
+                            <td>{{ forloop.counter }}</td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="table-avatar {% if not u.is_active %}inactive{% endif %}">
+                                        {{ u.first_name|first|upper|default:u.username|first|upper }}
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold">{{ u.get_full_name|default:u.username }}</div>
+                                        <small class="text-muted">@{{ u.username }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ u.email }}</td>
+                            <td>{{ u.date_joined|date:"M d, Y" }}</td>
+                            <td>
+                                <span class="badge bg-primary rounded-pill">{{ u.reg_count }}</span>
+                            </td>
+                            <td>
+                                {% if u.is_superuser %}
+                                <span class="badge bg-danger">Superuser</span>
+                                {% elif u.is_staff %}
+                                <span class="badge bg-warning text-dark">Staff</span>
+                                {% else %}
+                                <span class="badge bg-secondary">User</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if u.is_active %}
+                                <span class="status-badge status-upcoming">Active</span>
+                                {% else %}
+                                <span class="status-badge status-cancelled">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if u != request.user and not u.is_superuser %}
+                                <form method="post" action="{% url 'events:toggle_user_status' u.pk %}">
+                                    {% csrf_token %}
+                                    <button type="submit"
+                                            class="btn btn-xs {% if u.is_active %}btn-outline-danger{% else %}btn-outline-success{% endif %}"
+                                            id="toggleUser{{ u.pk }}"
+                                            onclick="return confirm('{% if u.is_active %}Deactivate{% else %}Activate{% endif %} {{ u.username }}?')">
+                                        {% if u.is_active %}
+                                        <i class="bi bi-person-x"></i> Deactivate
+                                        {% else %}
+                                        <i class="bi bi-person-check"></i> Activate
+                                        {% endif %}
+                                    </button>
+                                </form>
+                                {% else %}
+                                <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if is_paginated %}
+            <nav class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% for num in page_obj.paginator.page_range %}
+                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                    {% endfor %}
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

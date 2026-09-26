@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block title %}Participants — {{ event.title }}{% endblock %}
+
+{% block content %}
+<section class="page-header admin-page-header">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+            <div>
+                <h1 class="page-title"><i class="bi bi-people me-2"></i>Participants</h1>
+                <p class="page-subtitle">{{ event.title }}</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'events:event_edit' event.slug %}" class="btn btn-outline-primary">
+                    <i class="bi bi-pencil me-1"></i>Edit Event
+                </a>
+                <a href="{% url 'events:admin_event_list' %}" class="btn btn-outline-secondary">
+                    ← Back to Events
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section-padding">
+    <div class="container">
+        <!-- Event Summary -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-3">
+                <div class="admin-stat-card">
+                    <div class="asc-value">{{ event.total_registrations }}</div>
+                    <div class="asc-label">Confirmed</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="admin-stat-card">
+                    <div class="asc-value">{{ event.capacity }}</div>
+                    <div class="asc-label">Capacity</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="admin-stat-card">
+                    <div class="asc-value">{{ event.available_seats }}</div>
+                    <div class="asc-label">Available Seats</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="admin-stat-card">
+                    <div class="asc-value">{{ event.registration_percentage }}%</div>
+                    <div class="asc-label">Occupancy</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="detail-card">
+            <div class="table-responsive">
+                <table class="table admin-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Participant</th>
+                            <th>Email</th>
+                            <th>Ticket</th>
+                            <th>Registered On</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reg in registrations %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="table-avatar">
+                                        {{ reg.user.first_name|first|upper|default:reg.user.username|first|upper }}
+                                    </div>
+                                    {{ reg.user.get_full_name|default:reg.user.username }}
+                                </div>
+                            </td>
+                            <td>{{ reg.user.email }}</td>
+                            <td><code class="ticket-code">{{ reg.ticket_number }}</code></td>
+                            <td>{{ reg.registration_date|date:"M d, Y H:i" }}</td>
+                            <td>
+                                <span class="status-badge status-{{ reg.status }}">
+                                    {{ reg.get_status_display }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">
+                                No registrations yet for this event.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

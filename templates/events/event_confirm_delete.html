@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Event — EventEase{% endblock %}
+
+{% block content %}
+<section class="section-padding">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="detail-card text-center">
+                    <div class="mb-4">
+                        <i class="bi bi-exclamation-triangle-fill text-danger" style="font-size: 4rem;"></i>
+                    </div>
+                    <h3>Delete Event</h3>
+                    <p class="text-muted mb-1">You are about to permanently delete:</p>
+                    <h5 class="mb-4">{{ object.title }}</h5>
+                    <p class="text-danger">
+                        <i class="bi bi-exclamation-circle me-2"></i>
+                        This will also delete all <strong>{{ object.total_registrations }}</strong> registrations.
+                        This action cannot be undone.
+                    </p>
+                    <div class="d-flex gap-3 justify-content-center mt-4">
+                        <a href="{% url 'events:admin_event_list' %}" class="btn btn-outline-secondary btn-lg">
+                            Cancel
+                        </a>
+                        <form method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-lg" id="confirmDeleteBtn">
+                                <i class="bi bi-trash me-2"></i>Yes, Delete Event
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

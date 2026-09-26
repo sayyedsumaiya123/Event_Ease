@@ -1,0 +1,215 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Admin Dashboard — EventEase{% endblock %}
+
+{% block content %}
+<section class="page-header admin-page-header">
+    <div class="container">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div>
+                <h1 class="page-title"><i class="bi bi-speedometer2 me-2"></i>Admin Dashboard</h1>
+                <p class="page-subtitle">Event management overview</p>
+            </div>
+            <a href="{% url 'events:event_create' %}" class="btn btn-primary btn-lg" id="createEventBtn">
+                <i class="bi bi-plus-circle me-2"></i>Create Event
+            </a>
+        </div>
+    </div>
+</section>
+
+<section class="section-padding">
+    <div class="container">
+
+        <!-- Stats Cards -->
+        <div class="row g-4 mb-5">
+            <div class="col-6 col-md-3">
+                <div class="admin-stat-card">
+                    <div class="asc-icon" style="background: #6366f115; color: #6366f1">
+                        <i class="bi bi-calendar3"></i>
+                    </div>
+                    <div class="asc-value">{{ total_events|intcomma }}</div>
+                    <div class="asc-label">Total Events</div>
+                    <a href="{% url 'events:admin_event_list' %}" class="asc-link">Manage →</a>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="admin-stat-card">
+                    <div class="asc-icon" style="background: #10b98115; color: #10b981">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                    <div class="asc-value">{{ total_users|intcomma }}</div>
+                    <div class="asc-label">Total Users</div>
+                    <a href="{% url 'events:admin_user_list' %}" class="asc-link">Manage →</a>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="admin-stat-card">
+                    <div class="asc-icon" style="background: #f59e0b15; color: #f59e0b">
+                        <i class="bi bi-ticket-fill"></i>
+                    </div>
+                    <div class="asc-value">{{ total_registrations|intcomma }}</div>
+                    <div class="asc-label">Registrations</div>
+                    <span class="asc-link text-muted">Confirmed</span>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="admin-stat-card">
+                    <div class="asc-icon" style="background: #ec489915; color: #ec4899">
+                        <i class="bi bi-clock-fill"></i>
+                    </div>
+                    <div class="asc-value">{{ upcoming_events|intcomma }}</div>
+                    <div class="asc-label">Upcoming Events</div>
+                    <span class="asc-link text-muted">Active</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Top Events -->
+            <div class="col-lg-6">
+                <div class="detail-card">
+                    <h5 class="detail-section-title mb-4">
+                        <i class="bi bi-trophy me-2 text-warning"></i>Top Events by Registrations
+                    </h5>
+                    <div class="table-responsive">
+                        <table class="table admin-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Event</th>
+                                    <th>Date</th>
+                                    <th>Registrations</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for event in top_events %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>
+                                        <a href="{% url 'events:event_detail' event.slug %}" class="fw-semibold">
+                                            {{ event.title|truncatechars:30 }}
+                                        </a>
+                                    </td>
+                                    <td>{{ event.date|date:"M d" }}</td>
+                                    <td>
+                                        <span class="badge bg-primary rounded-pill">{{ event.reg_count }}</span>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="4" class="text-center text-muted">No data yet</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Registrations -->
+            <div class="col-lg-6">
+                <div class="detail-card">
+                    <h5 class="detail-section-title mb-4">
+                        <i class="bi bi-clock-history me-2 text-info"></i>Recent Registrations
+                    </h5>
+                    <div class="registration-feed">
+                        {% for reg in recent_registrations %}
+                        <div class="feed-item">
+                            <div class="feed-avatar">
+                                {{ reg.user.first_name|first|upper|default:reg.user.username|first|upper }}
+                            </div>
+                            <div class="feed-info">
+                                <strong>{{ reg.user.get_full_name|default:reg.user.username }}</strong>
+                                <span class="text-muted"> registered for </span>
+                                <a href="{% url 'events:event_detail' reg.event.slug %}">{{ reg.event.title|truncatechars:25 }}</a>
+                            </div>
+                            <small class="text-muted ms-auto">{{ reg.registration_date|date:"M d" }}</small>
+                        </div>
+                        {% empty %}
+                        <div class="text-center text-muted">No registrations yet</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Events -->
+            <div class="col-12">
+                <div class="detail-card">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="detail-section-title mb-0">
+                            <i class="bi bi-calendar-week me-2"></i>Recent Events
+                        </h5>
+                        <a href="{% url 'events:admin_event_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Event</th>
+                                    <th>Category</th>
+                                    <th>Date</th>
+                                    <th>Capacity</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for event in recent_events %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'events:event_detail' event.slug %}" class="fw-semibold">
+                                            {{ event.title|truncatechars:35 }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        {% if event.category %}
+                                        <span class="badge" style="background: {{ event.category.color }}20; color: {{ event.category.color }}">
+                                            {{ event.category.name }}
+                                        </span>
+                                        {% else %}—{% endif %}
+                                    </td>
+                                    <td>{{ event.date|date:"M d, Y" }}</td>
+                                    <td>{{ event.total_registrations }}/{{ event.capacity }}</td>
+                                    <td><span class="status-badge status-{{ event.status }}">{{ event.get_status_display }}</span></td>
+                                    <td>
+                                        <div class="d-flex gap-2">
+                                            <a href="{% url 'events:event_edit' event.slug %}" class="btn btn-xs btn-outline-primary" title="Edit">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <a href="{% url 'events:event_participants' event.slug %}" class="btn btn-xs btn-outline-info" title="Participants">
+                                                <i class="bi bi-people"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categories -->
+            <div class="col-12">
+                <div class="detail-card">
+                    <h5 class="detail-section-title mb-4">
+                        <i class="bi bi-grid me-2"></i>Events by Category
+                    </h5>
+                    <div class="row g-3">
+                        {% for cat in categories %}
+                        <div class="col-6 col-md-3">
+                            <div class="category-stat-card" style="border-color: {{ cat.color }}50">
+                                <div class="cs-icon" style="background: {{ cat.color }}15; color: {{ cat.color }}">
+                                    <i class="bi {{ cat.icon }}"></i>
+                                </div>
+                                <div class="cs-name">{{ cat.name }}</div>
+                                <div class="cs-count">{{ cat.event_count }} event{{ cat.event_count|pluralize }}</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
