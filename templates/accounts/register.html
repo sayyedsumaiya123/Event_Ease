@@ -3,29 +3,25 @@
 {% block title %}Register — EventEase{% endblock %}
 
 {% block content %}
-<section class="auth-section">
+<section class="auth-section-premium">
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-md-6 col-lg-5">
-                <div class="auth-card">
-                    <div class="auth-header">
-                        <div class="auth-icon">
-                            <i class="bi bi-person-plus-fill"></i>
-                        </div>
-                        <h2>Create Account</h2>
-                        <p>Join EventEase and start discovering events</p>
-                    </div>
+            <div class="col-md-8 col-lg-7 col-xl-6">
+                <div class="auth-card-premium">
+                    <h2>Create Account.</h2>
+                    <p>Join EventEase and start discovering amazing experiences.</p>
+                    
                     <form method="POST" id="registerForm">
                         {% csrf_token %}
-                        <div class="row g-3">
-                            <div class="col-6">
+                        <div class="row g-4">
+                            <div class="col-md-6">
                                 <label class="form-label">First Name</label>
                                 {{ form.first_name }}
                                 {% if form.first_name.errors %}
-                                <div class="text-danger small">{{ form.first_name.errors }}</div>
+                                <div class="text-danger small mt-1 fw-medium">{{ form.first_name.errors }}</div>
                                 {% endif %}
                             </div>
-                            <div class="col-6">
+                            <div class="col-md-6">
                                 <label class="form-label">Last Name</label>
                                 {{ form.last_name }}
                             </div>
@@ -33,42 +29,43 @@
                                 <label class="form-label">Username</label>
                                 {{ form.username }}
                                 {% if form.username.errors %}
-                                <div class="text-danger small">{{ form.username.errors }}</div>
+                                <div class="text-danger small mt-1 fw-medium">{{ form.username.errors }}</div>
                                 {% endif %}
                             </div>
                             <div class="col-12">
                                 <label class="form-label">Email Address</label>
                                 {{ form.email }}
                                 {% if form.email.errors %}
-                                <div class="text-danger small">{{ form.email.errors }}</div>
+                                <div class="text-danger small mt-1 fw-medium">{{ form.email.errors }}</div>
                                 {% endif %}
                             </div>
                             <div class="col-12">
                                 <label class="form-label">Phone (optional)</label>
                                 {{ form.phone }}
                             </div>
-                            <div class="col-12">
+                            <div class="col-md-6">
                                 <label class="form-label">Password</label>
                                 {{ form.password1 }}
                                 {% if form.password1.errors %}
-                                <div class="text-danger small">{{ form.password1.errors }}</div>
+                                <div class="text-danger small mt-1 fw-medium">{{ form.password1.errors }}</div>
                                 {% endif %}
                             </div>
-                            <div class="col-12">
+                            <div class="col-md-6">
                                 <label class="form-label">Confirm Password</label>
                                 {{ form.password2 }}
                                 {% if form.password2.errors %}
-                                <div class="text-danger small">{{ form.password2.errors }}</div>
+                                <div class="text-danger small mt-1 fw-medium">{{ form.password2.errors }}</div>
                                 {% endif %}
                             </div>
-                            <div class="col-12">
-                                <button type="submit" class="btn btn-primary w-100 btn-lg" id="registerSubmitBtn">
-                                    <i class="bi bi-person-plus me-2"></i>Create Account
+                            <div class="col-12 mt-5">
+                                <button type="submit" class="btn-brand w-100" id="registerSubmitBtn">
+                                    Create Account
                                 </button>
                             </div>
                         </div>
                     </form>
-                    <div class="auth-footer">
+                    
+                    <div class="auth-footer-premium">
                         Already have an account?
                         <a href="{% url 'accounts:login' %}">Sign In</a>
                     </div>

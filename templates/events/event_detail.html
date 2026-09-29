@@ -4,128 +4,254 @@
 {% block title %}{{ event.title }} — EventEase{% endblock %}
 {% block meta_description %}{{ event.short_description }}{% endblock %}
 
-{% block content %}
-<section class="event-detail-header">
-    <div class="container">
-        <div class="breadcrumb-nav">
-            <a href="{% url 'events:home' %}">Home</a>
-            <i class="bi bi-chevron-right"></i>
-            <a href="{% url 'events:event_list' %}">Events</a>
-            <i class="bi bi-chevron-right"></i>
-            <span>{{ event.title }}</span>
-        </div>
-    </div>
-</section>
+{% block extra_css %}
+<style>
+/* EVENT DETAIL PREMIUM STYLES */
+.breadcrumb-premium {
+    padding: 40px 0;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+}
+.breadcrumb-premium a {
+    color: var(--navy);
+    text-decoration: none;
+}
+.breadcrumb-premium a:hover {
+    color: var(--accent);
+}
+.breadcrumb-premium i {
+    margin: 0 8px;
+    font-size: 0.75rem;
+    color: var(--border-dark);
+}
 
-<section class="section-padding">
+.event-cover-img {
+    width: 100%;
+    height: 500px;
+    object-fit: cover;
+    border-radius: var(--radius-lg);
+    margin-bottom: 40px;
+}
+.event-cover-placeholder {
+    width: 100%;
+    height: 500px;
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 40px;
+    border: 1px solid var(--border);
+}
+
+.detail-headline {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    margin-bottom: 24px;
+    color: var(--text-main);
+}
+
+.detail-tag-group {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+.detail-tag {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--navy);
+}
+
+.meta-grid-premium {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 32px;
+    margin-bottom: 48px;
+    padding-bottom: 48px;
+    border-bottom: 1px solid var(--border);
+}
+.meta-item-premium {
+    display: flex;
+    gap: 16px;
+}
+.meta-item-premium i {
+    font-size: 1.5rem;
+    color: var(--accent);
+}
+.meta-item-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+.meta-item-value {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.about-content {
+    font-size: 1.15rem;
+    line-height: 1.8;
+    color: var(--text-muted);
+    margin-bottom: 48px;
+}
+.about-content h1, .about-content h2, .about-content h3 {
+    color: var(--text-main);
+    margin-top: 32px;
+    margin-bottom: 16px;
+}
+
+.registration-sidebar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 40px;
+    position: sticky;
+    top: 100px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.03);
+}
+.reg-price {
+    font-size: 3rem;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    color: var(--navy);
+    margin-bottom: 8px;
+    line-height: 1;
+}
+.reg-seats {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 32px;
+}
+.reg-seats-bar {
+    height: 6px;
+    background: var(--bg-main);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 12px;
+}
+.reg-seats-fill {
+    height: 100%;
+    background: var(--navy);
+}
+
+.feedback-section-premium {
+    margin-top: 64px;
+    padding-top: 48px;
+    border-top: 1px solid var(--border);
+}
+.feedback-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 32px;
+    border-radius: var(--radius);
+    margin-bottom: 16px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="breadcrumb-premium">
+        <a href="{% url 'events:home' %}">Home</a>
+        <i class="bi bi-chevron-right"></i>
+        <a href="{% url 'events:event_list' %}">Events</a>
+        <i class="bi bi-chevron-right"></i>
+        <span>{{ event.title|truncatechars:30 }}</span>
+    </div>
+</div>
+
+<section class="section-spacing" style="padding-top: 0;">
     <div class="container">
         <div class="row g-5">
             <!-- Main Content -->
             <div class="col-lg-8">
                 <!-- Event Image -->
-                <div class="event-detail-image mb-4">
-                    {% if event.image %}
-                    <img src="{{ event.image.url }}" alt="{{ event.title }}" class="img-fluid rounded-3">
-                    {% else %}
-                    <div class="event-detail-placeholder"
-                         style="background: {% if event.category %}{{ event.category.color }}{% else %}#6366f1{% endif %}15">
-                        <i class="bi {% if event.category %}{{ event.category.icon }}{% else %}bi-calendar-event{% endif %}"
-                           style="color: {% if event.category %}{{ event.category.color }}{% else %}#6366f1{% endif %}"></i>
-                    </div>
+                {% if event.image %}
+                <img src="{{ event.image.url }}" alt="{{ event.title }}" class="event-cover-img">
+                {% else %}
+                <div class="event-cover-placeholder">
+                    <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=1200&auto=format&fit=crop" class="event-cover-img m-0" alt="Fallback Event Image">
+                </div>
+                {% endif %}
+
+                <!-- Event Info -->
+                <div class="detail-tag-group">
+                    {% if event.category %}
+                    <span class="detail-tag">{{ event.category.name }}</span>
+                    {% endif %}
+                    <span class="detail-tag">{{ event.get_status_display }}</span>
+                    {% if event.featured %}
+                    <span class="detail-tag" style="color: var(--accent);"><i class="bi bi-star-fill me-2"></i>Featured</span>
                     {% endif %}
                 </div>
 
-                <!-- Event Info -->
-                <div class="detail-card mb-4">
-                    <div class="d-flex align-items-start gap-3 flex-wrap mb-3">
-                        {% if event.category %}
-                        <span class="event-category-tag"
-                              style="background: {{ event.category.color }}20; color: {{ event.category.color }}">
-                            <i class="bi {{ event.category.icon }} me-1"></i>{{ event.category.name }}
-                        </span>
-                        {% endif %}
-                        <span class="status-badge status-{{ event.status }}">{{ event.get_status_display }}</span>
-                        {% if event.featured %}
-                        <span class="event-featured-badge-inline"><i class="bi bi-star-fill me-1"></i>Featured</span>
-                        {% endif %}
+                <h1 class="detail-headline">{{ event.title }}</h1>
+
+                <div class="meta-grid-premium">
+                    <div class="meta-item-premium">
+                        <i class="bi bi-calendar3"></i>
+                        <div>
+                            <div class="meta-item-label">Date</div>
+                            <div class="meta-item-value">{{ event.date|date:"F j, Y" }}</div>
+                        </div>
                     </div>
-
-                    <h1 class="detail-title">{{ event.title }}</h1>
-
-                    <div class="detail-meta-grid">
-                        <div class="detail-meta-item">
-                            <i class="bi bi-calendar3"></i>
-                            <div>
-                                <div class="meta-label">Date</div>
-                                <div class="meta-value">{{ event.date|date:"l, F j, Y" }}</div>
-                            </div>
-                        </div>
-                        <div class="detail-meta-item">
-                            <i class="bi bi-clock"></i>
-                            <div>
-                                <div class="meta-label">Time</div>
-                                <div class="meta-value">{{ event.time|time:"h:i A" }}
-                                    {% if event.end_time %} — {{ event.end_time|time:"h:i A" }}{% endif %}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="detail-meta-item">
-                            <i class="bi bi-geo-alt"></i>
-                            <div>
-                                <div class="meta-label">Venue</div>
-                                <div class="meta-value">{{ event.venue }}</div>
-                                {% if event.venue_address %}
-                                <small class="text-muted">{{ event.venue_address }}</small>
-                                {% endif %}
-                            </div>
-                        </div>
-                        <div class="detail-meta-item">
-                            <i class="bi bi-people"></i>
-                            <div>
-                                <div class="meta-label">Capacity</div>
-                                <div class="meta-value">{{ event.capacity }} seats</div>
-                            </div>
-                        </div>
-                        <div class="detail-meta-item">
-                            <i class="bi bi-person-check"></i>
-                            <div>
-                                <div class="meta-label">Organizer</div>
-                                <div class="meta-value">{{ event.organizer.get_full_name|default:event.organizer.username }}</div>
-                            </div>
-                        </div>
-                        <div class="detail-meta-item">
-                            <i class="bi bi-tag"></i>
-                            <div>
-                                <div class="meta-label">Price</div>
-                                <div class="meta-value">{% if event.is_free %}<span class="text-success fw-bold">Free</span>{% else %}₹{{ event.price }}{% endif %}</div>
+                    <div class="meta-item-premium">
+                        <i class="bi bi-clock"></i>
+                        <div>
+                            <div class="meta-item-label">Time</div>
+                            <div class="meta-item-value">
+                                {{ event.time|time:"h:i A" }}
+                                {% if event.end_time %} — {{ event.end_time|time:"h:i A" }}{% endif %}
                             </div>
                         </div>
                     </div>
-
-                    <!-- Seat availability bar -->
-                    <div class="seats-progress-bar mt-3">
-                        <div class="d-flex justify-content-between mb-1">
-                            <small>{{ event.total_registrations }} registered</small>
-                            <small>{{ event.available_seats }} seats left</small>
+                    <div class="meta-item-premium">
+                        <i class="bi bi-geo-alt"></i>
+                        <div>
+                            <div class="meta-item-label">Venue</div>
+                            <div class="meta-item-value">{{ event.venue }}</div>
+                            {% if event.venue_address %}
+                            <div class="meta-item-label mt-1" style="text-transform: none; font-weight: 500;">{{ event.venue_address }}</div>
+                            {% endif %}
                         </div>
-                        <div class="progress" style="height: 8px">
-                            <div class="progress-bar {% if event.registration_percentage > 80 %}bg-danger{% elif event.registration_percentage > 50 %}bg-warning{% else %}bg-success{% endif %}"
-                                 role="progressbar"
-                                 style="width: {{ event.registration_percentage }}%">
-                            </div>
+                    </div>
+                    <div class="meta-item-premium">
+                        <i class="bi bi-person-check"></i>
+                        <div>
+                            <div class="meta-item-label">Organizer</div>
+                            <div class="meta-item-value">{{ event.organizer.get_full_name|default:event.organizer.username }}</div>
                         </div>
-                        <small class="text-muted">{{ event.registration_percentage }}% full</small>
                     </div>
                 </div>
 
                 <!-- Description -->
-                <div class="detail-card mb-4">
-                    <h4 class="detail-section-title"><i class="bi bi-file-text me-2"></i>About This Event</h4>
-                    <div class="event-description">{{ event.description|linebreaks }}</div>
+                <div>
+                    <h3 style="font-weight: 800; margin-bottom: 24px;">About This Event</h3>
+                    <div class="about-content">
+                        {{ event.description|linebreaks }}
+                    </div>
+                    
                     {% if event.tags %}
-                    <div class="event-tags mt-3">
+                    <div class="detail-tag-group mt-4">
                         {% for tag in event.tags.split %}
-                        <span class="event-tag">{{ tag|cut:"," }}</span>
+                        <span class="detail-tag" style="background: transparent; color: var(--text-muted); border-color: var(--border-dark);">#{{ tag|cut:"," }}</span>
                         {% endfor %}
                     </div>
                     {% endif %}
@@ -133,24 +259,26 @@
 
                 <!-- Feedback Section -->
                 {% if feedbacks %}
-                <div class="detail-card mb-4">
-                    <h4 class="detail-section-title"><i class="bi bi-chat-quote me-2"></i>Reviews & Feedback</h4>
+                <div class="feedback-section-premium">
+                    <h3 style="font-weight: 800; margin-bottom: 32px;">Reviews & Feedback</h3>
                     {% for fb in feedbacks %}
-                    <div class="feedback-item">
-                        <div class="feedback-header">
-                            <div class="feedback-avatar">{{ fb.user.first_name|first|upper|default:fb.user.username|first|upper }}</div>
-                            <div>
-                                <div class="feedback-username">{{ fb.user.get_full_name|default:fb.user.username }}</div>
-                                <div class="feedback-stars">
-                                    {% for i in "12345" %}
-                                    <i class="bi bi-star{% if forloop.counter <= fb.rating %}-fill text-warning{% endif %}"></i>
-                                    {% endfor %}
-                                </div>
+                    <div class="feedback-card">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; font-weight: 700;">
+                                {{ fb.user.first_name|first|upper|default:fb.user.username|first|upper }}
                             </div>
-                            <small class="ms-auto text-muted">{{ fb.created_at|date:"M d, Y" }}</small>
+                            <div>
+                                <div style="font-weight: 700; color: var(--text-main);">{{ fb.user.get_full_name|default:fb.user.username }}</div>
+                                <div style="font-size: 0.85rem; color: var(--text-muted);">{{ fb.created_at|date:"M d, Y" }}</div>
+                            </div>
+                            <div class="ms-auto" style="color: var(--accent);">
+                                {% for i in "12345" %}
+                                <i class="bi bi-star{% if forloop.counter <= fb.rating %}-fill{% endif %}"></i>
+                                {% endfor %}
+                            </div>
                         </div>
                         {% if fb.comment %}
-                        <p class="feedback-comment">{{ fb.comment }}</p>
+                        <p style="color: var(--text-muted); line-height: 1.6; margin-bottom: 0;">{{ fb.comment }}</p>
                         {% endif %}
                     </div>
                     {% endfor %}
@@ -160,94 +288,112 @@
 
             <!-- Sidebar -->
             <div class="col-lg-4">
-                <div class="sticky-sidebar">
-                    <!-- Registration Card -->
-                    <div class="registration-card mb-4">
-                        {% if user.is_authenticated %}
-                            {% if user_registration %}
-                                {% if user_registration.status == 'confirmed' %}
-                                <div class="reg-success">
-                                    <i class="bi bi-check-circle-fill"></i>
-                                    <h5>You're Registered!</h5>
-                                    <div class="ticket-number">
-                                        <i class="bi bi-ticket-perforated me-2"></i>
-                                        {{ user_registration.ticket_number }}
-                                    </div>
-                                    <form method="post" action="{% url 'events:cancel_registration' event.slug %}" class="mt-3">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-outline-danger btn-sm w-100"
-                                                id="cancelRegistrationBtn"
-                                                onclick="return confirm('Are you sure you want to cancel your registration?')">
-                                            <i class="bi bi-x-circle me-2"></i>Cancel Registration
-                                        </button>
-                                    </form>
+                <div class="registration-sidebar">
+                    {% if user.is_staff or user == event.organizer %}
+                    <div style="background: var(--navy); border-radius: 8px; padding: 24px; margin-bottom: 24px; color: white;">
+                        <h4 style="font-weight: 800; margin-bottom: 8px;">Attendance</h4>
+                        <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-bottom: 16px;">Manage QR check-ins for this event.</p>
+                        <a href="{% url 'events:attendance_dashboard' event.slug %}" class="btn-brand w-100 text-center d-block">Open Dashboard</a>
+                    </div>
+                    {% endif %}
+                    
+                    {% if user.is_authenticated %}
+                        {% if user_registration %}
+                            {% if user_registration.status == 'confirmed' %}
+                            <div class="text-center mb-4">
+                                <i class="bi bi-check-circle-fill" style="font-size: 3rem; color: var(--navy);"></i>
+                                <h3 class="mt-3 mb-2" style="font-weight: 800;">You're Registered!</h3>
+                                <div style="font-size: 1.25rem; font-weight: 700; padding: 12px; border: 2px dashed var(--border); border-radius: 8px; margin-bottom: 24px;">
+                                    <i class="bi bi-ticket-perforated me-2"></i>{{ user_registration.ticket_number }}
                                 </div>
-                                {% elif user_registration.status == 'waitlisted' %}
-                                <div class="reg-waitlist">
-                                    <i class="bi bi-hourglass-split"></i>
-                                    <h5>You're Waitlisted</h5>
-                                    <p>You'll be notified if a spot opens up.</p>
-                                    <div class="ticket-number">{{ user_registration.ticket_number }}</div>
-                                </div>
-                                {% endif %}
-                            {% elif event.status == 'upcoming' %}
-                                {% if event.is_full %}
-                                <div class="reg-full mb-3">
-                                    <i class="bi bi-people-fill text-danger"></i>
-                                    <p class="mb-0">This event is full. You can join the waitlist.</p>
-                                </div>
-                                {% endif %}
-                                <form method="post" action="{% url 'events:event_register' event.slug %}">
+                                <form method="post" action="{% url 'events:cancel_registration' event.slug %}">
                                     {% csrf_token %}
-                                    <button type="submit" class="btn btn-primary btn-lg w-100" id="registerNowBtn">
-                                        <i class="bi bi-ticket-perforated me-2"></i>
-                                        {% if event.is_full %}Join Waitlist{% else %}Register Now{% endif %}
+                                    <button type="submit" class="btn-nav-outline w-100" onclick="return confirm('Are you sure you want to cancel your registration?')">
+                                        Cancel Registration
                                     </button>
                                 </form>
-                                {% if event.is_free %}
-                                <p class="text-center text-success mt-2 mb-0"><i class="bi bi-check-circle me-1"></i>Free Event</p>
-                                {% else %}
-                                <p class="text-center mt-2 mb-0">Price: <strong>₹{{ event.price }}</strong></p>
-                                {% endif %}
-                            {% else %}
-                            <div class="text-center text-muted">
-                                <i class="bi bi-clock-history fs-3 mb-2"></i>
-                                <p>Registration is closed for this event.</p>
+                            </div>
+                            {% elif user_registration.status == 'waitlisted' %}
+                            <div class="text-center mb-4">
+                                <i class="bi bi-hourglass-split" style="font-size: 3rem; color: var(--accent);"></i>
+                                <h3 class="mt-3 mb-2" style="font-weight: 800;">Waitlisted</h3>
+                                <p style="color: var(--text-muted);">You'll be notified if a spot opens up.</p>
+                                <div style="font-weight: 700;">Ticket: {{ user_registration.ticket_number }}</div>
+                            </div>
+                            {% elif user_registration.status == 'cancelled' %}
+                            <div class="text-center text-muted mb-4">
+                                <i class="bi bi-x-circle mb-3 d-block" style="font-size: 3rem;"></i>
+                                <h4 style="font-weight: 800;">Registration Cancelled</h4>
+                                <p>You previously cancelled your registration.</p>
                             </div>
                             {% endif %}
+                        {% elif event.status == 'upcoming' %}
+                            
+                            <div class="reg-price">{% if event.is_free %}Free{% else %}₹{{ event.price }}{% endif %}</div>
+                            
+                            <div class="reg-seats">
+                                {{ event.total_registrations }} / {{ event.capacity }} spots claimed
+                                <div class="reg-seats-bar">
+                                    <div class="reg-seats-fill" style="width: {{ event.registration_percentage }}%; {% if event.registration_percentage > 80 %}background: var(--accent);{% endif %}"></div>
+                                </div>
+                            </div>
+
+                            {% if event.is_full %}
+                            <div class="p-3 mb-4 text-center" style="background: rgba(232,93,63,0.1); border-radius: 8px; color: var(--accent); font-weight: 700;">
+                                <i class="bi bi-people-fill me-2"></i>Event is currently full.
+                            </div>
+                            {% endif %}
+
+                            <form method="post" action="{% url 'events:event_register' event.slug %}">
+                                {% csrf_token %}
+                                
+                                <div class="mb-3 text-start">
+                                    <label class="form-label" style="font-weight: 600; font-size: 0.9rem; color: var(--navy);">Branch</label>
+                                    <input type="text" name="branch" class="form-control" placeholder="e.g. Computer Science" required style="border-radius: 8px; padding: 12px; border: 1px solid var(--border);">
+                                </div>
+                                <div class="mb-3 text-start">
+                                    <label class="form-label" style="font-weight: 600; font-size: 0.9rem; color: var(--navy);">Class/Year</label>
+                                    <input type="text" name="student_class" class="form-control" placeholder="e.g. 3rd Year" required style="border-radius: 8px; padding: 12px; border: 1px solid var(--border);">
+                                </div>
+                                <div class="mb-4 text-start">
+                                    <label class="form-label" style="font-weight: 600; font-size: 0.9rem; color: var(--navy);">Roll Number</label>
+                                    <input type="text" name="roll_number" class="form-control" placeholder="e.g. 21CS01" required style="border-radius: 8px; padding: 12px; border: 1px solid var(--border);">
+                                </div>
+
+                                <button type="submit" class="btn-brand w-100" style="padding: 16px 0 !important; font-size: 1.1rem !important;">
+                                    {% if event.is_full %}Join Waitlist{% else %}Complete Registration{% endif %}
+                                </button>
+                            </form>
                         {% else %}
-                        <div class="reg-login">
-                            <i class="bi bi-person-lock fs-3 mb-2"></i>
-                            <p>Please login to register for this event</p>
-                            <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn btn-primary w-100" id="loginToRegisterBtn">
-                                <i class="bi bi-box-arrow-in-right me-2"></i>Login to Register
-                            </a>
-                            <a href="{% url 'accounts:register' %}" class="btn btn-outline-primary w-100 mt-2" id="registerAccountBtn">
-                                <i class="bi bi-person-plus me-2"></i>Create Account
-                            </a>
+                        <div class="text-center text-muted">
+                            <i class="bi bi-clock-history mb-3" style="font-size: 3rem;"></i>
+                            <h4 style="font-weight: 800;">Registration Closed</h4>
+                            <p>Registration is no longer available for this event.</p>
                         </div>
                         {% endif %}
-                    </div>
-
-                    <!-- Event Quick Info -->
-                    <div class="detail-card">
-                        <h6 class="detail-section-title"><i class="bi bi-info-circle me-2"></i>Event Details</h6>
-                        <ul class="quick-info-list">
-                            <li><i class="bi bi-calendar-check"></i><span>{{ event.date|date:"M d, Y" }}</span></li>
-                            <li><i class="bi bi-clock"></i><span>{{ event.time|time:"h:i A" }}</span></li>
-                            <li><i class="bi bi-geo-alt"></i><span>{{ event.venue }}</span></li>
-                            <li><i class="bi bi-people"></i><span>{{ event.total_registrations }}/{{ event.capacity }} registered</span></li>
-                            <li><i class="bi bi-tag"></i><span>{% if event.is_free %}Free{% else %}₹{{ event.price }}{% endif %}</span></li>
-                        </ul>
-                    </div>
+                    {% else %}
+                        <div class="reg-price">{% if event.is_free %}Free{% else %}₹{{ event.price }}{% endif %}</div>
+                        
+                        <div class="p-4 mb-4 text-center" style="background: var(--bg-main); border-radius: 8px; border: 1px solid var(--border);">
+                            <h5 style="font-weight: 800; margin-bottom: 8px;">Login Required</h5>
+                            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0;">You must have an account to reserve a spot.</p>
+                        </div>
+                        
+                        <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn-navy w-100 text-center mb-3 d-block">
+                            Sign In to Register
+                        </a>
+                        <a href="{% url 'accounts:register' %}" class="btn-nav-outline w-100 text-center d-block">
+                            Create Free Account
+                        </a>
+                    {% endif %}
                 </div>
             </div>
         </div>
 
         <!-- Related Events -->
         {% if related_events %}
-        <div class="mt-5">
-            <h3 class="section-title mb-4">Related Events</h3>
+        <div class="mt-5 pt-5 border-top" style="border-color: var(--border) !important;">
+            <h3 class="mb-4" style="font-size: 2.5rem; font-weight: 800; letter-spacing: -0.03em;">Similar Events</h3>
             <div class="row g-4">
                 {% for ev in related_events %}
                 <div class="col-md-4">

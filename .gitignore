@@ -70,3 +70,9 @@ staticfiles/
 # OS
 .DS_Store
 Thumbs.db
+
+# Large files
+grafana.zip
+grafana_bin/
+prometheus.zip
+prometheus_bin/

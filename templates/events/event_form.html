@@ -3,139 +3,143 @@
 {% block title %}{{ form_title }} — EventEase Admin{% endblock %}
 
 {% block content %}
-<section class="page-header admin-page-header">
+<section class="list-header" style="padding: 60px 0; margin-bottom: 40px;">
     <div class="container">
-        <div class="breadcrumb-nav mb-2">
-            <a href="{% url 'events:admin_dashboard' %}">Dashboard</a>
-            <i class="bi bi-chevron-right"></i>
-            <a href="{% url 'events:admin_event_list' %}">Events</a>
-            <i class="bi bi-chevron-right"></i>
-            <span>{{ form_title }}</span>
+        <div style="font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: rgba(255,255,255,0.6); margin-bottom: 16px;">
+            <a href="{% url 'events:admin_dashboard' %}" style="color: rgba(255,255,255,0.9); text-decoration: none;">Dashboard</a>
+            <i class="bi bi-chevron-right mx-2"></i>
+            <a href="{% url 'events:admin_event_list' %}" style="color: rgba(255,255,255,0.9); text-decoration: none;">Events</a>
+            <i class="bi bi-chevron-right mx-2"></i>
+            <span style="color: var(--accent);">{{ form_title }}</span>
         </div>
-        <h1 class="page-title"><i class="bi bi-calendar-plus me-2"></i>{{ form_title }}</h1>
+        <h1 class="list-title"><i class="bi bi-calendar-plus me-2"></i>{{ form_title }}</h1>
     </div>
 </section>
 
-<section class="section-padding">
+<section class="section-spacing" style="padding-top: 0;">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-9">
-                <div class="detail-card">
+                <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 48px;">
                     <form method="POST" enctype="multipart/form-data" id="eventForm">
                         {% csrf_token %}
 
                         <!-- Basic Info -->
-                        <h5 class="form-section-title"><i class="bi bi-info-circle me-2"></i>Basic Information</h5>
-                        <div class="row g-3 mb-4">
+                        <h5 style="font-weight: 800; color: var(--navy); margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid var(--border);"><i class="bi bi-info-circle me-2"></i>Basic Information</h5>
+                        <div class="row g-4 mb-5">
                             <div class="col-12">
-                                <label class="form-label fw-semibold">Event Title *</label>
+                                <label class="form-label" style="font-weight: 700; color: var(--navy); font-size: 0.9rem;">Event Title *</label>
                                 {{ form.title }}
                                 {% if form.title.errors %}
-                                <div class="text-danger small">{{ form.title.errors }}</div>
+                                <div class="text-danger small mt-1" style="font-weight: 600;">{{ form.title.errors }}</div>
                                 {% endif %}
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold">Category</label>
-                                {{ form.category }}
+                                <label class="form-label" style="font-weight: 700; color: var(--navy); font-size: 0.9rem;">Organizer *</label>
+                                {{ form.organizer }}
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold">Status</label>
+                                <label class="form-label" style="font-weight: 700; color: var(--navy); font-size: 0.9rem;">Category</label>
+                                {{ form.category }}
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label" style="font-weight: 700; color: var(--navy); font-size: 0.9rem;">Status</label>
                                 {{ form.status }}
                             </div>
                             <div class="col-12">
-                                <label class="form-label fw-semibold">Short Description</label>
+                                <label class="form-label" style="font-weight: 700; color: var(--navy); font-size: 0.9rem;">Short Description</label>
                                 {{ form.short_description }}
-                                <small class="text-muted">Shown on event cards (auto-generated if empty)</small>
+                                <small style="color: var(--text-muted); font-weight: 500; margin-top: 4px; display: block;">Shown on event cards (auto-generated if empty)</small>
                             </div>
                             <div class="col-12">
-                                <label class="form-label fw-semibold">Full Description *</label>
+                                <label class="form-label" style="font-weight: 700; color: var(--navy); font-size: 0.9rem;">Full Description *</label>
                                 {{ form.description }}
                             </div>
                             <div class="col-12">
-                                <label class="form-label fw-semibold">Tags</label>
+                                <label class="form-label" style="font-weight: 700; color: var(--navy); font-size: 0.9rem;">Tags</label>
                                 {{ form.tags }}
                             </div>
                         </div>
 
                         <!-- Date & Time -->
-                        <h5 class="form-section-title"><i class="bi bi-calendar3 me-2"></i>Date & Time</h5>
-                        <div class="row g-3 mb-4">
+                        <h5 style="font-weight: 800; color: var(--navy); margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid var(--border);"><i class="bi bi-calendar3 me-2"></i>Date & Time</h5>
+                        <div class="row g-4 mb-5">
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold">Start Date *</label>
+                                <label class="form-label" style="font-weight: 700; color: var(--navy); font-size: 0.9rem;">Start Date *</label>
                                 {{ form.date }}
                                 {% if form.date.errors %}
-                                <div class="text-danger small">{{ form.date.errors }}</div>
+                                <div class="text-danger small mt-1" style="font-weight: 600;">{{ form.date.errors }}</div>
                                 {% endif %}
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold">Start Time *</label>
+                                <label class="form-label" style="font-weight: 700; color: var(--navy); font-size: 0.9rem;">Start Time *</label>
                                 {{ form.time }}
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold">End Date</label>
+                                <label class="form-label" style="font-weight: 700; color: var(--navy); font-size: 0.9rem;">End Date</label>
                                 {{ form.end_date }}
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold">End Time</label>
+                                <label class="form-label" style="font-weight: 700; color: var(--navy); font-size: 0.9rem;">End Time</label>
                                 {{ form.end_time }}
                             </div>
                         </div>
 
                         <!-- Venue -->
-                        <h5 class="form-section-title"><i class="bi bi-geo-alt me-2"></i>Venue</h5>
-                        <div class="row g-3 mb-4">
+                        <h5 style="font-weight: 800; color: var(--navy); margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid var(--border);"><i class="bi bi-geo-alt me-2"></i>Venue</h5>
+                        <div class="row g-4 mb-5">
                             <div class="col-12">
-                                <label class="form-label fw-semibold">Venue Name *</label>
+                                <label class="form-label" style="font-weight: 700; color: var(--navy); font-size: 0.9rem;">Venue Name *</label>
                                 {{ form.venue }}
                             </div>
                             <div class="col-12">
-                                <label class="form-label fw-semibold">Venue Address</label>
+                                <label class="form-label" style="font-weight: 700; color: var(--navy); font-size: 0.9rem;">Venue Address</label>
                                 {{ form.venue_address }}
                             </div>
                         </div>
 
                         <!-- Capacity & Pricing -->
-                        <h5 class="form-section-title"><i class="bi bi-ticket me-2"></i>Capacity & Pricing</h5>
-                        <div class="row g-3 mb-4">
+                        <h5 style="font-weight: 800; color: var(--navy); margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid var(--border);"><i class="bi bi-ticket me-2"></i>Capacity & Pricing</h5>
+                        <div class="row g-4 mb-5">
                             <div class="col-md-4">
-                                <label class="form-label fw-semibold">Capacity *</label>
+                                <label class="form-label" style="font-weight: 700; color: var(--navy); font-size: 0.9rem;">Capacity *</label>
                                 {{ form.capacity }}
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label fw-semibold">Is Free?</label>
+                                <label class="form-label" style="font-weight: 700; color: var(--navy); font-size: 0.9rem;">Is Free?</label>
                                 <div class="form-check mt-2">
                                     {{ form.is_free }}
-                                    <label class="form-check-label">Yes, this event is free</label>
+                                    <label class="form-check-label" style="font-weight: 600; color: var(--text-main);">Yes, this event is free</label>
                                 </div>
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label fw-semibold">Price (₹)</label>
+                                <label class="form-label" style="font-weight: 700; color: var(--navy); font-size: 0.9rem;">Price (₹)</label>
                                 {{ form.price }}
                             </div>
                         </div>
 
                         <!-- Image & Options -->
-                        <h5 class="form-section-title"><i class="bi bi-image me-2"></i>Media & Options</h5>
-                        <div class="row g-3 mb-4">
+                        <h5 style="font-weight: 800; color: var(--navy); margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid var(--border);"><i class="bi bi-image me-2"></i>Media & Options</h5>
+                        <div class="row g-4 mb-5">
                             <div class="col-md-8">
-                                <label class="form-label fw-semibold">Event Image</label>
+                                <label class="form-label" style="font-weight: 700; color: var(--navy); font-size: 0.9rem;">Event Image</label>
                                 {{ form.image }}
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label fw-semibold">Featured Event?</label>
+                                <label class="form-label" style="font-weight: 700; color: var(--navy); font-size: 0.9rem;">Featured Event?</label>
                                 <div class="form-check mt-2">
                                     {{ form.featured }}
-                                    <label class="form-check-label">Show in featured section</label>
+                                    <label class="form-check-label" style="font-weight: 600; color: var(--text-main);">Show in featured section</label>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Submit -->
-                        <div class="d-flex gap-3 justify-content-end">
-                            <a href="{% url 'events:admin_event_list' %}" class="btn btn-outline-secondary">
+                        <div class="d-flex gap-3 justify-content-end" style="border-top: 1px solid var(--border); padding-top: 32px;">
+                            <a href="{% url 'events:admin_event_list' %}" class="btn-nav-outline" style="padding: 12px 24px;">
                                 Cancel
                             </a>
-                            <button type="submit" class="btn btn-primary btn-lg" id="submitEventBtn">
+                            <button type="submit" class="btn-brand" style="padding: 12px 32px;" id="submitEventBtn">
                                 <i class="bi bi-check-circle me-2"></i>{{ btn_label }}
                             </button>
                         </div>

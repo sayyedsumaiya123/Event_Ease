@@ -3,92 +3,111 @@
 {% block title %}Participants — {{ event.title }}{% endblock %}
 
 {% block content %}
-<section class="page-header admin-page-header">
+<section class="list-header" style="padding: 60px 0; margin-bottom: 40px;">
     <div class="container">
         <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
             <div>
-                <h1 class="page-title"><i class="bi bi-people me-2"></i>Participants</h1>
-                <p class="page-subtitle">{{ event.title }}</p>
+                <a href="{% url 'events:admin_event_list' %}" style="color: rgba(255,255,255,0.7); text-decoration: none; font-weight: 600; display: inline-block; margin-bottom: 16px;">
+                    <i class="bi bi-arrow-left me-2"></i>Back to Events
+                </a>
+                <h1 class="list-title"><i class="bi bi-people me-2"></i>Participants</h1>
+                <p class="list-subtitle">{{ event.title }}</p>
             </div>
             <div class="d-flex gap-2">
-                <a href="{% url 'events:event_edit' event.slug %}" class="btn btn-outline-primary">
+                <a href="{% url 'events:event_edit' event.slug %}" class="btn-nav-outline" style="background: rgba(255,255,255,0.1); color: white; border-color: rgba(255,255,255,0.2);">
                     <i class="bi bi-pencil me-1"></i>Edit Event
-                </a>
-                <a href="{% url 'events:admin_event_list' %}" class="btn btn-outline-secondary">
-                    ← Back to Events
                 </a>
             </div>
         </div>
     </div>
 </section>
 
-<section class="section-padding">
+<section class="section-spacing" style="padding-top: 0;">
     <div class="container">
         <!-- Event Summary -->
-        <div class="row g-4 mb-4">
+        <div class="row g-4 mb-5">
             <div class="col-md-3">
-                <div class="admin-stat-card">
-                    <div class="asc-value">{{ event.total_registrations }}</div>
-                    <div class="asc-label">Confirmed</div>
+                <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; text-align: center;">
+                    <div style="font-size: 2.5rem; font-weight: 800; color: var(--navy); line-height: 1; margin-bottom: 8px;">{{ event.total_registrations }}</div>
+                    <div style="font-size: 0.9rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Confirmed</div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="admin-stat-card">
-                    <div class="asc-value">{{ event.capacity }}</div>
-                    <div class="asc-label">Capacity</div>
+                <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; text-align: center;">
+                    <div style="font-size: 2.5rem; font-weight: 800; color: var(--navy); line-height: 1; margin-bottom: 8px;">{{ event.capacity }}</div>
+                    <div style="font-size: 0.9rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Capacity</div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="admin-stat-card">
-                    <div class="asc-value">{{ event.available_seats }}</div>
-                    <div class="asc-label">Available Seats</div>
+                <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; text-align: center;">
+                    <div style="font-size: 2.5rem; font-weight: 800; color: var(--navy); line-height: 1; margin-bottom: 8px;">{{ event.available_seats }}</div>
+                    <div style="font-size: 0.9rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Available Seats</div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="admin-stat-card">
-                    <div class="asc-value">{{ event.registration_percentage }}%</div>
-                    <div class="asc-label">Occupancy</div>
+                <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; text-align: center;">
+                    <div style="font-size: 2.5rem; font-weight: 800; color: {% if event.registration_percentage >= 100 %}var(--error){% else %}var(--navy){% endif %}; line-height: 1; margin-bottom: 8px;">{{ event.registration_percentage }}%</div>
+                    <div style="font-size: 0.9rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Occupancy</div>
                 </div>
             </div>
         </div>
 
-        <div class="detail-card">
+        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden;">
             <div class="table-responsive">
-                <table class="table admin-table">
-                    <thead>
+                <table class="table mb-0">
+                    <thead style="background: var(--bg-main);">
                         <tr>
-                            <th>#</th>
-                            <th>Participant</th>
-                            <th>Email</th>
-                            <th>Ticket</th>
-                            <th>Registered On</th>
-                            <th>Status</th>
+                            <th style="padding: 16px 24px; font-weight: 700; color: var(--text-muted); border-bottom: 1px solid var(--border);">#</th>
+                            <th style="padding: 16px 24px; font-weight: 700; color: var(--text-muted); border-bottom: 1px solid var(--border);">Participant</th>
+                            <th style="padding: 16px 24px; font-weight: 700; color: var(--text-muted); border-bottom: 1px solid var(--border);">Details</th>
+                            <th style="padding: 16px 24px; font-weight: 700; color: var(--text-muted); border-bottom: 1px solid var(--border);">Ticket</th>
+                            <th style="padding: 16px 24px; font-weight: 700; color: var(--text-muted); border-bottom: 1px solid var(--border);">Registered On</th>
+                            <th style="padding: 16px 24px; font-weight: 700; color: var(--text-muted); border-bottom: 1px solid var(--border);">Status</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for reg in registrations %}
                         <tr>
-                            <td>{{ forloop.counter }}</td>
-                            <td>
-                                <div class="d-flex align-items-center gap-2">
-                                    <div class="table-avatar">
+                            <td style="padding: 16px 24px; vertical-align: middle; color: var(--text-muted); font-weight: 700;">{{ forloop.counter }}</td>
+                            <td style="padding: 16px 24px; vertical-align: middle;">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div style="width: 40px; height: 40px; background: var(--bg-main); color: var(--navy); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;">
                                         {{ reg.user.first_name|first|upper|default:reg.user.username|first|upper }}
                                     </div>
-                                    {{ reg.user.get_full_name|default:reg.user.username }}
+                                    <div>
+                                        <div style="font-weight: 700; color: var(--navy);">{{ reg.user.get_full_name|default:reg.user.username }}</div>
+                                        <div style="font-size: 0.85rem; color: var(--text-muted);">{{ reg.user.email }}</div>
+                                    </div>
                                 </div>
                             </td>
-                            <td>{{ reg.user.email }}</td>
-                            <td><code class="ticket-code">{{ reg.ticket_number }}</code></td>
-                            <td>{{ reg.registration_date|date:"M d, Y H:i" }}</td>
-                            <td>
-                                <span class="status-badge status-{{ reg.status }}">
+                            <td style="padding: 16px 24px; vertical-align: middle;">
+                                {% if reg.branch or reg.student_class or reg.roll_number %}
+                                <div style="font-size: 0.85rem; color: var(--text-muted);">
+                                    {% if reg.branch %}<strong>Branch:</strong> {{ reg.branch }}<br>{% endif %}
+                                    {% if reg.student_class %}<strong>Class:</strong> {{ reg.student_class }}<br>{% endif %}
+                                    {% if reg.roll_number %}<strong>Roll No:</strong> {{ reg.roll_number }}{% endif %}
+                                </div>
+                                {% else %}
+                                <span style="color: var(--text-muted);">—</span>
+                                {% endif %}
+                            </td>
+                            <td style="padding: 16px 24px; vertical-align: middle;">
+                                <code style="background: rgba(16, 24, 39, 0.05); color: var(--navy); padding: 4px 8px; border-radius: 4px; font-weight: 700;">{{ reg.ticket_number }}</code>
+                            </td>
+                            <td style="padding: 16px 24px; vertical-align: middle; color: var(--text-muted);">{{ reg.registration_date|date:"M d, Y H:i" }}</td>
+                            <td style="padding: 16px 24px; vertical-align: middle;">
+                                <span style="font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; padding: 4px 8px; border-radius: 4px;
+                                    {% if reg.status == 'confirmed' %}background: rgba(22,128,92,0.1); color: var(--success);
+                                    {% elif reg.status == 'waitlisted' %}background: rgba(249,115,22,0.1); color: var(--accent);
+                                    {% elif reg.status == 'cancelled' %}background: rgba(214,69,69,0.1); color: var(--error);
+                                    {% else %}background: var(--bg-main); color: var(--text-muted);{% endif %}">
                                     {{ reg.get_status_display }}
                                 </span>
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="6" class="text-center py-4 text-muted">
+                            <td colspan="6" class="text-center text-muted" style="padding: 48px;">
                                 No registrations yet for this event.
                             </td>
                         </tr>

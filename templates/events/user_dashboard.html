@@ -3,114 +3,88 @@
 {% block title %}My Dashboard — EventEase{% endblock %}
 
 {% block content %}
-<section class="page-header">
+<section class="list-header" style="padding: 60px 0; margin-bottom: 40px;">
     <div class="container">
-        <h1 class="page-title"><i class="bi bi-grid me-2"></i>My Dashboard</h1>
-        <p class="page-subtitle">Welcome back, {{ user.first_name|default:user.username }}!</p>
+        <h1 class="list-title">My Dashboard</h1>
+        <p class="list-subtitle">Welcome back, {{ user.first_name|default:user.username }}</p>
     </div>
 </section>
 
-<section class="section-padding">
+<section class="section-spacing" style="padding-top: 0;">
     <div class="container">
-
-        <!-- Stats Row -->
-        <div class="row g-4 mb-5">
-            <div class="col-6 col-md-3">
-                <div class="dashboard-stat-card">
-                    <div class="dsc-icon confirmed"><i class="bi bi-calendar-check-fill"></i></div>
-                    <div class="dsc-value">{{ confirmed_count }}</div>
-                    <div class="dsc-label">Confirmed</div>
-                </div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="dashboard-stat-card">
-                    <div class="dsc-icon upcoming"><i class="bi bi-calendar-event-fill"></i></div>
-                    <div class="dsc-value">{{ upcoming_events }}</div>
-                    <div class="dsc-label">Upcoming</div>
-                </div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="dashboard-stat-card">
-                    <div class="dsc-icon past"><i class="bi bi-calendar2-check-fill"></i></div>
-                    <div class="dsc-value">{{ past_events }}</div>
-                    <div class="dsc-label">Attended</div>
-                </div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="dashboard-stat-card">
-                    <div class="dsc-icon cancelled"><i class="bi bi-calendar-x-fill"></i></div>
-                    <div class="dsc-value">{{ cancelled_count }}</div>
-                    <div class="dsc-label">Cancelled</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Profile Card + Registrations -->
-        <div class="row g-4">
-            <div class="col-lg-3">
-                <div class="profile-sidebar-card">
-                    <div class="profile-avatar-lg">
+        <div class="row g-5">
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 40px; position: sticky; top: 100px;">
+                    <div style="width: 64px; height: 64px; background: var(--navy); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 700; margin-bottom: 24px;">
                         {{ user.first_name|first|upper|default:user.username|first|upper }}
                     </div>
-                    <h5>{{ user.get_full_name|default:user.username }}</h5>
-                    <p class="text-muted mb-1">{{ user.email }}</p>
-                    {% if user.profile.phone %}
-                    <p class="text-muted mb-2"><i class="bi bi-telephone me-1"></i>{{ user.profile.phone }}</p>
-                    {% endif %}
-                    {% if user.profile.organization %}
-                    <p class="text-muted mb-3"><i class="bi bi-building me-1"></i>{{ user.profile.organization }}</p>
-                    {% endif %}
-                    <a href="{% url 'accounts:profile_edit' %}" class="btn btn-outline-primary btn-sm w-100" id="editProfileBtn">
-                        <i class="bi bi-pencil me-1"></i>Edit Profile
-                    </a>
+                    <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 8px;">{{ user.get_full_name|default:user.username }}</h2>
+                    <p style="color: var(--text-muted); margin-bottom: 24px;">{{ user.email }}</p>
+                    
+                    <a href="{% url 'accounts:profile_edit' %}" class="btn-nav-outline w-100 text-center mb-5 d-block">Edit Profile</a>
+
+                    <div style="border-top: 1px solid var(--border); padding-top: 24px;">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span style="color: var(--text-muted); font-weight: 600;">Confirmed</span>
+                            <span style="font-weight: 800; font-size: 1.25rem;">{{ confirmed_count }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span style="color: var(--text-muted); font-weight: 600;">Upcoming</span>
+                            <span style="font-weight: 800; font-size: 1.25rem;">{{ upcoming_events }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span style="color: var(--text-muted); font-weight: 600;">Attended</span>
+                            <span style="font-weight: 800; font-size: 1.25rem;">{{ past_events }}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="col-lg-9">
-                <div class="detail-card">
-                    <h5 class="detail-section-title mb-4">
-                        <i class="bi bi-ticket-perforated me-2"></i>My Registrations
-                    </h5>
+            <!-- Main Content -->
+            <div class="col-lg-8">
+                <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 32px; letter-spacing: -0.02em;">My Registrations</h2>
+                
+                {% if registrations %}
+                <div class="d-flex flex-column gap-3">
+                    {% for reg in registrations %}
+                    <div class="d-flex align-items-center gap-4 p-4" style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); {% if reg.status == 'cancelled' %}opacity: 0.6;{% endif %}">
+                        
+                        <div class="text-center p-3" style="background: var(--bg-main); border: 1px solid var(--border); border-radius: 8px; min-width: 80px;">
+                            <div style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted);">{{ reg.event.date|date:"M" }}</div>
+                            <div style="font-size: 1.5rem; font-weight: 800; color: var(--navy); line-height: 1;">{{ reg.event.date|date:"d" }}</div>
+                        </div>
 
-                    {% if registrations %}
-                    <div class="registration-list">
-                        {% for reg in registrations %}
-                        <div class="reg-row {% if reg.status == 'cancelled' %}reg-cancelled{% endif %}">
-                            <div class="reg-event-info">
-                                <div class="reg-event-icon"
-                                     style="background: {% if reg.event.category %}{{ reg.event.category.color }}{% else %}#6366f1{% endif %}20;
-                                            color: {% if reg.event.category %}{{ reg.event.category.color }}{% else %}#6366f1{% endif %}">
-                                    <i class="bi {% if reg.event.category %}{{ reg.event.category.icon }}{% else %}bi-calendar-event{% endif %}"></i>
-                                </div>
-                                <div>
-                                    <h6 class="reg-event-title">
-                                        <a href="{% url 'events:event_detail' reg.event.slug %}">{{ reg.event.title }}</a>
-                                    </h6>
-                                    <div class="reg-meta">
-                                        <span><i class="bi bi-calendar3 me-1"></i>{{ reg.event.date|date:"M d, Y" }}</span>
-                                        <span><i class="bi bi-geo-alt me-1"></i>{{ reg.event.venue }}</span>
-                                        <span><i class="bi bi-ticket me-1"></i>{{ reg.ticket_number }}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="reg-status">
-                                <span class="status-badge status-{{ reg.status }}">
-                                    {{ reg.get_status_display }}
-                                </span>
-                                <small class="text-muted d-block mt-1">{{ reg.registration_date|date:"M d" }}</small>
+                        <div class="flex-grow-1">
+                            <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 4px;">
+                                <a href="{% url 'events:event_detail' reg.event.slug %}" style="color: var(--text-main); text-decoration: none;">{{ reg.event.title }}</a>
+                            </h3>
+                            <div style="color: var(--text-muted); font-size: 0.9rem;">
+                                <span><i class="bi bi-geo-alt me-1"></i>{{ reg.event.venue }}</span>
+                                <span class="mx-2">&bull;</span>
+                                <span><i class="bi bi-ticket-perforated me-1"></i>{{ reg.ticket_number }}</span>
                             </div>
                         </div>
-                        {% endfor %}
+
+                        <div>
+                            <span style="padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; 
+                                {% if reg.status == 'confirmed' %}background: rgba(22, 128, 92, 0.1); color: var(--success);
+                                {% elif reg.status == 'cancelled' %}background: rgba(214, 69, 69, 0.1); color: var(--error);
+                                {% else %}background: var(--bg-main); color: var(--text-muted);{% endif %}">
+                                {{ reg.get_status_display }}
+                            </span>
+                        </div>
                     </div>
-                    {% else %}
-                    <div class="empty-state">
-                        <i class="bi bi-calendar-plus"></i>
-                        <h5>No registrations yet</h5>
-                        <p>Discover and register for upcoming events!</p>
-                        <a href="{% url 'events:event_list' %}" class="btn btn-primary" id="browseEventsBtn">Browse Events</a>
-                    </div>
-                    {% endif %}
+                    {% endfor %}
                 </div>
+                {% else %}
+                <div class="text-center p-5" style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);">
+                    <i class="bi bi-calendar-star mb-3 d-block" style="font-size: 3rem; color: var(--border-dark);"></i>
+                    <h4 style="font-weight: 800; margin-bottom: 16px;">No registrations yet</h4>
+                    <p style="color: var(--text-muted); margin-bottom: 24px;">Discover events and reserve your spot.</p>
+                    <a href="{% url 'events:event_list' %}" class="btn-brand">Browse Events</a>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>

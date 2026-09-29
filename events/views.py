@@ -8,7 +8,7 @@ from django.urls import reverse_lazy
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-from .models import Event, Category, Registration, EventFeedback
+from .models import Event, Category, Registration, EventFeedback, AttendanceSession, AttendanceRecord
 from .forms import EventForm, EventSearchForm, FeedbackForm
 
 
@@ -122,8 +122,15 @@ class EventRegisterView(LoginRequiredMixin, View):
         # Check if event is full
         if event.is_full:
             # Add to waitlist
-            Registration.objects.create(user=request.user, event=event, status='waitlisted')
-            messages.info(request, f'Event is full. You have been added to the waitlist. Ticket: {Registration.objects.get(user=request.user, event=event).ticket_number}')
+            reg = Registration.objects.create(
+                user=request.user, 
+                event=event, 
+                status='waitlisted',
+                branch=request.POST.get('branch', ''),
+                student_class=request.POST.get('student_class', ''),
+                roll_number=request.POST.get('roll_number', '')
+            )
+            messages.info(request, f'Event is full. You have been added to the waitlist. Ticket: {reg.ticket_number}')
             return redirect('events:event_detail', slug=slug)
 
         # Check if event is upcoming
@@ -132,7 +139,14 @@ class EventRegisterView(LoginRequiredMixin, View):
             return redirect('events:event_detail', slug=slug)
 
         # Register
-        reg = Registration.objects.create(user=request.user, event=event, status='confirmed')
+        reg = Registration.objects.create(
+            user=request.user, 
+            event=event, 
+            status='confirmed',
+            branch=request.POST.get('branch', ''),
+            student_class=request.POST.get('student_class', ''),
+            roll_number=request.POST.get('roll_number', '')
+        )
         messages.success(
             request,
             f'🎉 Successfully registered for "{event.title}"! Your ticket number is: {reg.ticket_number}'
@@ -224,8 +238,12 @@ class EventCreateView(LoginRequiredMixin, StaffRequiredMixin, CreateView):
     template_name = 'events/event_form.html'
     success_url = reverse_lazy('events:admin_event_list')
 
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['organizer'] = self.request.user
+        return initial
+
     def form_valid(self, form):
-        form.instance.organizer = self.request.user
         messages.success(self.request, 'Event created successfully!')
         return super().form_valid(form)
 
@@ -308,6 +326,25 @@ class ToggleUserStatusView(LoginRequiredMixin, StaffRequiredMixin, View):
         return redirect('events:admin_user_list')
 
 
+class ToggleOrganizerStatusView(LoginRequiredMixin, StaffRequiredMixin, View):
+    """Toggle user organizer (staff) status."""
+    
+    def post(self, request, pk):
+        if not request.user.is_superuser:
+            messages.error(request, "Only Superusers can grant or revoke organizer access.")
+            return redirect('events:admin_user_list')
+            
+        user = get_object_or_404(User, pk=pk)
+        if user == request.user or user.is_superuser:
+            messages.error(request, "You cannot modify organizer status for this user.")
+        else:
+            user.is_staff = not user.is_staff
+            user.save()
+            status = 'granted organizer access to' if user.is_staff else 'revoked organizer access from'
+            messages.success(request, f'Successfully {status} "{user.username}".')
+        return redirect('events:admin_user_list')
+
+
 class CategoryEventView(ListView):
     """Events filtered by category."""
     model = Event
@@ -330,3 +367,125 @@ class CategoryEventView(ListView):
 class AboutView(TemplateView):
     """About page."""
     template_name = 'events/about.html'
+
+
+# ─────────── ATTENDANCE VIEWS ───────────
+
+class AttendanceDashboardView(LoginRequiredMixin, StaffRequiredMixin, DetailView):
+    model = Event
+    template_name = 'events/attendance_dashboard.html'
+    context_object_name = 'event'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        event = self.get_object()
+        session = event.attendance_sessions.filter(is_active=True).first()
+        if not session:
+            session = event.attendance_sessions.order_by('-created_at').first()
+            
+        context['session'] = session
+        
+        # Stats
+        total_registered = event.registrations.filter(status='confirmed').count()
+        present = AttendanceRecord.objects.filter(session__event=event).count()
+        absent = total_registered - present
+        percentage = round((present / total_registered * 100), 1) if total_registered > 0 else 0
+        
+        context['total_registered'] = total_registered
+        context['present_count'] = present
+        context['absent_count'] = absent
+        context['attendance_percentage'] = percentage
+        context['recent_checkins'] = AttendanceRecord.objects.filter(session__event=event).select_related('user').order_by('-scanned_at')[:50]
+        
+        return context
+
+
+class GenerateQRView(LoginRequiredMixin, StaffRequiredMixin, View):
+    def post(self, request, slug):
+        event = get_object_or_404(Event, slug=slug)
+        session = event.attendance_sessions.filter(is_active=True).first()
+        if not session:
+            session = AttendanceSession.objects.create(event=event, is_active=True)
+            
+        session.generate_new_token(duration_minutes=5)
+        messages.success(request, 'New Attendance QR Generated!')
+        return redirect('events:display_qr', slug=slug)
+
+
+class DisplayQRView(LoginRequiredMixin, StaffRequiredMixin, DetailView):
+    model = Event
+    template_name = 'events/qr_display.html'
+    context_object_name = 'event'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        event = self.get_object()
+        session = event.attendance_sessions.filter(is_active=True).first()
+        
+        if session and session.token_expires_at > timezone.now():
+            url = self.request.build_absolute_uri(reverse_lazy('events:scan_qr', kwargs={'token': session.current_qr_token}))
+            context['qr_data'] = url
+            context['session'] = session
+            # seconds left
+            context['seconds_left'] = int((session.token_expires_at - timezone.now()).total_seconds())
+        else:
+            context['qr_data'] = None
+            if session:
+                session.is_active = False
+                session.save()
+        return context
+
+
+class ScanQRView(LoginRequiredMixin, View):
+    def get(self, request, token):
+        session = AttendanceSession.objects.filter(current_qr_token=token, is_active=True).first()
+        
+        if not session:
+            messages.error(request, 'This attendance QR has expired or is invalid.')
+            return render(request, 'events/scan_error.html', {'error': 'Invalid or expired QR code.'})
+            
+        if session.token_expires_at < timezone.now():
+            session.is_active = False
+            session.save()
+            messages.error(request, 'This attendance QR has expired.')
+            return render(request, 'events/scan_error.html', {'error': 'QR code has expired.'})
+            
+        event = session.event
+        
+        # Check registration
+        if not Registration.objects.filter(event=event, user=request.user, status='confirmed').exists():
+            messages.error(request, 'You are not registered for this event.')
+            return render(request, 'events/scan_error.html', {'error': 'Not registered for this event.'})
+            
+        # Check if already marked
+        if AttendanceRecord.objects.filter(session=session, user=request.user).exists():
+            messages.warning(request, 'Attendance has already been recorded.')
+            return render(request, 'events/scan_error.html', {'error': 'Attendance already recorded.'})
+            
+        return render(request, 'events/scan_confirm.html', {'event': event, 'token': token})
+
+
+class ConfirmAttendanceView(LoginRequiredMixin, View):
+    def post(self, request, token):
+        session = AttendanceSession.objects.filter(current_qr_token=token, is_active=True).first()
+        if not session or session.token_expires_at < timezone.now():
+            messages.error(request, 'QR expired. Please scan the latest QR on the screen.')
+            return redirect('events:home')
+            
+        if not Registration.objects.filter(event=session.event, user=request.user, status='confirmed').exists():
+            messages.error(request, 'You are not registered for this event.')
+            return redirect('events:home')
+            
+        # Prevent duplicate
+        record, created = AttendanceRecord.objects.get_or_create(
+            session=session,
+            user=request.user,
+            defaults={'status': 'present'}
+        )
+        
+        if created:
+            messages.success(request, f'✓ Your attendance has been recorded successfully for {session.event.title}.')
+        else:
+            messages.info(request, 'Attendance was already marked.')
+            
+        return redirect('events:user_dashboard')

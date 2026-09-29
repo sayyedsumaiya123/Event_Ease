@@ -4,63 +4,63 @@
 {% block title %}Admin Dashboard — EventEase{% endblock %}
 
 {% block content %}
-<section class="page-header admin-page-header">
+<section class="list-header" style="padding: 60px 0; margin-bottom: 40px;">
     <div class="container">
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
             <div>
-                <h1 class="page-title"><i class="bi bi-speedometer2 me-2"></i>Admin Dashboard</h1>
-                <p class="page-subtitle">Event management overview</p>
+                <h1 class="list-title"><i class="bi bi-speedometer2 me-2"></i>Admin Dashboard</h1>
+                <p class="list-subtitle">Event management overview</p>
             </div>
-            <a href="{% url 'events:event_create' %}" class="btn btn-primary btn-lg" id="createEventBtn">
+            <a href="{% url 'events:event_create' %}" class="btn-brand">
                 <i class="bi bi-plus-circle me-2"></i>Create Event
             </a>
         </div>
     </div>
 </section>
 
-<section class="section-padding">
+<section class="section-spacing" style="padding-top: 0;">
     <div class="container">
 
         <!-- Stats Cards -->
         <div class="row g-4 mb-5">
             <div class="col-6 col-md-3">
-                <div class="admin-stat-card">
-                    <div class="asc-icon" style="background: #6366f115; color: #6366f1">
+                <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; text-align: center;">
+                    <div style="width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 1.5rem; background: rgba(249, 115, 22, 0.1); color: var(--accent);">
                         <i class="bi bi-calendar3"></i>
                     </div>
-                    <div class="asc-value">{{ total_events|intcomma }}</div>
-                    <div class="asc-label">Total Events</div>
-                    <a href="{% url 'events:admin_event_list' %}" class="asc-link">Manage →</a>
+                    <div style="font-size: 2rem; font-weight: 800; color: var(--navy); line-height: 1; margin-bottom: 8px;">{{ total_events|intcomma }}</div>
+                    <div style="font-size: 0.9rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 16px;">Total Events</div>
+                    <a href="{% url 'events:admin_event_list' %}" style="font-size: 0.9rem; font-weight: 700; color: var(--accent); text-decoration: none;">Manage →</a>
                 </div>
             </div>
             <div class="col-6 col-md-3">
-                <div class="admin-stat-card">
-                    <div class="asc-icon" style="background: #10b98115; color: #10b981">
+                <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; text-align: center;">
+                    <div style="width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 1.5rem; background: rgba(16, 24, 39, 0.1); color: var(--navy);">
                         <i class="bi bi-people-fill"></i>
                     </div>
-                    <div class="asc-value">{{ total_users|intcomma }}</div>
-                    <div class="asc-label">Total Users</div>
-                    <a href="{% url 'events:admin_user_list' %}" class="asc-link">Manage →</a>
+                    <div style="font-size: 2rem; font-weight: 800; color: var(--navy); line-height: 1; margin-bottom: 8px;">{{ total_users|intcomma }}</div>
+                    <div style="font-size: 0.9rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 16px;">Total Users</div>
+                    <a href="{% url 'events:admin_user_list' %}" style="font-size: 0.9rem; font-weight: 700; color: var(--accent); text-decoration: none;">Manage →</a>
                 </div>
             </div>
             <div class="col-6 col-md-3">
-                <div class="admin-stat-card">
-                    <div class="asc-icon" style="background: #f59e0b15; color: #f59e0b">
+                <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; text-align: center;">
+                    <div style="width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 1.5rem; background: rgba(22, 128, 92, 0.1); color: var(--success);">
                         <i class="bi bi-ticket-fill"></i>
                     </div>
-                    <div class="asc-value">{{ total_registrations|intcomma }}</div>
-                    <div class="asc-label">Registrations</div>
-                    <span class="asc-link text-muted">Confirmed</span>
+                    <div style="font-size: 2rem; font-weight: 800; color: var(--navy); line-height: 1; margin-bottom: 8px;">{{ total_registrations|intcomma }}</div>
+                    <div style="font-size: 0.9rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 16px;">Registrations</div>
+                    <span style="font-size: 0.9rem; font-weight: 700; color: var(--text-muted);">Confirmed</span>
                 </div>
             </div>
             <div class="col-6 col-md-3">
-                <div class="admin-stat-card">
-                    <div class="asc-icon" style="background: #ec489915; color: #ec4899">
+                <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; text-align: center;">
+                    <div style="width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 1.5rem; background: rgba(249, 115, 22, 0.1); color: var(--accent);">
                         <i class="bi bi-clock-fill"></i>
                     </div>
-                    <div class="asc-value">{{ upcoming_events|intcomma }}</div>
-                    <div class="asc-label">Upcoming Events</div>
-                    <span class="asc-link text-muted">Active</span>
+                    <div style="font-size: 2rem; font-weight: 800; color: var(--navy); line-height: 1; margin-bottom: 8px;">{{ upcoming_events|intcomma }}</div>
+                    <div style="font-size: 0.9rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 16px;">Upcoming</div>
+                    <span style="font-size: 0.9rem; font-weight: 700; color: var(--text-muted);">Active</span>
                 </div>
             </div>
         </div>
@@ -68,36 +68,36 @@
         <div class="row g-4">
             <!-- Top Events -->
             <div class="col-lg-6">
-                <div class="detail-card">
-                    <h5 class="detail-section-title mb-4">
+                <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 32px; height: 100%;">
+                    <h5 style="font-weight: 800; font-size: 1.25rem; margin-bottom: 24px;">
                         <i class="bi bi-trophy me-2 text-warning"></i>Top Events by Registrations
                     </h5>
                     <div class="table-responsive">
-                        <table class="table admin-table">
+                        <table class="table" style="margin-bottom: 0;">
                             <thead>
                                 <tr>
-                                    <th>#</th>
-                                    <th>Event</th>
-                                    <th>Date</th>
-                                    <th>Registrations</th>
+                                    <th style="color: var(--text-muted); font-size: 0.85rem; font-weight: 700; border-bottom: 1px solid var(--border);">#</th>
+                                    <th style="color: var(--text-muted); font-size: 0.85rem; font-weight: 700; border-bottom: 1px solid var(--border);">Event</th>
+                                    <th style="color: var(--text-muted); font-size: 0.85rem; font-weight: 700; border-bottom: 1px solid var(--border);">Date</th>
+                                    <th style="color: var(--text-muted); font-size: 0.85rem; font-weight: 700; border-bottom: 1px solid var(--border);">Regs</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for event in top_events %}
                                 <tr>
-                                    <td>{{ forloop.counter }}</td>
-                                    <td>
-                                        <a href="{% url 'events:event_detail' event.slug %}" class="fw-semibold">
+                                    <td style="font-weight: 700; color: var(--text-muted); vertical-align: middle; border-bottom: 1px solid var(--border-light);">{{ forloop.counter }}</td>
+                                    <td style="vertical-align: middle; border-bottom: 1px solid var(--border-light);">
+                                        <a href="{% url 'events:event_detail' event.slug %}" style="font-weight: 600; color: var(--navy); text-decoration: none;">
                                             {{ event.title|truncatechars:30 }}
                                         </a>
                                     </td>
-                                    <td>{{ event.date|date:"M d" }}</td>
-                                    <td>
-                                        <span class="badge bg-primary rounded-pill">{{ event.reg_count }}</span>
+                                    <td style="color: var(--text-muted); vertical-align: middle; border-bottom: 1px solid var(--border-light);">{{ event.date|date:"M d" }}</td>
+                                    <td style="vertical-align: middle; border-bottom: 1px solid var(--border-light);">
+                                        <span style="background: rgba(16, 24, 39, 0.1); color: var(--navy); padding: 4px 12px; border-radius: 12px; font-weight: 800; font-size: 0.8rem;">{{ event.reg_count }}</span>
                                     </td>
                                 </tr>
                                 {% empty %}
-                                <tr><td colspan="4" class="text-center text-muted">No data yet</td></tr>
+                                <tr><td colspan="4" class="text-center text-muted" style="padding: 24px;">No data yet</td></tr>
                                 {% endfor %}
                             </tbody>
                         </table>
@@ -107,25 +107,28 @@
 
             <!-- Recent Registrations -->
             <div class="col-lg-6">
-                <div class="detail-card">
-                    <h5 class="detail-section-title mb-4">
+                <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 32px; height: 100%;">
+                    <h5 style="font-weight: 800; font-size: 1.25rem; margin-bottom: 24px;">
                         <i class="bi bi-clock-history me-2 text-info"></i>Recent Registrations
                     </h5>
-                    <div class="registration-feed">
+                    <div class="d-flex flex-column gap-3">
                         {% for reg in recent_registrations %}
-                        <div class="feed-item">
-                            <div class="feed-avatar">
+                        <div class="d-flex align-items-center gap-3 p-3" style="border: 1px solid var(--border-light); border-radius: var(--radius);">
+                            <div style="width: 40px; height: 40px; background: var(--bg-main); color: var(--navy); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;">
                                 {{ reg.user.first_name|first|upper|default:reg.user.username|first|upper }}
                             </div>
-                            <div class="feed-info">
-                                <strong>{{ reg.user.get_full_name|default:reg.user.username }}</strong>
-                                <span class="text-muted"> registered for </span>
-                                <a href="{% url 'events:event_detail' reg.event.slug %}">{{ reg.event.title|truncatechars:25 }}</a>
+                            <div style="flex-grow: 1;">
+                                <div style="font-weight: 700; color: var(--text-main);">{{ reg.user.get_full_name|default:reg.user.username }}</div>
+                                <div style="font-size: 0.85rem; color: var(--text-muted);">
+                                    registered for <a href="{% url 'events:event_detail' reg.event.slug %}" style="color: var(--accent); font-weight: 600; text-decoration: none;">{{ reg.event.title|truncatechars:25 }}</a>
+                                </div>
                             </div>
-                            <small class="text-muted ms-auto">{{ reg.registration_date|date:"M d" }}</small>
+                            <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">
+                                {{ reg.registration_date|date:"M d" }}
+                            </div>
                         </div>
                         {% empty %}
-                        <div class="text-center text-muted">No registrations yet</div>
+                        <div class="text-center text-muted" style="padding: 24px;">No registrations yet</div>
                         {% endfor %}
                     </div>
                 </div>
@@ -133,49 +136,56 @@
 
             <!-- Recent Events -->
             <div class="col-12">
-                <div class="detail-card">
+                <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 32px;">
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h5 class="detail-section-title mb-0">
+                        <h5 style="font-weight: 800; font-size: 1.25rem; margin-bottom: 0;">
                             <i class="bi bi-calendar-week me-2"></i>Recent Events
                         </h5>
-                        <a href="{% url 'events:admin_event_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+                        <a href="{% url 'events:admin_event_list' %}" class="btn-nav-outline" style="padding: 6px 16px;">View All</a>
                     </div>
                     <div class="table-responsive">
-                        <table class="table admin-table">
-                            <thead>
+                        <table class="table mb-0">
+                            <thead style="background: var(--bg-main);">
                                 <tr>
-                                    <th>Event</th>
-                                    <th>Category</th>
-                                    <th>Date</th>
-                                    <th>Capacity</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
+                                    <th style="padding: 16px; font-weight: 700; color: var(--text-muted); border-bottom: 1px solid var(--border);">Event</th>
+                                    <th style="padding: 16px; font-weight: 700; color: var(--text-muted); border-bottom: 1px solid var(--border);">Category</th>
+                                    <th style="padding: 16px; font-weight: 700; color: var(--text-muted); border-bottom: 1px solid var(--border);">Date</th>
+                                    <th style="padding: 16px; font-weight: 700; color: var(--text-muted); border-bottom: 1px solid var(--border);">Capacity</th>
+                                    <th style="padding: 16px; font-weight: 700; color: var(--text-muted); border-bottom: 1px solid var(--border);">Status</th>
+                                    <th style="padding: 16px; font-weight: 700; color: var(--text-muted); border-bottom: 1px solid var(--border);">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for event in recent_events %}
                                 <tr>
-                                    <td>
-                                        <a href="{% url 'events:event_detail' event.slug %}" class="fw-semibold">
+                                    <td style="padding: 16px; vertical-align: middle;">
+                                        <a href="{% url 'events:event_detail' event.slug %}" style="font-weight: 700; color: var(--navy); text-decoration: none;">
                                             {{ event.title|truncatechars:35 }}
                                         </a>
                                     </td>
-                                    <td>
+                                    <td style="padding: 16px; vertical-align: middle;">
                                         {% if event.category %}
-                                        <span class="badge" style="background: {{ event.category.color }}20; color: {{ event.category.color }}">
+                                        <span style="background: var(--bg-main); color: var(--text-muted); padding: 4px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 700;">
                                             {{ event.category.name }}
                                         </span>
                                         {% else %}—{% endif %}
                                     </td>
-                                    <td>{{ event.date|date:"M d, Y" }}</td>
-                                    <td>{{ event.total_registrations }}/{{ event.capacity }}</td>
-                                    <td><span class="status-badge status-{{ event.status }}">{{ event.get_status_display }}</span></td>
-                                    <td>
+                                    <td style="padding: 16px; vertical-align: middle; color: var(--text-muted); font-weight: 600;">{{ event.date|date:"M d, Y" }}</td>
+                                    <td style="padding: 16px; vertical-align: middle; font-weight: 700; color: var(--navy);">{{ event.total_registrations }} / {{ event.capacity }}</td>
+                                    <td style="padding: 16px; vertical-align: middle;">
+                                        <span style="font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; padding: 4px 8px; border-radius: 4px;
+                                            {% if event.status == 'upcoming' %}background: rgba(22,128,92,0.1); color: var(--success);
+                                            {% elif event.status == 'cancelled' %}background: rgba(214,69,69,0.1); color: var(--error);
+                                            {% else %}background: var(--bg-main); color: var(--text-muted);{% endif %}">
+                                            {{ event.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td style="padding: 16px; vertical-align: middle;">
                                         <div class="d-flex gap-2">
-                                            <a href="{% url 'events:event_edit' event.slug %}" class="btn btn-xs btn-outline-primary" title="Edit">
+                                            <a href="{% url 'events:event_edit' event.slug %}" class="btn-nav-outline" style="padding: 4px 12px; font-size: 0.85rem;" title="Edit">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
-                                            <a href="{% url 'events:event_participants' event.slug %}" class="btn btn-xs btn-outline-info" title="Participants">
+                                            <a href="{% url 'events:event_participants' event.slug %}" class="btn-nav-outline" style="padding: 4px 12px; font-size: 0.85rem;" title="Participants">
                                                 <i class="bi bi-people"></i>
                                             </a>
                                         </div>
@@ -184,28 +194,6 @@
                                 {% endfor %}
                             </tbody>
                         </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Categories -->
-            <div class="col-12">
-                <div class="detail-card">
-                    <h5 class="detail-section-title mb-4">
-                        <i class="bi bi-grid me-2"></i>Events by Category
-                    </h5>
-                    <div class="row g-3">
-                        {% for cat in categories %}
-                        <div class="col-6 col-md-3">
-                            <div class="category-stat-card" style="border-color: {{ cat.color }}50">
-                                <div class="cs-icon" style="background: {{ cat.color }}15; color: {{ cat.color }}">
-                                    <i class="bi {{ cat.icon }}"></i>
-                                </div>
-                                <div class="cs-name">{{ cat.name }}</div>
-                                <div class="cs-count">{{ cat.event_count }} event{{ cat.event_count|pluralize }}</div>
-                            </div>
-                        </div>
-                        {% endfor %}
                     </div>
                 </div>
             </div>

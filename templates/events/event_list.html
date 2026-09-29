@@ -5,74 +5,68 @@
 {% block meta_description %}Browse all events on EventEase. Filter by category, date, and status.{% endblock %}
 
 {% block content %}
-<section class="page-header">
+<section class="list-header">
     <div class="container">
-        <h1 class="page-title">
+        <h1 class="list-title">
             {% if current_category %}
-            <i class="bi {{ current_category.icon }} me-2" style="color: {{ current_category.color }}"></i>
             {{ current_category.name }} Events
             {% else %}
-            <i class="bi bi-calendar3 me-2"></i>All Events
+            Discover Events
             {% endif %}
         </h1>
-        <p class="page-subtitle">
+        <p class="list-subtitle">
             {% if current_category %}
             {{ current_category.description }}
             {% else %}
-            Discover and register for upcoming events
+            Find exactly what you're looking for.
             {% endif %}
         </p>
     </div>
 </section>
 
-<section class="section-padding">
+<section class="section-spacing" style="padding-top: 0;">
     <div class="container">
-        <div class="row g-4">
+        <div class="row g-5">
             <!-- Sidebar Filters -->
             <div class="col-lg-3">
-                <div class="filter-sidebar">
-                    <h6 class="filter-title"><i class="bi bi-funnel me-2"></i>Filter Events</h6>
+                <div class="filter-sidebar-premium">
+                    <h6>Search & Filter</h6>
                     <form method="GET" id="filterForm">
-                        <div class="filter-group">
+                        <div class="mb-4">
                             <label class="filter-label">Search</label>
                             {{ search_form.q }}
                         </div>
-                        <div class="filter-group">
+                        <div class="mb-4">
                             <label class="filter-label">Category</label>
                             {{ search_form.category }}
                         </div>
-                        <div class="filter-group">
+                        <div class="mb-4">
                             <label class="filter-label">Status</label>
                             {{ search_form.status }}
                         </div>
-                        <div class="filter-group">
+                        <div class="mb-4">
                             <label class="filter-label">Date From</label>
                             {{ search_form.date_from }}
                         </div>
-                        <div class="filter-group">
+                        <div class="mb-4">
                             <label class="filter-label">Date To</label>
                             {{ search_form.date_to }}
                         </div>
-                        <button type="submit" class="btn btn-primary w-100" id="applyFilterBtn">
-                            <i class="bi bi-search me-2"></i>Apply Filter
-                        </button>
-                        <a href="{% url 'events:event_list' %}" class="btn btn-outline-secondary w-100 mt-2" id="clearFilterBtn">
-                            <i class="bi bi-x-circle me-2"></i>Clear Filters
-                        </a>
+                        <button type="submit" class="btn-brand w-100 mb-2">Apply Filters</button>
+                        <a href="{% url 'events:event_list' %}" class="btn-nav-outline w-100 text-center d-block">Clear Filters</a>
                     </form>
 
                     <!-- Categories Quick Nav -->
-                    <div class="mt-4">
-                        <h6 class="filter-title">Categories</h6>
-                        <div class="category-pills">
-                            <a href="{% url 'events:event_list' %}" class="category-pill {% if not current_category %}active{% endif %}">
-                                All
+                    <div class="mt-5">
+                        <h6>Quick Categories</h6>
+                        <div>
+                            <a href="{% url 'events:event_list' %}" class="cat-nav-pill {% if not current_category %}active{% endif %}">
+                                <span>All Events</span>
                             </a>
                             {% for cat in categories %}
                             <a href="{% url 'events:category_events' cat.slug %}"
-                               class="category-pill {% if current_category.pk == cat.pk %}active{% endif %}"
-                               id="cat-pill-{{ cat.slug }}">
-                                {{ cat.name }}
+                               class="cat-nav-pill {% if current_category.pk == cat.pk %}active{% endif %}">
+                                <span>{{ cat.name }}</span>
                                 <span class="pill-count">{{ cat.event_count }}</span>
                             </a>
                             {% endfor %}
@@ -83,14 +77,14 @@
 
             <!-- Events Grid -->
             <div class="col-lg-9">
-                <div class="events-header mb-4">
-                    <span class="events-count">
+                <div class="d-flex justify-content-between align-items-center mb-5">
+                    <h2 class="fw-bold fs-4 m-0" style="color: var(--text-main);">
                         <strong>{{ page_obj.paginator.count }}</strong> event{{ page_obj.paginator.count|pluralize }} found
-                    </span>
+                    </h2>
                 </div>
 
                 {% if events %}
-                <div class="row g-4" id="eventsGrid">
+                <div class="row g-4">
                     {% for event in events %}
                     <div class="col-md-6 col-xl-4">
                         {% include 'events/partials/event_card.html' with event=event %}
@@ -100,23 +94,23 @@
 
                 <!-- Pagination -->
                 {% if is_paginated %}
-                <nav class="pagination-nav mt-5" aria-label="Events pagination">
-                    <ul class="pagination justify-content-center">
+                <nav class="mt-5 pt-4 border-top" style="border-color: var(--border) !important;">
+                    <ul class="pagination justify-content-center gap-2">
                         {% if page_obj.has_previous %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode }}">
+                            <a class="page-link rounded-2 text-dark border-0 bg-white shadow-sm" href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode }}">
                                 <i class="bi bi-chevron-left"></i>
                             </a>
                         </li>
                         {% endif %}
                         {% for num in page_obj.paginator.page_range %}
                         <li class="page-item {% if page_obj.number == num %}active{% endif %}">
-                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                            <a class="page-link rounded-2 border-0 {% if page_obj.number == num %}bg-dark text-white{% else %}bg-white text-dark shadow-sm{% endif %}" href="?page={{ num }}">{{ num }}</a>
                         </li>
                         {% endfor %}
                         {% if page_obj.has_next %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.next_page_number }}&{{ request.GET.urlencode }}">
+                            <a class="page-link rounded-2 text-dark border-0 bg-white shadow-sm" href="?page={{ page_obj.next_page_number }}&{{ request.GET.urlencode }}">
                                 <i class="bi bi-chevron-right"></i>
                             </a>
                         </li>
@@ -126,11 +120,11 @@
                 {% endif %}
 
                 {% else %}
-                <div class="empty-state">
-                    <i class="bi bi-calendar-x"></i>
-                    <h4>No events found</h4>
-                    <p>Try adjusting your filters or search terms</p>
-                    <a href="{% url 'events:event_list' %}" class="btn btn-primary" id="clearSearchBtn">Clear Search</a>
+                <div class="text-center py-5">
+                    <i class="bi bi-calendar-x fs-1 text-muted mb-3 d-block"></i>
+                    <h4 class="fw-bold mb-2">No events found</h4>
+                    <p class="text-muted mb-4">Try adjusting your filters or search terms</p>
+                    <a href="{% url 'events:event_list' %}" class="btn-brand">Clear Search</a>
                 </div>
                 {% endif %}
             </div>

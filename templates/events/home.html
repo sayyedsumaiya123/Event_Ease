@@ -1,302 +1,640 @@
 {% extends 'base.html' %}
 {% load humanize %}
 
-{% block title %}Home — EventEase{% endblock %}
+{% block title %}EventEase | Find something worth showing up for{% endblock %}
+
+{% block extra_css %}
+<style>
+/* PREMIUM EVENT PLATFORM STYLES */
+.page-wrapper {
+    background-color: var(--bg-main);
+}
+
+/* Typography Extensions */
+.eyebrow {
+    font-size: 0.85rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+    display: block;
+}
+
+.title-display {
+    font-size: clamp(3.5rem, 6vw, 5.5rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+    color: var(--text-main);
+    margin-bottom: 1.5rem;
+}
+
+.subtitle-large {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    line-height: 1.6;
+    max-width: 500px;
+}
+
+/* HERO SECTION */
+.hero-premium {
+    padding: 80px 0 120px;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-image-wrapper {
+    position: relative;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    height: 600px;
+    width: 100%;
+}
+
+.hero-image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s ease;
+}
+
+.hero-image-wrapper:hover img {
+    transform: scale(1.03);
+}
+
+.hero-ui-overlay {
+    position: absolute;
+    bottom: -30px;
+    left: -30px;
+    background: var(--surface);
+    padding: 24px;
+    border-radius: var(--radius);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+    border: 1px solid var(--border);
+    width: 320px;
+    z-index: 2;
+}
+
+.ui-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+}
+.ui-row:last-child { border-bottom: none; padding-bottom: 0; }
+.ui-label { color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; }
+.ui-value { color: var(--text-main); font-weight: 700; font-size: 0.95rem; }
+
+/* CATEGORY STRIP */
+.category-strip {
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 0;
+    background: var(--bg-main);
+}
+
+.cat-list {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.cat-list::-webkit-scrollbar { display: none; }
+
+.cat-item {
+    white-space: nowrap;
+}
+
+.cat-link {
+    display: block;
+    padding: 24px 32px;
+    color: var(--text-main);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.9rem;
+    text-decoration: none;
+    border-right: 1px solid var(--border);
+    transition: all 0.2s ease;
+}
+
+.cat-link:hover, .cat-link.active {
+    color: var(--accent);
+    background-color: var(--surface);
+}
+
+/* SECTION TITLES */
+.section-premium {
+    padding: 120px 0;
+}
+
+.section-title {
+    font-size: 3rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.5rem;
+}
+
+.section-subtitle {
+    font-size: 1.25rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-bottom: 4rem;
+}
+
+/* EVENT CARDS */
+.event-card-premium {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    color: var(--text-main);
+}
+
+.event-card-premium:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+    border-color: transparent;
+    color: var(--text-main);
+}
+
+.event-img {
+    height: 240px;
+    overflow: hidden;
+    position: relative;
+}
+
+.event-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.event-card-premium:hover .event-img img {
+    transform: scale(1.05);
+}
+
+.cat-badge {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    background: var(--surface);
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--navy);
+}
+
+.event-body {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.event-title {
+    font-size: 1.35rem;
+    font-weight: 800;
+    line-height: 1.3;
+    margin-bottom: 12px;
+    letter-spacing: -0.02em;
+}
+
+.event-meta {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+.event-meta i { color: var(--accent); margin-right: 6px; }
+
+.event-cta {
+    margin-top: auto;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: gap 0.2s ease;
+}
+
+.event-card-premium:hover .event-cta {
+    gap: 12px;
+}
+
+/* FEATURED LARGE CARD */
+.featured-large {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    margin-bottom: 40px;
+    transition: transform 0.3s ease;
+}
+.featured-large:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+}
+
+.featured-large .event-img {
+    height: 100%;
+    min-height: 400px;
+}
+
+.featured-content {
+    padding: 48px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.featured-content .cat-badge {
+    position: static;
+    display: inline-block;
+    align-self: flex-start;
+    background: var(--bg-main);
+    margin-bottom: 24px;
+}
+
+.featured-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 16px;
+    letter-spacing: -0.03em;
+}
+
+.featured-desc {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    margin-bottom: 32px;
+    line-height: 1.6;
+}
+
+@media (max-width: 991px) {
+    .featured-large { grid-template-columns: 1fr; }
+    .featured-large .event-img { height: 300px; min-height: 300px; }
+    .featured-content { padding: 32px; }
+}
+
+/* STATS */
+.stats-section {
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    padding: 80px 0;
+}
+
+.stat-item {
+    border-right: 1px solid var(--border);
+    padding: 0 40px;
+}
+.stat-item:last-child { border-right: none; }
+
+.stat-num {
+    font-size: 4rem;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    color: var(--navy);
+    line-height: 1;
+    margin-bottom: 12px;
+}
+.stat-label {
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+}
+
+@media (max-width: 768px) {
+    .stat-item { border-right: none; border-bottom: 1px solid var(--border); padding: 32px 0; }
+    .stat-item:last-child { border-bottom: none; }
+}
+
+/* HOW IT WORKS */
+.step-num {
+    font-size: 5rem;
+    font-weight: 800;
+    color: var(--border);
+    line-height: 1;
+    margin-bottom: 1rem;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    letter-spacing: -0.05em;
+}
+
+.step-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    letter-spacing: -0.02em;
+}
+
+.step-desc {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+}
+
+/* ABOUT COLLAGE */
+.about-section {
+    background: var(--surface);
+}
+
+.collage-wrapper {
+    position: relative;
+    height: 600px;
+}
+
+.collage-img {
+    position: absolute;
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+.collage-img img { width: 100%; height: 100%; object-fit: cover; }
+
+.img-1 { width: 60%; height: 60%; top: 0; left: 0; z-index: 1; }
+.img-2 { width: 50%; height: 50%; bottom: 0; right: 0; z-index: 2; }
+.img-3 { width: 40%; height: 40%; top: 20%; right: 10%; z-index: 3; border: 4px solid var(--surface); }
+
+/* FINAL CTA */
+.final-cta {
+    background-color: var(--navy);
+    color: white;
+    padding: 120px 0;
+    text-align: center;
+}
+
+.final-cta-title {
+    color: white;
+    font-size: clamp(3rem, 5vw, 4.5rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-bottom: 24px;
+}
+
+.final-cta p {
+    font-size: 1.25rem;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 40px;
+}
+
+</style>
+{% endblock %}
 
 {% block content %}
+<div class="page-wrapper">
 
-<!-- Hero Section -->
-<section class="hero-section">
-    <div class="hero-bg-animation">
-        <div class="hero-orb orb-1"></div>
-        <div class="hero-orb orb-2"></div>
-        <div class="hero-orb orb-3"></div>
-    </div>
-    <div class="container">
-        <div class="row align-items-center min-vh-hero">
-            <div class="col-lg-6">
-                <div class="hero-content">
-                    <div class="hero-badge">
-                        <i class="bi bi-stars me-2"></i>
-                        #1 Event Management Platform
-                    </div>
-                    <h1 class="hero-title">
-                        Manage Your Events
-                        <span class="gradient-text">With Ease</span>
-                    </h1>
-                    <p class="hero-subtitle">
-                        Discover, register, and manage amazing events. From tech workshops to cultural festivals —
-                        everything in one beautiful platform.
-                    </p>
-                    <div class="hero-actions">
-                        <a href="{% url 'events:event_list' %}" class="btn btn-primary btn-lg btn-glow" id="exploreEventsBtn">
-                            <i class="bi bi-rocket-takeoff me-2"></i>Explore Events
-                        </a>
+    <!-- HERO SECTION -->
+    <section class="hero-premium">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 mb-5 mb-lg-0 pe-lg-5">
+                    <span class="eyebrow">Events • Experiences • Community</span>
+                    <h1 class="title-display">Find something<br>worth showing<br>up for.</h1>
+                    <p class="subtitle-large mb-5">Discover events, reserve your spot, and manage every registration from one premium place.</p>
+                    <div class="d-flex flex-wrap gap-3">
+                        <a href="{% url 'events:event_list' %}" class="btn-brand">Explore Events</a>
                         {% if not user.is_authenticated %}
-                        <a href="{% url 'accounts:register' %}" class="btn btn-outline-light btn-lg ms-3" id="getStartedBtn">
-                            <i class="bi bi-person-plus me-2"></i>Get Started Free
-                        </a>
+                        <a href="{% url 'accounts:register' %}" class="btn-nav-outline">Create an Account</a>
                         {% endif %}
                     </div>
-                    <div class="hero-stats">
-                        <div class="hero-stat">
-                            <span class="stat-number">{{ total_events|intcomma }}</span>
-                            <span class="stat-label">Events</span>
+                </div>
+                <div class="col-lg-5 offset-lg-1 position-relative mt-5 mt-lg-0">
+                    <div class="hero-image-wrapper">
+                        <!-- High quality event imagery from Unsplash -->
+                        <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=1200&auto=format&fit=crop" alt="Live Conference Event">
+                    </div>
+                    <div class="hero-ui-overlay d-none d-md-block">
+                        <div class="ui-row">
+                            <span class="ui-label">Featured Event</span>
+                            <span class="ui-value" style="color: var(--accent);">Live</span>
                         </div>
-                        <div class="hero-stat-divider"></div>
-                        <div class="hero-stat">
-                            <span class="stat-number">{{ total_users|intcomma }}</span>
-                            <span class="stat-label">Members</span>
+                        <div class="ui-row">
+                            <span class="ui-label">Category</span>
+                            <span class="ui-value">Tech & Design</span>
                         </div>
-                        <div class="hero-stat-divider"></div>
-                        <div class="hero-stat">
-                            <span class="stat-number">{{ total_registrations|intcomma }}</span>
-                            <span class="stat-label">Registrations</span>
+                        <div class="ui-row">
+                            <span class="ui-label">Date</span>
+                            <span class="ui-value">Oct 14, 2026</span>
+                        </div>
+                        <div class="ui-row">
+                            <span class="ui-label">Location</span>
+                            <span class="ui-value">Main Hall, NY</span>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-6 d-none d-lg-flex justify-content-center">
-                <div class="hero-visual">
-                    <div class="floating-card card-1">
-                        <i class="bi bi-calendar-check text-success"></i>
-                        <span>Event Registered!</span>
+        </div>
+    </section>
+
+    <!-- CATEGORY STRIP -->
+    <section class="category-strip">
+        <div class="container-fluid px-0">
+            <ul class="cat-list">
+                <li class="cat-item"><a href="{% url 'events:event_list' %}" class="cat-link active">All Events</a></li>
+                {% if categories %}
+                    {% for category in categories %}
+                    <li class="cat-item"><a href="{% url 'events:category_events' category.slug %}" class="cat-link">{{ category.name }}</a></li>
+                    {% endfor %}
+                {% else %}
+                    <!-- Fallback if no dynamic categories -->
+                    <li class="cat-item"><a href="#" class="cat-link">Tech</a></li>
+                    <li class="cat-item"><a href="#" class="cat-link">Sports</a></li>
+                    <li class="cat-item"><a href="#" class="cat-link">Cultural</a></li>
+                    <li class="cat-item"><a href="#" class="cat-link">Workshops</a></li>
+                    <li class="cat-item"><a href="#" class="cat-link">Conferences</a></li>
+                    <li class="cat-item"><a href="#" class="cat-link">Competitions</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </section>
+
+    <!-- FEATURED EVENTS -->
+    <section class="section-premium">
+        <div class="container">
+            <div class="mb-5">
+                <h2 class="section-title">What's happening</h2>
+                <p class="section-subtitle">Events people are talking about.</p>
+            </div>
+
+            {% if featured_events %}
+                <!-- LARGE FEATURED CARD (First event) -->
+                {% with featured_event=featured_events|first %}
+                <div class="featured-large">
+                    <div class="event-img">
+                        {% if featured_event.image %}
+                        <img src="{{ featured_event.image.url }}" alt="{{ featured_event.title }}">
+                        {% else %}
+                        <img src="https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=1200&auto=format&fit=crop" alt="Event Placeholder">
+                        {% endif %}
                     </div>
-                    <div class="floating-card card-2">
-                        <i class="bi bi-people text-primary"></i>
-                        <span>{{ upcoming_count }} Upcoming</span>
-                    </div>
-                    <div class="floating-card card-3">
-                        <i class="bi bi-ticket-perforated text-warning"></i>
-                        <span>Ticket Issued!</span>
-                    </div>
-                    <div class="hero-main-card">
-                        <div class="main-card-icon">
-                            <i class="bi bi-calendar-star-fill"></i>
+                    <div class="featured-content">
+                        <span class="cat-badge">{% if featured_event.category %}{{ featured_event.category.name }}{% else %}Featured{% endif %}</span>
+                        <h3 class="featured-title">{{ featured_event.title }}</h3>
+                        <p class="featured-desc">{{ featured_event.description|truncatewords:20 }}</p>
+                        <div class="event-meta mb-4">
+                            <span><i class="bi bi-calendar3"></i> {{ featured_event.date|date:"F j, Y" }}</span>
+                            <span><i class="bi bi-geo-alt-fill"></i> {{ featured_event.venue }}</span>
                         </div>
-                        <h4>EventEase</h4>
-                        <p>Your event companion</p>
+                        <a href="{% url 'events:event_detail' featured_event.slug %}" class="btn-brand" style="align-self: flex-start;">View Event</a>
                     </div>
+                </div>
+                {% endwith %}
+
+                <!-- SMALLER CARDS -->
+                <div class="row g-4">
+                    {% for event in featured_events|slice:"1:4" %}
+                    <div class="col-md-4">
+                        <a href="{% url 'events:event_detail' event.slug %}" class="event-card-premium">
+                            <div class="event-img">
+                                <span class="cat-badge">{% if event.category %}{{ event.category.name }}{% else %}General{% endif %}</span>
+                                {% if event.image %}
+                                <img src="{{ event.image.url }}" alt="{{ event.title }}">
+                                {% else %}
+                                <img src="https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=600&auto=format&fit=crop" alt="Event Placeholder">
+                                {% endif %}
+                            </div>
+                            <div class="event-body">
+                                <h4 class="event-title">{{ event.title }}</h4>
+                                <div class="event-meta">
+                                    <span><i class="bi bi-calendar3"></i> {{ event.date|date:"M d, Y" }}</span>
+                                    <span><i class="bi bi-geo-alt-fill"></i> {{ event.venue }}</span>
+                                </div>
+                                <div class="event-cta">
+                                    View Details <i class="bi bi-arrow-right"></i>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <!-- FALLBACK DUMMY CONTENT IF NO FEATURED EVENTS IN DB -->
+                <div class="featured-large">
+                    <div class="event-img">
+                        <img src="https://images.unsplash.com/photo-1459749411175-04bf5292ceea?q=80&w=1200&auto=format&fit=crop" alt="Concert Event">
+                    </div>
+                    <div class="featured-content">
+                        <span class="cat-badge">Cultural</span>
+                        <h3 class="featured-title">Summer Music Festival 2026</h3>
+                        <p class="featured-desc">Join us for a three-day celebration of music, art, and culture featuring over 50 international artists.</p>
+                        <div class="event-meta mb-4">
+                            <span><i class="bi bi-calendar3"></i> August 12, 2026</span>
+                            <span><i class="bi bi-geo-alt-fill"></i> Central Park, NY</span>
+                        </div>
+                        <a href="{% url 'events:event_list' %}" class="btn-brand" style="align-self: flex-start;">Explore Events</a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- STATS -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="row text-center text-md-start">
+                <div class="col-md-3 stat-item">
+                    <div class="stat-num">10+</div>
+                    <div class="stat-label">Events Hosted</div>
+                </div>
+                <div class="col-md-3 stat-item">
+                    <div class="stat-num">7K+</div>
+                    <div class="stat-label">Participants</div>
+                </div>
+                <div class="col-md-3 stat-item">
+                    <div class="stat-num">41K+</div>
+                    <div class="stat-label">Registrations</div>
+                </div>
+                <div class="col-md-3 stat-item">
+                    <div class="stat-num">100%</div>
+                    <div class="stat-label">Organized</div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<!-- Stats Bar -->
-<section class="stats-bar">
-    <div class="container">
-        <div class="row">
-            <div class="col-6 col-md-3">
-                <div class="stat-item">
-                    <i class="bi bi-calendar3"></i>
-                    <div>
-                        <div class="stat-value">{{ total_events }}</div>
-                        <div class="stat-name">Total Events</div>
-                    </div>
+    <!-- HOW IT WORKS -->
+    <section class="section-premium">
+        <div class="container">
+            <div class="row g-5">
+                <div class="col-md-4">
+                    <div class="step-num">01</div>
+                    <h3 class="step-title">DISCOVER</h3>
+                    <p class="step-desc">Find events that interest you. From industry-leading conferences to local workshops, everything is curated for your growth.</p>
                 </div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="stat-item">
-                    <i class="bi bi-people-fill"></i>
-                    <div>
-                        <div class="stat-value">{{ total_users }}</div>
-                        <div class="stat-name">Registered Users</div>
-                    </div>
+                <div class="col-md-4">
+                    <div class="step-num">02</div>
+                    <h3 class="step-title">REGISTER</h3>
+                    <p class="step-desc">Reserve your spot in seconds. Our seamless checkout and registration flow ensures you never miss out on tickets.</p>
                 </div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="stat-item">
-                    <i class="bi bi-ticket-fill"></i>
-                    <div>
-                        <div class="stat-value">{{ total_registrations }}</div>
-                        <div class="stat-name">Registrations</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="stat-item">
-                    <i class="bi bi-clock-fill"></i>
-                    <div>
-                        <div class="stat-value">{{ upcoming_count }}</div>
-                        <div class="stat-name">Upcoming Events</div>
-                    </div>
+                <div class="col-md-4">
+                    <div class="step-num">03</div>
+                    <h3 class="step-title">EXPERIENCE</h3>
+                    <p class="step-desc">Show up and enjoy. Access your tickets digitally and manage your personal event schedule from your dashboard.</p>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<!-- Categories -->
-{% if categories %}
-<section class="section-padding">
-    <div class="container">
-        <div class="section-header">
-            <h2 class="section-title">Browse by Category</h2>
-            <p class="section-subtitle">Find events that match your interests</p>
-        </div>
-        <div class="row g-3">
-            {% for category in categories %}
-            <div class="col-6 col-md-4 col-lg-3">
-                <a href="{% url 'events:category_events' category.slug %}" class="category-card" id="cat-{{ category.slug }}">
-                    <div class="category-icon" style="background: {{ category.color }}20; color: {{ category.color }}">
-                        <i class="bi {{ category.icon }}"></i>
-                    </div>
-                    <div class="category-info">
-                        <h6>{{ category.name }}</h6>
-                        <span>{{ category.event_count }} event{{ category.event_count|pluralize }}</span>
-                    </div>
-                    <i class="bi bi-arrow-right category-arrow"></i>
-                </a>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-</section>
-{% endif %}
-
-<!-- Featured Events -->
-{% if featured_events %}
-<section class="section-padding bg-dark-subtle">
-    <div class="container">
-        <div class="section-header">
-            <div class="section-badge">
-                <i class="bi bi-star-fill me-2"></i>Featured
-            </div>
-            <h2 class="section-title">Featured Events</h2>
-            <p class="section-subtitle">Hand-picked events you shouldn't miss</p>
-        </div>
-        <div class="row g-4">
-            {% for event in featured_events %}
-            <div class="col-md-6 col-lg-4">
-                {% include 'events/partials/event_card.html' with event=event %}
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-</section>
-{% endif %}
-
-<!-- Upcoming Events -->
-<section class="section-padding">
-    <div class="container">
-        <div class="section-header d-flex justify-content-between align-items-center flex-wrap">
-            <div>
-                <h2 class="section-title">Upcoming Events</h2>
-                <p class="section-subtitle">Don't miss out — register before spots fill up</p>
-            </div>
-            <a href="{% url 'events:event_list' %}" class="btn btn-outline-primary" id="viewAllEventsBtn">
-                View All <i class="bi bi-arrow-right ms-1"></i>
-            </a>
-        </div>
-        {% if upcoming_events %}
-        <div class="row g-4">
-            {% for event in upcoming_events %}
-            <div class="col-md-6 col-lg-4">
-                {% include 'events/partials/event_card.html' with event=event %}
-            </div>
-            {% endfor %}
-        </div>
-        {% else %}
-        <div class="empty-state">
-            <i class="bi bi-calendar-x"></i>
-            <h4>No upcoming events</h4>
-            <p>Check back soon for exciting new events!</p>
-        </div>
-        {% endif %}
-    </div>
-</section>
-
-<!-- DevOps Pipeline Banner -->
-<section class="devops-banner section-padding">
-    <div class="container">
-        <div class="devops-banner-inner">
+    <!-- ABOUT SECTION -->
+    <section class="section-premium about-section">
+        <div class="container">
             <div class="row align-items-center">
-                <div class="col-lg-6 mb-4 mb-lg-0">
-                    <div class="devops-badge-sm">
-                        <i class="bi bi-infinity me-2"></i>DevOps Powered
-                    </div>
-                    <h2 class="devops-title">Built with a Complete DevOps Pipeline</h2>
-                    <p class="devops-desc">
-                        This application is containerized with Docker, continuously integrated via Jenkins/GitHub Actions,
-                        monitored with Prometheus & Grafana, and deployed with zero-downtime rolling updates.
-                    </p>
-                    <div class="pipeline-steps">
-                        <div class="pipeline-step">
-                            <i class="bi bi-code-square"></i>
-                            <span>Code</span>
-                        </div>
-                        <i class="bi bi-arrow-right pipeline-arrow"></i>
-                        <div class="pipeline-step">
-                            <i class="bi bi-git"></i>
-                            <span>Git</span>
-                        </div>
-                        <i class="bi bi-arrow-right pipeline-arrow"></i>
-                        <div class="pipeline-step">
-                            <i class="bi bi-gear"></i>
-                            <span>CI/CD</span>
-                        </div>
-                        <i class="bi bi-arrow-right pipeline-arrow"></i>
-                        <div class="pipeline-step">
-                            <i class="bi bi-box"></i>
-                            <span>Docker</span>
-                        </div>
-                        <i class="bi bi-arrow-right pipeline-arrow"></i>
-                        <div class="pipeline-step">
-                            <i class="bi bi-cloud-check"></i>
-                            <span>Deploy</span>
-                        </div>
-                    </div>
+                <div class="col-lg-5 mb-5 mb-lg-0 pe-lg-5">
+                    <h2 class="title-display mb-4" style="font-size: 4rem;">One place for every event.</h2>
+                    <p class="subtitle-large mb-5">We believe that great experiences shouldn't be hard to find. EventEase brings together organizers and attendees into a single, beautifully designed ecosystem.</p>
+                    <a href="{% url 'events:about' %}" class="btn-navy">Learn about our mission</a>
                 </div>
-                <div class="col-lg-6">
-                    <div class="tech-grid">
-                        <div class="tech-item">
-                            <i class="bi bi-box"></i>
-                            <span>Docker</span>
+                <div class="col-lg-6 offset-lg-1">
+                    <div class="collage-wrapper">
+                        <div class="collage-img img-1">
+                            <img src="https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=800&auto=format&fit=crop" alt="Event Crowd">
                         </div>
-                        <div class="tech-item">
-                            <i class="bi bi-github"></i>
-                            <span>GitHub</span>
+                        <div class="collage-img img-2">
+                            <img src="https://images.unsplash.com/photo-1523580494112-071d1e528eba?q=80&w=800&auto=format&fit=crop" alt="Networking">
                         </div>
-                        <div class="tech-item">
-                            <i class="bi bi-gear-wide-connected"></i>
-                            <span>Jenkins</span>
-                        </div>
-                        <div class="tech-item">
-                            <i class="bi bi-database"></i>
-                            <span>PostgreSQL</span>
-                        </div>
-                        <div class="tech-item">
-                            <i class="bi bi-activity"></i>
-                            <span>Prometheus</span>
-                        </div>
-                        <div class="tech-item">
-                            <i class="bi bi-bar-chart"></i>
-                            <span>Grafana</span>
+                        <div class="collage-img img-3">
+                            <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=800&auto=format&fit=crop" alt="Tech Conference">
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<!-- CTA Section -->
-{% if not user.is_authenticated %}
-<section class="cta-section section-padding">
-    <div class="container text-center">
-        <h2 class="cta-title">Ready to join the community?</h2>
-        <p class="cta-subtitle">Create your free account and start discovering amazing events today.</p>
-        <div class="cta-actions">
-            <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-lg btn-glow" id="ctaRegisterBtn">
-                <i class="bi bi-person-plus me-2"></i>Create Free Account
-            </a>
-            <a href="{% url 'events:event_list' %}" class="btn btn-outline-secondary btn-lg ms-3" id="ctaBrowseBtn">
-                <i class="bi bi-search me-2"></i>Browse Events
-            </a>
+    <!-- FINAL CTA -->
+    <section class="final-cta">
+        <div class="container">
+            <h2 class="final-cta-title">Your next experience is waiting.</h2>
+            <p>Join thousands of others who use EventEase to discover what's happening around them.</p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{% url 'events:event_list' %}" class="btn-brand">Explore Events</a>
+            </div>
         </div>
-    </div>
-</section>
-{% endif %}
+    </section>
 
+</div>
 {% endblock %}

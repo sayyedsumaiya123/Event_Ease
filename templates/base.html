@@ -3,230 +3,549 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="{% block meta_description %}EventEase — Manage and discover amazing events with ease. Register, browse, and organize events seamlessly.{% endblock %}">
-    <meta name="keywords" content="events, event management, registration, workshops, conferences">
-    <title>{% block title %}EventEase — Smart Event Management{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}EventEase — Premium Event Discovery and Management.{% endblock %}">
+    <title>{% block title %}EventEase | Find something worth showing up for{% endblock %}</title>
 
-    <!-- Preconnect for performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- Bootstrap Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Custom CSS -->
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <style>
+    /* PREMIUM VISUAL IDENTITY overrides */
+    :root {
+        --bg-main: #FAF7F2;
+        --text-main: #172033;
+        --text-muted: #687280;
+        --accent: #F97316;
+        --accent-hover: #EA580C;
+        --navy: #101827;
+        --navy-hover: #1F2937;
+        --surface: #FFFFFF;
+        --border: #E5E7EB;
+        --border-dark: #D1D5DB;
+        --radius: 12px;
+        --radius-lg: 16px;
+        --success: #16805C;
+        --error: #D64545;
+        --gradient: none !important;
+        --shadow-glow: none !important;
+    }
+
+    body {
+        background-color: var(--bg-main) !important;
+        color: var(--text-main) !important;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        color: var(--text-main) !important;
+        font-weight: 700 !important;
+        letter-spacing: -0.03em;
+    }
+
+    /* PREMIUM NAVBAR */
+    #mainNavbar {
+        background-color: var(--bg-main) !important;
+        border-bottom: 1px solid var(--border) !important;
+        padding: 24px 0 !important;
+        box-shadow: none !important;
+        transition: padding 0.3s ease;
+    }
+
+    .brand-logo {
+        font-weight: 800 !important;
+        color: var(--text-main) !important;
+        font-size: 1.5rem !important;
+        letter-spacing: -0.04em;
+    }
+    .brand-logo i { display: none; }
+    .brand-accent { color: var(--accent) !important; background: none !important; -webkit-text-fill-color: initial !important; }
+
+    .navbar-nav {
+        gap: 2rem;
+    }
+
+    .navbar-nav .nav-link {
+        color: var(--text-main) !important;
+        font-weight: 600 !important;
+        padding: 8px 0 !important;
+        position: relative;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.05em;
+        background: transparent !important;
+    }
+    
+    .navbar-nav .nav-link::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: 0;
+        left: 0;
+        background-color: var(--accent);
+        transition: width 0.3s ease;
+    }
+
+    .navbar-nav .nav-link:hover::after, .navbar-nav .nav-link.active::after {
+        width: 100%;
+    }
+
+    /* BUTTONS */
+    .btn-brand {
+        background-color: var(--accent) !important;
+        color: #fff !important;
+        padding: 14px 28px !important;
+        border-radius: 8px !important;
+        font-weight: 600 !important;
+        font-size: 0.95rem !important;
+        text-decoration: none !important;
+        border: none !important;
+        box-shadow: none !important;
+        transition: all 0.2s ease !important;
+    }
+    .btn-brand:hover { 
+        background-color: var(--accent-hover) !important;
+        transform: translateY(-2px) !important;
+    }
+
+    .btn-navy {
+        background-color: var(--navy) !important;
+        color: #fff !important;
+        padding: 14px 28px !important;
+        border-radius: 8px !important;
+        font-weight: 600 !important;
+        font-size: 0.95rem !important;
+        text-decoration: none !important;
+        border: none !important;
+        transition: all 0.2s ease !important;
+    }
+    .btn-navy:hover {
+        background-color: var(--navy-hover) !important;
+        transform: translateY(-2px) !important;
+    }
+
+    .btn-nav-outline {
+        background-color: transparent !important;
+        color: var(--text-main) !important;
+        border: 1px solid var(--border) !important;
+        padding: 10px 24px !important;
+        border-radius: 8px !important;
+        font-weight: 600 !important;
+        font-size: 0.9rem !important;
+        text-decoration: none !important;
+        transition: all 0.2s ease !important;
+    }
+    .btn-nav-outline:hover { 
+        border-color: var(--text-main) !important;
+        background-color: var(--surface) !important;
+    }
+
+    /* FOOTER */
+    .site-footer {
+        background-color: var(--surface) !important;
+        border-top: 1px solid var(--border) !important;
+        color: var(--text-muted) !important;
+        padding: 80px 0 40px !important;
+    }
+    .footer-brand { 
+        color: var(--text-main) !important; 
+        font-weight: 800 !important; 
+        font-size: 1.5rem !important;
+        letter-spacing: -0.04em !important;
+    }
+    .footer-heading { 
+        color: var(--text-main) !important; 
+        font-weight: 700 !important; 
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.05em;
+        margin-bottom: 1.5rem !important;
+    }
+    .footer-links a { 
+        color: var(--text-muted) !important; 
+        text-decoration: none !important; 
+        font-weight: 500;
+        transition: color 0.2s ease;
+    }
+    .footer-links a:hover { 
+        color: var(--accent) !important; 
+    }
+    .devops-badges .badge-tech { 
+        background: var(--bg-main) !important; 
+        color: var(--text-muted) !important; 
+        border: 1px solid var(--border) !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Utility */
+    .section-spacing { padding: 120px 0; }
+    /* EVENT CARDS GLOBAL */
+    .event-card-premium {
+        background: var(--surface);
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        overflow: hidden;
+        text-decoration: none;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        color: var(--text-main);
+    }
+    .event-card-premium:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+        border-color: transparent;
+        color: var(--text-main);
+    }
+    .event-img {
+        height: 240px;
+        overflow: hidden;
+        position: relative;
+    }
+    .event-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+    .event-card-premium:hover .event-img img {
+        transform: scale(1.05);
+    }
+    .cat-badge {
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        background: var(--surface);
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--navy);
+        z-index: 2;
+    }
+    .event-body {
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+    .event-title {
+        font-size: 1.35rem;
+        font-weight: 800;
+        line-height: 1.3;
+        margin-bottom: 12px;
+        letter-spacing: -0.02em;
+    }
+    .event-meta {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        font-weight: 600;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 24px;
+    }
+    .event-meta i { color: var(--accent); margin-right: 6px; }
+    .event-cta {
+        margin-top: auto;
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: var(--accent);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: gap 0.2s ease;
+    }
+    .event-card-premium:hover .event-cta { gap: 12px; }
+
+    /* FILTERS & LIST HEADER */
+    .list-header {
+        background: var(--navy);
+        color: white;
+        padding: 80px 0;
+        margin-bottom: 60px;
+    }
+    .list-title {
+        color: white !important;
+        font-size: 3rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        margin-bottom: 16px;
+    }
+    .list-subtitle {
+        color: rgba(255,255,255,0.7);
+        font-size: 1.25rem;
+    }
+    .filter-sidebar-premium {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 32px;
+        position: sticky;
+        top: 100px;
+    }
+    .filter-sidebar-premium h6 {
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-size: 0.85rem;
+        margin-bottom: 24px;
+        color: var(--text-muted);
+    }
+    .form-control, .form-select {
+        border-radius: 8px !important;
+        border: 1px solid var(--border) !important;
+        padding: 12px 16px !important;
+        background-color: var(--bg-main) !important;
+        color: var(--text-main) !important;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: var(--accent) !important;
+        box-shadow: 0 0 0 4px rgba(232, 93, 63, 0.1) !important;
+    }
+    .filter-label {
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+        color: var(--text-main);
+    }
+    .cat-nav-pill {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 16px;
+        background: var(--bg-main);
+        border-radius: 8px;
+        color: var(--text-main);
+        text-decoration: none;
+        font-weight: 600;
+        margin-bottom: 8px;
+        transition: all 0.2s ease;
+    }
+    .cat-nav-pill:hover, .cat-nav-pill.active {
+        background: var(--navy);
+        color: white;
+    }
+    .cat-nav-pill .pill-count {
+        background: var(--surface);
+        color: var(--navy);
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+    }
+    .cat-nav-pill.active .pill-count {
+        background: rgba(255,255,255,0.2);
+        color: white;
+    }
+    /* AUTHENTICATION */
+    .auth-section-premium {
+        padding: 100px 0;
+        background-color: var(--bg-main);
+        min-height: calc(100vh - 200px);
+        display: flex;
+        align-items: center;
+    }
+    .auth-card-premium {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 48px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.03);
+    }
+    .auth-card-premium h2 {
+        font-size: 2.25rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        margin-bottom: 8px;
+    }
+    .auth-card-premium p {
+        color: var(--text-muted);
+        font-size: 1.05rem;
+        margin-bottom: 32px;
+    }
+    .auth-card-premium .form-label {
+        font-weight: 700;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-main);
+        margin-bottom: 8px;
+    }
+    .auth-card-premium .form-control {
+        border-radius: 8px !important;
+        border: 1px solid var(--border) !important;
+        padding: 14px 16px !important;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-size: 1rem !important;
+        background-color: var(--bg-main) !important;
+    }
+    .auth-card-premium .form-control:focus {
+        border-color: var(--accent) !important;
+        box-shadow: 0 0 0 4px rgba(232, 93, 63, 0.1) !important;
+        background-color: var(--surface) !important;
+    }
+    .auth-footer-premium {
+        margin-top: 32px;
+        padding-top: 24px;
+        border-top: 1px solid var(--border);
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        font-weight: 500;
+    }
+    .auth-footer-premium a {
+        color: var(--navy);
+        font-weight: 700;
+        text-decoration: none;
+    }
+    .auth-footer-premium a:hover {
+        color: var(--accent);
+    }
+    </style>
 
     {% block extra_css %}{% endblock %}
 </head>
 <body>
 
-<!-- Navigation -->
-<nav class="navbar navbar-expand-lg" id="mainNavbar">
+<nav class="navbar navbar-expand-lg sticky-top" id="mainNavbar">
     <div class="container">
         <a class="navbar-brand" href="{% url 'events:home' %}">
             <div class="brand-logo">
-                <i class="bi bi-calendar-star-fill"></i>
-                <span>Event<span class="brand-accent">Ease</span></span>
+                EventEase<span class="brand-accent">.</span>
             </div>
         </a>
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" style="border:none;">
+            <i class="bi bi-list fs-2 text-dark"></i>
         </button>
 
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
+        <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+            <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}"
-                       href="{% url 'events:home' %}">
-                        <i class="bi bi-house-fill me-1"></i>Home
-                    </a>
+                    <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'events:home' %}">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {% if 'event_list' in request.resolver_match.url_name %}active{% endif %}"
-                       href="{% url 'events:event_list' %}">
-                        <i class="bi bi-calendar3 me-1"></i>Events
-                    </a>
+                    <a class="nav-link {% if 'event_list' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'events:event_list' %}">Events</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'events:about' %}">
-                        <i class="bi bi-info-circle me-1"></i>About
-                    </a>
+                    <a class="nav-link" href="{% url 'events:about' %}">About</a>
                 </li>
                 {% if user.is_staff %}
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                        <i class="bi bi-shield-check me-1"></i>Admin
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{% url 'events:admin_dashboard' %}">
-                            <i class="bi bi-speedometer2 me-2"></i>Dashboard</a></li>
-                        <li><a class="dropdown-item" href="{% url 'events:admin_event_list' %}">
-                            <i class="bi bi-calendar-week me-2"></i>Manage Events</a></li>
-                        <li><a class="dropdown-item" href="{% url 'events:event_create' %}">
-                            <i class="bi bi-plus-circle me-2"></i>Create Event</a></li>
-                        <li><a class="dropdown-item" href="{% url 'events:admin_user_list' %}">
-                            <i class="bi bi-people me-2"></i>Manage Users</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="/admin/" target="_blank">
-                            <i class="bi bi-gear me-2"></i>Django Admin</a></li>
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Admin</a>
+                    <ul class="dropdown-menu border-0 shadow-sm" style="border-radius: var(--radius); background: var(--surface);">
+                        <li><a class="dropdown-item fw-medium py-2" href="{% url 'events:admin_dashboard' %}">Dashboard</a></li>
+                        <li><a class="dropdown-item fw-medium py-2" href="{% url 'events:admin_event_list' %}">Manage Events</a></li>
+                        <li><a class="dropdown-item fw-medium py-2" href="{% url 'events:admin_user_list' %}">Manage Users</a></li>
                     </ul>
-                </li>
-                {% endif %}
-            </ul>
-
-            <ul class="navbar-nav ms-auto align-items-center">
-                {% if user.is_authenticated %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'events:user_dashboard' %}">
-                        <i class="bi bi-grid me-1"></i>My Events
-                    </a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" data-bs-toggle="dropdown">
-                        <div class="nav-avatar">
-                            {{ user.first_name|first|upper|default:user.username|first|upper }}
-                        </div>
-                        {{ user.first_name|default:user.username }}
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li class="dropdown-header">
-                            <div class="fw-semibold">{{ user.get_full_name|default:user.username }}</div>
-                            <small class="text-muted">{{ user.email }}</small>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="{% url 'accounts:profile' %}">
-                            <i class="bi bi-person me-2"></i>Profile</a></li>
-                        <li><a class="dropdown-item" href="{% url 'events:user_dashboard' %}">
-                            <i class="bi bi-calendar-check me-2"></i>My Registrations</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                            <form method="post" action="{% url 'accounts:logout' %}">
-                                {% csrf_token %}
-                                <button type="submit" class="dropdown-item text-danger">
-                                    <i class="bi bi-box-arrow-right me-2"></i>Logout
-                                </button>
-                            </form>
-                        </li>
-                    </ul>
-                </li>
-                {% else %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'accounts:login' %}">
-                        <i class="bi bi-box-arrow-in-right me-1"></i>Login
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="btn btn-primary btn-nav ms-2" href="{% url 'accounts:register' %}">
-                        <i class="bi bi-person-plus me-1"></i>Register
-                    </a>
                 </li>
                 {% endif %}
             </ul>
         </div>
+        
+        <div class="d-none d-lg-flex align-items-center gap-3">
+            {% if user.is_authenticated %}
+            <a class="btn-nav-outline" href="{% url 'events:user_dashboard' %}">My Events</a>
+            <div class="dropdown">
+                <a class="btn-nav-outline dropdown-toggle d-flex align-items-center gap-2 border-0" href="#" data-bs-toggle="dropdown">
+                    <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center" style="width:28px;height:28px;font-size:0.8rem;">
+                        {{ user.first_name|first|upper|default:user.username|first|upper }}
+                    </div>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm" style="border-radius: var(--radius); background: var(--surface); margin-top: 15px;">
+                    <li><a class="dropdown-item fw-medium py-2" href="{% url 'accounts:profile' %}">Profile</a></li>
+                    <li><a class="dropdown-item fw-medium py-2 text-danger" href="javascript:void(0)" onclick="document.getElementById('logout-form').submit();">Logout</a></li>
+                    <form id="logout-form" method="post" action="{% url 'accounts:logout' %}" style="display: none;">{% csrf_token %}</form>
+                </ul>
+            </div>
+            {% else %}
+            <a class="fw-bold text-dark text-decoration-none px-3" href="{% url 'accounts:login' %}">Login</a>
+            <a class="btn-navy" href="{% url 'accounts:register' %}">Register</a>
+            {% endif %}
+        </div>
     </div>
 </nav>
 
-<!-- Messages -->
 {% if messages %}
-<div class="messages-container">
+<div class="container mt-4">
     {% for message in messages %}
-    <div class="alert alert-{{ message.tags }} alert-dismissible fade show animated-message" role="alert">
-        <i class="bi bi-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'danger' %}exclamation-circle{% elif message.tags == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
-        {{ message }}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show border-0" role="alert" style="background: var(--surface); color: var(--text-main); border-left: 4px solid var(--accent) !important; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+        <span class="fw-semibold">{{ message }}</span>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
     {% endfor %}
 </div>
 {% endif %}
 
-<!-- Main Content -->
 <main>
     {% block content %}{% endblock %}
 </main>
 
-<!-- Footer -->
 <footer class="site-footer">
     <div class="container">
-        <div class="row">
-            <div class="col-lg-4 mb-4">
-                <div class="footer-brand">
-                    <i class="bi bi-calendar-star-fill"></i>
-                    <span>Event<span>Ease</span></span>
-                </div>
-                <p class="footer-desc">
-                    A containerized event management system built with Django, Docker, and a full DevOps CI/CD pipeline.
+        <div class="row gx-5">
+            <div class="col-lg-5 mb-5 mb-lg-0">
+                <div class="footer-brand mb-4">EventEase<span class="text-danger">.</span></div>
+                <p class="footer-desc pe-lg-5" style="font-size: 1.1rem; line-height: 1.6;">
+                    Discover events, reserve your spot, and manage every registration from one premium platform.
                 </p>
-                <div class="footer-social">
-                    <a href="https://github.com" target="_blank" title="GitHub"><i class="bi bi-github"></i></a>
-                    <a href="#" title="LinkedIn"><i class="bi bi-linkedin"></i></a>
-                    <a href="#" title="Twitter"><i class="bi bi-twitter-x"></i></a>
+                <div class="mt-4 d-flex gap-3">
+                    <a href="#" class="text-dark fs-5"><i class="bi bi-twitter-x"></i></a>
+                    <a href="#" class="text-dark fs-5"><i class="bi bi-instagram"></i></a>
+                    <a href="#" class="text-dark fs-5"><i class="bi bi-linkedin"></i></a>
                 </div>
             </div>
             <div class="col-lg-2 col-md-4 mb-4">
-                <h6 class="footer-heading">Quick Links</h6>
-                <ul class="footer-links">
+                <h6 class="footer-heading">Platform</h6>
+                <ul class="footer-links list-unstyled d-flex flex-column gap-2">
                     <li><a href="{% url 'events:home' %}">Home</a></li>
-                    <li><a href="{% url 'events:event_list' %}">All Events</a></li>
-                    <li><a href="{% url 'events:about' %}">About</a></li>
+                    <li><a href="{% url 'events:event_list' %}">Discover Events</a></li>
+                    <li><a href="{% url 'events:about' %}">About Us</a></li>
                 </ul>
             </div>
             <div class="col-lg-2 col-md-4 mb-4">
                 <h6 class="footer-heading">Account</h6>
-                <ul class="footer-links">
+                <ul class="footer-links list-unstyled d-flex flex-column gap-2">
                     {% if user.is_authenticated %}
-                    <li><a href="{% url 'accounts:profile' %}">My Profile</a></li>
-                    <li><a href="{% url 'events:user_dashboard' %}">My Events</a></li>
+                    <li><a href="{% url 'accounts:profile' %}">Profile</a></li>
+                    <li><a href="{% url 'events:user_dashboard' %}">My Tickets</a></li>
                     {% else %}
-                    <li><a href="{% url 'accounts:login' %}">Login</a></li>
-                    <li><a href="{% url 'accounts:register' %}">Register</a></li>
+                    <li><a href="{% url 'accounts:login' %}">Sign In</a></li>
+                    <li><a href="{% url 'accounts:register' %}">Create Account</a></li>
                     {% endif %}
                 </ul>
             </div>
-            <div class="col-lg-4 col-md-4 mb-4">
-                <h6 class="footer-heading">DevOps Stack</h6>
-                <div class="devops-badges">
-                    <span class="badge-tech">Django</span>
-                    <span class="badge-tech">Docker</span>
-                    <span class="badge-tech">PostgreSQL</span>
-                    <span class="badge-tech">Nginx</span>
-                    <span class="badge-tech">Jenkins</span>
-                    <span class="badge-tech">Prometheus</span>
-                    <span class="badge-tech">Grafana</span>
-                    <span class="badge-tech">GitHub Actions</span>
+            <div class="col-lg-3 col-md-4 mb-4">
+                <h6 class="footer-heading">Powered By</h6>
+                <div class="devops-badges d-flex flex-wrap gap-2">
+                    <span class="badge badge-tech rounded-2 px-3 py-2">Django</span>
+                    <span class="badge badge-tech rounded-2 px-3 py-2">Docker</span>
+                    <span class="badge badge-tech rounded-2 px-3 py-2">PostgreSQL</span>
                 </div>
             </div>
         </div>
-        <hr class="footer-divider">
-        <div class="row align-items-center">
-            <div class="col-md-6 text-center text-md-start">
-                <p class="footer-copy">© 2026 EventEase. Built with ❤️ as a DevOps College Project.</p>
-            </div>
-            <div class="col-md-6 text-center text-md-end">
-                <small class="text-muted">
-                    <i class="bi bi-git me-1"></i>Version 1.0.0 |
-                    <i class="bi bi-docker me-1 ms-2"></i>Containerized |
-                    <i class="bi bi-activity me-1 ms-2"></i>Monitored
-                </small>
-            </div>
+        <div class="d-flex justify-content-between align-items-center mt-5 pt-4 border-top" style="border-color: var(--border) !important;">
+            <p class="mb-0 text-muted fw-medium">© 2026 EventEase.</p>
         </div>
     </div>
 </footer>
 
-<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- Main JS -->
 <script src="{% static 'js/main.js' %}"></script>
-
 {% block extra_js %}{% endblock %}
 </body>
 </html>

@@ -1754,3 +1754,4 @@ img { max-width: 100%; height: auto; }
   .tech-grid { grid-template-columns: repeat(2, 1fr); }
   .pipeline-steps { gap: 4px; }
 }
+

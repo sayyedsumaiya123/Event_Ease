@@ -3,83 +3,82 @@
 {% block title %}Manage Events — EventEase Admin{% endblock %}
 
 {% block content %}
-<section class="page-header admin-page-header">
+<section class="list-header" style="padding: 60px 0; margin-bottom: 40px;">
     <div class="container">
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
             <div>
-                <h1 class="page-title"><i class="bi bi-calendar-week me-2"></i>Manage Events</h1>
-                <p class="page-subtitle">{{ page_obj.paginator.count }} total events</p>
+                <h1 class="list-title"><i class="bi bi-calendar-week me-2"></i>Manage Events</h1>
+                <p class="list-subtitle">{{ page_obj.paginator.count }} total events</p>
             </div>
-            <a href="{% url 'events:event_create' %}" class="btn btn-primary" id="createEventBtnList">
+            <a href="{% url 'events:event_create' %}" class="btn-brand">
                 <i class="bi bi-plus-circle me-2"></i>Create Event
             </a>
         </div>
     </div>
 </section>
 
-<section class="section-padding">
+<section class="section-spacing" style="padding-top: 0;">
     <div class="container">
-        <div class="detail-card">
+        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden;">
             <div class="table-responsive">
-                <table class="table admin-table">
-                    <thead>
+                <table class="table mb-0">
+                    <thead style="background: var(--bg-main);">
                         <tr>
-                            <th>Event</th>
-                            <th>Category</th>
-                            <th>Date</th>
-                            <th>Venue</th>
-                            <th>Registrations</th>
-                            <th>Status</th>
-                            <th>Actions</th>
+                            <th style="padding: 16px 24px; font-weight: 700; color: var(--text-muted); border-bottom: 1px solid var(--border);">Event</th>
+                            <th style="padding: 16px 24px; font-weight: 700; color: var(--text-muted); border-bottom: 1px solid var(--border);">Category</th>
+                            <th style="padding: 16px 24px; font-weight: 700; color: var(--text-muted); border-bottom: 1px solid var(--border);">Date</th>
+                            <th style="padding: 16px 24px; font-weight: 700; color: var(--text-muted); border-bottom: 1px solid var(--border);">Registrations</th>
+                            <th style="padding: 16px 24px; font-weight: 700; color: var(--text-muted); border-bottom: 1px solid var(--border);">Status</th>
+                            <th style="padding: 16px 24px; font-weight: 700; color: var(--text-muted); border-bottom: 1px solid var(--border);">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for event in events %}
                         <tr>
-                            <td>
+                            <td style="padding: 16px 24px; vertical-align: middle;">
                                 <div class="d-flex align-items-center gap-2">
                                     {% if event.featured %}
                                     <i class="bi bi-star-fill text-warning" title="Featured"></i>
                                     {% endif %}
-                                    <a href="{% url 'events:event_detail' event.slug %}" class="fw-semibold">
+                                    <a href="{% url 'events:event_detail' event.slug %}" style="font-weight: 700; color: var(--navy); text-decoration: none;">
                                         {{ event.title|truncatechars:40 }}
                                     </a>
                                 </div>
                             </td>
-                            <td>
+                            <td style="padding: 16px 24px; vertical-align: middle;">
                                 {% if event.category %}
-                                <span class="badge" style="background: {{ event.category.color }}20; color: {{ event.category.color }}">
+                                <span style="background: var(--bg-main); color: var(--text-muted); padding: 4px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 700;">
                                     {{ event.category.name }}
                                 </span>
                                 {% else %}—{% endif %}
                             </td>
-                            <td>{{ event.date|date:"M d, Y" }}</td>
-                            <td>{{ event.venue|truncatechars:25 }}</td>
-                            <td>
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="fw-bold">{{ event.reg_count }}</span>
-                                    <small class="text-muted">/ {{ event.capacity }}</small>
-                                </div>
+                            <td style="padding: 16px 24px; vertical-align: middle; color: var(--text-muted); font-weight: 600;">{{ event.date|date:"M d, Y" }}</td>
+                            <td style="padding: 16px 24px; vertical-align: middle; font-weight: 700; color: var(--navy);">
+                                {{ event.reg_count }} <span style="color: var(--text-muted);">/ {{ event.capacity }}</span>
                             </td>
-                            <td><span class="status-badge status-{{ event.status }}">{{ event.get_status_display }}</span></td>
-                            <td>
-                                <div class="d-flex gap-1">
-                                    <a href="{% url 'events:event_edit' event.slug %}"
-                                       class="btn btn-xs btn-outline-primary" title="Edit">
+                            <td style="padding: 16px 24px; vertical-align: middle;">
+                                <span style="font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; padding: 4px 8px; border-radius: 4px;
+                                    {% if event.status == 'upcoming' %}background: rgba(22,128,92,0.1); color: var(--success);
+                                    {% elif event.status == 'cancelled' %}background: rgba(214,69,69,0.1); color: var(--error);
+                                    {% else %}background: var(--bg-main); color: var(--text-muted);{% endif %}">
+                                    {{ event.get_status_display }}
+                                </span>
+                            </td>
+                            <td style="padding: 16px 24px; vertical-align: middle;">
+                                <div class="d-flex gap-2">
+                                    <a href="{% url 'events:event_edit' event.slug %}" class="btn-nav-outline" style="padding: 4px 12px; font-size: 0.85rem;" title="Edit">
                                         <i class="bi bi-pencil"></i>
                                     </a>
-                                    <a href="{% url 'events:event_participants' event.slug %}"
-                                       class="btn btn-xs btn-outline-info" title="View Participants">
+                                    <a href="{% url 'events:event_participants' event.slug %}" class="btn-nav-outline" style="padding: 4px 12px; font-size: 0.85rem;" title="View Participants">
                                         <i class="bi bi-people"></i>
                                     </a>
-                                    <a href="{% url 'events:event_detail' event.slug %}"
-                                       class="btn btn-xs btn-outline-secondary" title="Preview">
+                                    <a href="{% url 'events:event_detail' event.slug %}" class="btn-nav-outline" style="padding: 4px 12px; font-size: 0.85rem;" title="Preview">
                                         <i class="bi bi-eye"></i>
                                     </a>
                                     <form method="post" action="{% url 'events:event_delete' event.slug %}" style="display:inline"
                                           onsubmit="return confirm('Delete {{ event.title }}? This cannot be undone.')">
                                         {% csrf_token %}
-                                        <button type="submit" class="btn btn-xs btn-outline-danger" title="Delete">
+                                        <button type="submit" class="btn-nav-outline" style="padding: 4px 12px; font-size: 0.85rem; color: var(--error); border-color: var(--error);" title="Delete">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </form>
@@ -88,9 +87,9 @@
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="7" class="text-center py-5 text-muted">
-                                <i class="bi bi-calendar-x fs-2 d-block mb-2"></i>
-                                No events yet. <a href="{% url 'events:event_create' %}">Create one!</a>
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="bi bi-calendar-x fs-2 d-block mb-3"></i>
+                                <span style="font-weight: 600;">No events yet.</span> <a href="{% url 'events:event_create' %}" style="color: var(--accent); text-decoration: none;">Create one!</a>
                             </td>
                         </tr>
                         {% endfor %}
@@ -100,29 +99,21 @@
 
             <!-- Pagination -->
             {% if is_paginated %}
-            <nav class="mt-4">
-                <ul class="pagination justify-content-center">
+            <div style="padding: 24px; border-top: 1px solid var(--border); display: flex; justify-content: center;">
+                <div class="d-flex gap-2">
                     {% if page_obj.has_previous %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
-                            <i class="bi bi-chevron-left"></i>
-                        </a>
-                    </li>
+                    <a href="?page={{ page_obj.previous_page_number }}" class="btn-nav-outline" style="padding: 6px 12px;"><i class="bi bi-chevron-left"></i></a>
                     {% endif %}
+                    
                     {% for num in page_obj.paginator.page_range %}
-                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
-                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
-                    </li>
+                    <a href="?page={{ num }}" class="{% if page_obj.number == num %}btn-brand{% else %}btn-nav-outline{% endif %}" style="padding: 6px 16px;">{{ num }}</a>
                     {% endfor %}
+                    
                     {% if page_obj.has_next %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">
-                            <i class="bi bi-chevron-right"></i>
-                        </a>
-                    </li>
+                    <a href="?page={{ page_obj.next_page_number }}" class="btn-nav-outline" style="padding: 6px 12px;"><i class="bi bi-chevron-right"></i></a>
                     {% endif %}
-                </ul>
-            </nav>
+                </div>
+            </div>
             {% endif %}
         </div>
     </div>

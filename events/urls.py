@@ -25,10 +25,18 @@ urlpatterns = [
     path('admin-panel/events/<slug:slug>/participants/', views.EventParticipantsView.as_view(), name='event_participants'),
     path('admin-panel/users/', views.AdminUserListView.as_view(), name='admin_user_list'),
     path('admin-panel/users/<int:pk>/toggle/', views.ToggleUserStatusView.as_view(), name='toggle_user_status'),
+    path('admin-panel/users/<int:pk>/toggle-organizer/', views.ToggleOrganizerStatusView.as_view(), name='toggle_organizer_status'),
 
     # Category
     path('category/<slug:slug>/', views.CategoryEventView.as_view(), name='category_events'),
 
     # About
     path('about/', views.AboutView.as_view(), name='about'),
+
+    # Attendance
+    path('admin-panel/events/<slug:slug>/attendance/', views.AttendanceDashboardView.as_view(), name='attendance_dashboard'),
+    path('admin-panel/events/<slug:slug>/attendance/generate/', views.GenerateQRView.as_view(), name='generate_qr'),
+    path('admin-panel/events/<slug:slug>/attendance/qr/', views.DisplayQRView.as_view(), name='display_qr'),
+    path('attendance/scan/<str:token>/', views.ScanQRView.as_view(), name='scan_qr'),
+    path('attendance/confirm/<str:token>/', views.ConfirmAttendanceView.as_view(), name='confirm_attendance'),
 ]

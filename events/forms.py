@@ -9,7 +9,7 @@ class EventForm(forms.ModelForm):
     class Meta:
         model = Event
         fields = [
-            'title', 'description', 'short_description', 'category',
+            'title', 'description', 'short_description', 'organizer', 'category',
             'date', 'time', 'end_date', 'end_time',
             'venue', 'venue_address', 'capacity',
             'image', 'status', 'is_free', 'price', 'tags', 'featured'
@@ -18,6 +18,7 @@ class EventForm(forms.ModelForm):
             'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Event title'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 5}),
             'short_description': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+            'organizer': forms.Select(attrs={'class': 'form-select'}),
             'category': forms.Select(attrs={'class': 'form-select'}),
             'date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'time': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
@@ -30,7 +31,15 @@ class EventForm(forms.ModelForm):
             'status': forms.Select(attrs={'class': 'form-select'}),
             'price': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'step': 0.01}),
             'tags': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'tech, workshop, AI (comma-separated)'}),
+            'tags': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'tech, workshop, AI (comma-separated)'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        self.fields['organizer'].queryset = User.objects.filter(is_staff=True)
+        self.fields['organizer'].empty_label = "Select Organizer"
 
     def save(self, commit=True):
         event = super().save(commit=False)

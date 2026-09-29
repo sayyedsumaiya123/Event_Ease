@@ -3,21 +3,17 @@
 {% block title %}Login — EventEase{% endblock %}
 
 {% block content %}
-<section class="auth-section">
+<section class="auth-section-premium">
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-md-5 col-lg-4">
-                <div class="auth-card">
-                    <div class="auth-header">
-                        <div class="auth-icon">
-                            <i class="bi bi-box-arrow-in-right"></i>
-                        </div>
-                        <h2>Welcome Back</h2>
-                        <p>Sign in to your EventEase account</p>
-                    </div>
+            <div class="col-md-6 col-lg-5 col-xl-4">
+                <div class="auth-card-premium">
+                    <h2>Welcome Back.</h2>
+                    <p>Sign in to discover and manage events.</p>
+                    
                     <form method="POST" id="loginForm">
                         {% csrf_token %}
-                        <div class="mb-3">
+                        <div class="mb-4">
                             <label class="form-label">Username</label>
                             {{ form.username }}
                         </div>
@@ -25,19 +21,20 @@
                             <label class="form-label">Password</label>
                             {{ form.password }}
                         </div>
-                        <button type="submit" class="btn btn-primary w-100 btn-lg" id="loginSubmitBtn">
-                            <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+                        
+                        <div class="mt-4 mb-4" style="background: rgba(232,93,63,0.05); border: 1px solid rgba(232,93,63,0.2); padding: 12px; border-radius: 8px; color: var(--accent); font-size: 0.85rem; font-weight: 600;">
+                            <span>Demo Access:</span> <strong>admin</strong> / <strong>Admin@123</strong>
+                        </div>
+                        
+                        <button type="submit" class="btn-brand w-100" id="loginSubmitBtn">
+                            Sign In
                         </button>
                     </form>
-                    <div class="auth-demo-hint">
-                        <small>
-                            <i class="bi bi-info-circle me-1"></i>
-                            Demo admin: <strong>admin</strong> / <strong>Admin@123</strong>
-                        </small>
-                    </div>
-                    <div class="auth-footer">
-                        Don't have an account?
-                        <a href="{% url 'accounts:register' %}">Register Free</a>
+                    
+                    <div class="auth-footer-premium">
+                        Don't have an account yet? 
+                        <br>
+                        <a href="{% url 'accounts:register' %}">Create Account</a>
                     </div>
                 </div>
             </div>

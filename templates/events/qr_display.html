@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}Attendance Display - {{ event.title }}{% endblock %}
+
+{% block content %}
+<section class="list-header" style="padding: 60px 0; margin-bottom: 40px;">
+    <div class="container text-center">
+        <a href="{% url 'events:attendance_dashboard' event.slug %}" style="color: rgba(255,255,255,0.7); text-decoration: none; font-weight: 600; display: inline-block; margin-bottom: 16px;">
+            <i class="bi bi-arrow-left me-2"></i>Close Projector View
+        </a>
+        <h1 class="list-title" style="font-size: 3rem; margin-bottom: 8px;">Scan to Check In</h1>
+        <p class="list-subtitle" style="font-size: 1.25rem;">{{ event.title }}</p>
+    </div>
+</section>
+
+<section class="section-spacing" style="padding-top: 0; min-height: 60vh; display: flex; align-items: center; justify-content: center;">
+    <div class="container d-flex justify-content-center">
+        {% if qr_data %}
+            <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 48px; box-shadow: 0 20px 60px rgba(0,0,0,0.08); text-align: center; max-width: 600px; width: 100%;">
+                
+                <div style="display: inline-block; background: rgba(22, 128, 92, 0.1); color: var(--success); padding: 8px 16px; border-radius: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.85rem; margin-bottom: 32px;">
+                    <i class="bi bi-circle-fill me-2" style="font-size: 0.6rem;"></i>Attendance is LIVE
+                </div>
+
+                <div style="background: white; padding: 24px; border-radius: 16px; border: 1px solid var(--border-light); display: inline-block; margin-bottom: 32px;">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=400x400&data={{ qr_data|urlencode }}&margin=0" alt="Attendance QR Code" style="width: 400px; height: 400px; display: block;">
+                </div>
+                
+                <div style="font-size: 1.1rem; font-weight: 600; color: var(--text-muted);">
+                    <i class="bi bi-arrow-clockwise me-2"></i>QR code refreshes automatically
+                </div>
+            </div>
+            
+            <script>
+                // Refresh the page automatically when token expires
+                setTimeout(function() {
+                    window.location.reload();
+                }, {{ seconds_left }} * 1000);
+            </script>
+        {% else %}
+            <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 64px 48px; box-shadow: 0 20px 60px rgba(0,0,0,0.08); text-align: center; max-width: 600px; width: 100%;">
+                <div style="width: 96px; height: 96px; background: rgba(214, 69, 69, 0.1); color: var(--error); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3rem; margin: 0 auto 24px;">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </div>
+                <h2 style="font-weight: 800; font-size: 2rem; color: var(--navy); margin-bottom: 16px;">QR Expired</h2>
+                <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 32px;">Please generate a new QR token from the attendance dashboard.</p>
+                <a href="{% url 'events:attendance_dashboard' event.slug %}" class="btn-brand">
+                    Return to Dashboard
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

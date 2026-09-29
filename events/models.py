@@ -100,6 +100,11 @@ class Registration(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='confirmed')
     notes = models.TextField(blank=True)
     ticket_number = models.CharField(max_length=20, unique=True, blank=True)
+    
+    # Extra fields for students
+    branch = models.CharField(max_length=100, blank=True)
+    student_class = models.CharField(max_length=100, blank=True)
+    roll_number = models.CharField(max_length=50, blank=True)
 
     class Meta:
         unique_together = ['user', 'event']
@@ -130,3 +135,38 @@ class EventFeedback(models.Model):
 
     def __str__(self):
         return f"{self.user.username} rated {self.event.title}: {self.rating}/5"
+
+
+class AttendanceSession(models.Model):
+    """Represents a period where attendance can be marked for an event."""
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='attendance_sessions')
+    name = models.CharField(max_length=200, default='Main Session')
+    is_active = models.BooleanField(default=False)
+    current_qr_token = models.CharField(max_length=100, blank=True)
+    token_expires_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def generate_new_token(self, duration_minutes=5):
+        import uuid
+        self.current_qr_token = str(uuid.uuid4())
+        self.token_expires_at = timezone.now() + timezone.timedelta(minutes=duration_minutes)
+        self.is_active = True
+        self.save()
+        return self.current_qr_token
+
+    def __str__(self):
+        return f"{self.event.title} - {self.name}"
+
+
+class AttendanceRecord(models.Model):
+    """Records an attendee's presence for a specific session."""
+    session = models.ForeignKey(AttendanceSession, on_delete=models.CASCADE, related_name='records')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='attendance_records')
+    scanned_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, choices=[('present', 'Present')], default='present')
+
+    class Meta:
+        unique_together = ['session', 'user']
+
+    def __str__(self):
+        return f"{self.user.username} present at {self.session.event.title}"
