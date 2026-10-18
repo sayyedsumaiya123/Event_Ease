@@ -309,7 +309,7 @@ class AdminUserListView(LoginRequiredMixin, AdminRequiredMixin, ListView):
     paginate_by = 20
 
     def get_queryset(self):
-        return User.objects.annotate(
+        return User.objects.select_related('coordinator_application').annotate(
             reg_count=Count('registrations')
         ).order_by('-date_joined')
 
@@ -343,6 +343,10 @@ class ToggleOrganizerStatusView(LoginRequiredMixin, AdminRequiredMixin, View):
         else:
             user.is_staff = not user.is_staff
             user.save()
+            from accounts.models import CoordinatorApplication
+            CoordinatorApplication.objects.filter(user=user).update(
+                status='approved' if user.is_staff else 'revoked'
+            )
             status = 'granted organizer access to' if user.is_staff else 'revoked organizer access from'
             messages.success(request, f'Successfully {status} "{user.username}".')
         return redirect('events:admin_user_list')

@@ -51,9 +51,20 @@
                                 {% if u.is_superuser %}
                                 <span style="background: rgba(214,69,69,0.1); color: var(--error); padding: 4px 12px; border-radius: 6px; font-weight: 800; font-size: 0.75rem; text-transform: uppercase;">Superuser</span>
                                 {% elif u.is_staff %}
-                                <span style="background: rgba(249,115,22,0.1); color: var(--accent); padding: 4px 12px; border-radius: 6px; font-weight: 800; font-size: 0.75rem; text-transform: uppercase;">Staff</span>
+                                <span style="background: rgba(249,115,22,0.1); color: var(--accent); padding: 4px 12px; border-radius: 6px; font-weight: 800; font-size: 0.75rem; text-transform: uppercase;">Coordinator</span>
+                                {% elif u.coordinator_application.status == 'pending' %}
+                                <span>Coordinator request pending</span>
                                 {% else %}
                                 <span style="background: var(--bg-main); color: var(--text-muted); padding: 4px 12px; border-radius: 6px; font-weight: 800; font-size: 0.75rem; text-transform: uppercase;">User</span>
+                                {% endif %}
+                                {% if u.coordinator_application %}
+                                <details class="mt-2"><summary>Event plans</summary>
+                                    <div style="max-width: 280px; overflow-wrap: anywhere;">
+                                        <p>{{ u.coordinator_application.organization }}<br>{{ u.profile.phone }}</p>
+                                        <p>{{ u.coordinator_application.get_event_type_display }} · {{ u.coordinator_application.expected_attendees }} attendees</p>
+                                        <p>{{ u.coordinator_application.event_plan }}</p>
+                                    </div>
+                                </details>
                                 {% endif %}
                             </td>
                             <td style="padding: 16px 24px; vertical-align: middle;">
@@ -87,7 +98,7 @@
                                             {% if u.is_staff %}
                                             <i class="bi bi-shield-slash"></i> Revoke
                                             {% else %}
-                                            <i class="bi bi-shield-check"></i> Make Organizer
+                                            <i class="bi bi-shield-check"></i> {% if u.coordinator_application.status == 'pending' %}Approve Coordinator{% else %}Make Organizer{% endif %}
                                             {% endif %}
                                         </button>
                                     </form>

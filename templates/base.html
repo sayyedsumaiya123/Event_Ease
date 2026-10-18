@@ -478,6 +478,17 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'events:admin_event_list' %}">Manage My Events</a>
                 </li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'accounts:coordinator_panel' %}">Coordinator Panel</a></li>
+                {% elif user.is_authenticated and user.coordinator_application %}
+                <li class="nav-item"><a class="nav-link" href="{% url 'accounts:coordinator_panel' %}">Coordinator Panel</a></li>
+                {% elif not user.is_authenticated %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Coordinator</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'accounts:coordinator_login' %}">Login as Coordinator</a></li>
+                        <li><a class="dropdown-item" href="{% url 'accounts:coordinator_register' %}">Register as Coordinator</a></li>
+                    </ul>
+                </li>
                 {% endif %}
             </ul>
         </div>

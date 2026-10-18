@@ -7,7 +7,7 @@ from django.dispatch import receiver
 class UserProfile(models.Model):
     """Extended user profile."""
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
-    phone = models.CharField(max_length=15, blank=True)
+    phone = models.CharField(max_length=16, blank=True)
     bio = models.TextField(blank=True)
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
     organization = models.CharField(max_length=200, blank=True)
@@ -22,6 +22,21 @@ class UserProfile(models.Model):
     @property
     def full_name(self):
         return f'{self.user.first_name} {self.user.last_name}'.strip() or self.user.username
+
+
+class CoordinatorApplication(models.Model):
+    EVENT_TYPES = [
+        ('technical', 'Technical / workshop'), ('cultural', 'Cultural / festival'),
+        ('sports', 'Sports'), ('academic', 'Academic / seminar'),
+        ('community', 'Community / charity'), ('other', 'Other'),
+    ]
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='coordinator_application')
+    organization = models.CharField(max_length=200)
+    event_type = models.CharField(max_length=20, choices=EVENT_TYPES)
+    expected_attendees = models.PositiveIntegerField()
+    event_plan = models.TextField(max_length=1000)
+    status = models.CharField(max_length=10, choices=[('pending', 'Pending'), ('approved', 'Approved'), ('revoked', 'Revoked')], default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
 
 
 @receiver(post_save, sender=User)

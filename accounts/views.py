@@ -5,8 +5,10 @@ from django.contrib import messages
 from django.views.generic import CreateView, View, TemplateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
+from django.core.exceptions import PermissionDenied
 
-from .forms import RegisterForm, LoginForm, ProfileUpdateForm
+from .forms import RegisterForm, LoginForm, ProfileUpdateForm, CoordinatorRegisterForm, CoordinatorLoginForm
+from .models import CoordinatorApplication
 
 
 class RegisterView(CreateView):
@@ -55,6 +57,47 @@ class LoginView(View):
         else:
             messages.error(request, 'Invalid username or password.')
         return render(request, self.template_name, {'form': form})
+
+
+class CoordinatorRegisterView(RegisterView):
+    form_class = CoordinatorRegisterForm
+    template_name = 'accounts/coordinator_register.html'
+
+    def form_valid(self, form):
+        user = form.save()
+        login(self.request, user)
+        messages.success(self.request, 'Coordinator request submitted. An administrator will review it.')
+        return redirect('accounts:coordinator_panel')
+
+
+class CoordinatorLoginView(View):
+    template_name = 'accounts/coordinator_login.html'
+
+    def get(self, request):
+        if request.user.is_authenticated:
+            return redirect('accounts:coordinator_panel')
+        return render(request, self.template_name, {'form': CoordinatorLoginForm(request)})
+
+    def post(self, request):
+        form = CoordinatorLoginForm(request, data=request.POST)
+        if form.is_valid():
+            login(request, form.get_user())
+            return redirect('accounts:coordinator_panel')
+        return render(request, self.template_name, {'form': form})
+
+
+class CoordinatorPanelView(LoginRequiredMixin, TemplateView):
+    template_name = 'accounts/coordinator_panel.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        application = CoordinatorApplication.objects.filter(user=user).first()
+        if not (user.is_staff or user.is_superuser or application):
+            raise PermissionDenied('A coordinator account is required.')
+        context['application'] = application
+        context['coordinator_approved'] = user.is_active and (user.is_staff or user.is_superuser)
+        return context
 
 
 class LogoutView(View):

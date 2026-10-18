@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}Register as Coordinator — EventEase{% endblock %}
+{% block content %}
+<section class="auth-section-premium"><div class="container"><div class="row justify-content-center">
+  <div class="col-md-9 col-lg-7"><div class="auth-card-premium">
+    <h2>Become an event coordinator.</h2>
+    <p>Tell us about your events. An administrator will approve your request before you can manage events.</p>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      {% for field in form %}
+      <div class="mb-3">
+        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.help_text %}<div class="small mt-1">{{ field.help_text|safe }}</div>{% endif %}
+        {% for error in field.errors %}<div class="text-danger small" role="alert">{{ error }}</div>{% endfor %}
+      </div>
+      {% endfor %}
+      <button class="btn-brand w-100" type="submit">Register as Coordinator</button>
+    </form>
+    <div class="auth-footer-premium">Already a coordinator? <a href="{% url 'accounts:coordinator_login' %}">Login as Coordinator</a><br>
+      Joining as an attendee? <a href="{% url 'accounts:register' %}">Create a member account</a>
+    </div>
+  </div></div>
+</div></div></section>
+{% endblock %}
