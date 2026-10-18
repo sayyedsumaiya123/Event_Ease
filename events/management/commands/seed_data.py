@@ -29,6 +29,8 @@ EVENTS = [
         'venue': 'College Auditorium',
         'capacity': 500,
         'days': 5,
+        'time': '10:00',
+        'end_time': '18:00',
         'category': 'Technology',
         'featured': True,
         'status': 'upcoming',
@@ -39,6 +41,8 @@ EVENTS = [
         'venue': 'CS Lab, Block B',
         'capacity': 200,
         'days': 12,
+        'time': '09:30',
+        'end_time': '22:30',
         'category': 'Hackathon',
         'featured': True,
         'status': 'upcoming',
@@ -49,6 +53,8 @@ EVENTS = [
         'venue': 'Seminar Hall 1',
         'capacity': 80,
         'days': 8,
+        'time': '11:00',
+        'end_time': '15:00',
         'category': 'AI & ML',
         'featured': True,
         'status': 'upcoming',
@@ -59,6 +65,8 @@ EVENTS = [
         'venue': 'Sports Ground',
         'capacity': 1000,
         'days': 15,
+        'time': '08:30',
+        'end_time': '17:30',
         'category': 'Sports',
         'featured': False,
         'status': 'upcoming',
@@ -69,6 +77,8 @@ EVENTS = [
         'venue': 'IT Department Seminar Hall',
         'capacity': 100,
         'days': 20,
+        'time': '13:00',
+        'end_time': '17:00',
         'category': 'Technology',
         'featured': True,
         'status': 'upcoming',
@@ -79,6 +89,8 @@ EVENTS = [
         'venue': 'Open Air Theatre',
         'capacity': 800,
         'days': 18,
+        'time': '18:30',
+        'end_time': '22:30',
         'category': 'Cultural',
         'featured': False,
         'status': 'upcoming',
@@ -89,6 +101,8 @@ EVENTS = [
         'venue': 'Computer Lab 3',
         'capacity': 50,
         'days': 25,
+        'time': '09:00',
+        'end_time': '16:00',
         'category': 'Workshop',
         'featured': False,
         'status': 'upcoming',
@@ -99,6 +113,8 @@ EVENTS = [
         'venue': 'Business School Auditorium',
         'capacity': 150,
         'days': 30,
+        'time': '14:00',
+        'end_time': '18:00',
         'category': 'Business',
         'featured': True,
         'status': 'upcoming',
@@ -109,6 +125,8 @@ EVENTS = [
         'venue': 'Online + Main Auditorium',
         'capacity': 300,
         'days': -5,
+        'time': '15:00',
+        'end_time': '17:00',
         'category': 'Technology',
         'featured': False,
         'status': 'completed',
@@ -119,9 +137,23 @@ EVENTS = [
         'venue': 'Conference Hall',
         'capacity': 200,
         'days': -10,
+        'time': '10:30',
+        'end_time': '16:30',
         'category': 'Science',
         'featured': False,
         'status': 'completed',
+    },
+    {
+        'title': 'Campus Design Sprint',
+        'description': 'A focused design sprint for students and creators to ideate, prototype, and pitch real product concepts. Includes mentorship from UI/UX mentors and product designers.',
+        'venue': 'Innovation Center Hall',
+        'capacity': 120,
+        'days': 3,
+        'time': '17:00',
+        'end_time': '20:30',
+        'category': 'Technology',
+        'featured': True,
+        'status': 'upcoming',
     },
 ]
 
@@ -131,6 +163,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.stdout.write(self.style.NOTICE('\nSeeding EventEase database...\n'))
+
+        Registration.objects.all().delete()
+        Event.objects.all().delete()
 
         # Create admin if not exists
         if not User.objects.filter(username='admin').exists():
@@ -176,10 +211,10 @@ class Command(BaseCommand):
         event_count = 0
         for ev_data in EVENTS:
             slug = slugify(ev_data['title'])
-            if Event.objects.filter(slug=slug).exists():
-                continue
-
             event_date = date.today() + timedelta(days=ev_data['days'])
+            event_start = time.fromisoformat(ev_data['time'])
+            event_end = time.fromisoformat(ev_data['end_time'])
+
             event = Event.objects.create(
                 title=ev_data['title'],
                 slug=slug,
@@ -187,8 +222,8 @@ class Command(BaseCommand):
                 short_description=ev_data['description'][:200] + '...',
                 category=category_map.get(ev_data['category']),
                 date=event_date,
-                time=time(10, 0),
-                end_time=time(17, 0),
+                time=event_start,
+                end_time=event_end,
                 venue=ev_data['venue'],
                 venue_address=f'{ev_data["venue"]}, Main Campus, College Road',
                 capacity=ev_data['capacity'],
@@ -217,6 +252,6 @@ class Command(BaseCommand):
             '\nDatabase seeded successfully!\n'
             'Admin:  admin / Admin@123\n'
             'Users:  user1-5 / Test@1234\n'
-            'Events: 10 events created\n'
+            f'Events: {event_count} events created\n'
             'Visit:  http://localhost:8000\n'
         ))
