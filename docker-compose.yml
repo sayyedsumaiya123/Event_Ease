@@ -19,7 +19,7 @@ services:
       retries: 5
 
   web:
-    build: .
+    image: mujahiddxd/eventease:${IMAGE_TAG:-latest}
     command: ["gunicorn", "event_management.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "2"]
     container_name: eventease_web
     restart: unless-stopped
