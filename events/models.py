@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.core.exceptions import ValidationError
+from datetime import datetime
 
 
 class Category(models.Model):
@@ -56,6 +58,32 @@ class Event(models.Model):
 
     def __str__(self):
         return self.title
+
+    def clean(self):
+        """Validate schedules in both event forms and Django administration."""
+        super().clean()
+        errors = {}
+        if self.date:
+            now = timezone.localtime()
+            previous = None
+            if self.pk:
+                previous = type(self).objects.filter(pk=self.pk).values('date', 'time').first()
+            schedule_changed = not previous or (
+                self.date != previous['date'] or self.time != previous['time']
+            )
+            if schedule_changed:
+                if self.date < now.date():
+                    errors['date'] = 'Choose today or a future date. Events cannot start in the past.'
+                elif self.date == now.date() and self.time:
+                    if datetime.combine(self.date, self.time) <= now.replace(tzinfo=None):
+                        errors['time'] = 'For an event today, choose a start time later than the current time.'
+            if self.end_date and self.end_date < self.date:
+                errors['end_date'] = 'The end date cannot be before the start date.'
+            if self.end_time and self.time and (self.end_date or self.date) == self.date:
+                if self.end_time <= self.time:
+                    errors['end_time'] = 'The end time must be after the start time, or choose a later end date.'
+        if errors:
+            raise ValidationError(errors)
 
     @property
     def available_seats(self):

@@ -1,6 +1,7 @@
 from django import forms
 from .models import Event, Category, EventFeedback
 from django.utils.text import slugify
+from django.utils import timezone
 
 
 class EventForm(forms.ModelForm):
@@ -37,6 +38,13 @@ class EventForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
+        today = timezone.localdate()
+        # Preserve the displayed schedule when editing historical event details.
+        minimum_date = min(today, self.instance.date) if self.instance.pk and self.instance.date else today
+        self.fields['date'].widget.attrs['min'] = minimum_date.isoformat()
+        self.fields['end_date'].widget.attrs['min'] = minimum_date.isoformat()
+        self.fields['date'].widget.format = '%Y-%m-%d'
+        self.fields['end_date'].widget.format = '%Y-%m-%d'
         from django.contrib.auth import get_user_model
         User = get_user_model()
         from django.db.models import Q

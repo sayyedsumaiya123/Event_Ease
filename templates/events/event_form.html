@@ -76,14 +76,17 @@
                             <div class="col-md-6">
                                 <label class="form-label" style="font-weight: 700; color: var(--navy); font-size: 0.9rem;">Start Time *</label>
                                 {{ form.time }}
+                                {% for error in form.time.errors %}<div class="text-danger small mt-1" role="alert">{{ error }}</div>{% endfor %}
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label" style="font-weight: 700; color: var(--navy); font-size: 0.9rem;">End Date</label>
                                 {{ form.end_date }}
+                                {% for error in form.end_date.errors %}<div class="text-danger small mt-1" role="alert">{{ error }}</div>{% endfor %}
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label" style="font-weight: 700; color: var(--navy); font-size: 0.9rem;">End Time</label>
                                 {{ form.end_time }}
+                                {% for error in form.end_time.errors %}<div class="text-danger small mt-1" role="alert">{{ error }}</div>{% endfor %}
                             </div>
                         </div>
 
@@ -151,4 +154,18 @@
         </div>
     </div>
 </section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const start = document.getElementById('id_date');
+    const end = document.getElementById('id_end_date');
+    if (start && end) {
+        const updateEndMinimum = function () { end.min = start.value || start.min; };
+        start.addEventListener('change', updateEndMinimum);
+        updateEndMinimum();
+    }
+});
+</script>
 {% endblock %}
