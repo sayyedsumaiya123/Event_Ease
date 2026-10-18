@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView, View
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.db.models import Q, Count
 from django.http import JsonResponse
@@ -10,12 +10,10 @@ from django.utils import timezone
 
 from .models import Event, Category, Registration, EventFeedback, AttendanceSession, AttendanceRecord
 from .forms import EventForm, EventSearchForm, FeedbackForm
-
-
-class StaffRequiredMixin(UserPassesTestMixin):
-    """Mixin to restrict views to staff/admin users."""
-    def test_func(self):
-        return self.request.user.is_staff or self.request.user.is_superuser
+from .permissions import (
+    AdminRequiredMixin, OrganizerRequiredMixin, ManagedEventMixin,
+    EventFormUserMixin, managed_events,
+)
 
 
 class HomeView(TemplateView):
@@ -104,6 +102,9 @@ class EventDetailView(DetailView):
             category=event.category, status='upcoming'
         ).exclude(pk=event.pk)[:3]
         context['feedback_form'] = FeedbackForm()
+        context['can_manage_event'] = user.is_authenticated and user.is_active and (
+            user.is_superuser or (user.is_staff and event.organizer_id == user.pk)
+        )
         context['feedbacks'] = event.feedbacks.select_related('user').order_by('-created_at')[:5]
         return context
 
@@ -193,7 +194,7 @@ class UserDashboardView(LoginRequiredMixin, TemplateView):
 
 # ─────────── ADMIN VIEWS ───────────
 
-class AdminDashboardView(LoginRequiredMixin, StaffRequiredMixin, TemplateView):
+class AdminDashboardView(LoginRequiredMixin, AdminRequiredMixin, TemplateView):
     """Admin statistics dashboard."""
     template_name = 'events/admin_dashboard.html'
 
@@ -218,7 +219,7 @@ class AdminDashboardView(LoginRequiredMixin, StaffRequiredMixin, TemplateView):
         return context
 
 
-class AdminEventListView(LoginRequiredMixin, StaffRequiredMixin, ListView):
+class AdminEventListView(LoginRequiredMixin, OrganizerRequiredMixin, ListView):
     """Admin event management list."""
     model = Event
     template_name = 'events/admin_event_list.html'
@@ -226,12 +227,12 @@ class AdminEventListView(LoginRequiredMixin, StaffRequiredMixin, ListView):
     paginate_by = 15
 
     def get_queryset(self):
-        return Event.objects.select_related('category', 'organizer').annotate(
+        return managed_events(self.request.user, Event.objects.select_related('category', 'organizer')).annotate(
             reg_count=Count('registrations')
         ).order_by('-created_at')
 
 
-class EventCreateView(LoginRequiredMixin, StaffRequiredMixin, CreateView):
+class EventCreateView(LoginRequiredMixin, OrganizerRequiredMixin, EventFormUserMixin, CreateView):
     """Create a new event."""
     model = Event
     form_class = EventForm
@@ -244,6 +245,8 @@ class EventCreateView(LoginRequiredMixin, StaffRequiredMixin, CreateView):
         return initial
 
     def form_valid(self, form):
+        if not self.request.user.is_superuser:
+            form.instance.organizer = self.request.user
         messages.success(self.request, 'Event created successfully!')
         return super().form_valid(form)
 
@@ -254,7 +257,7 @@ class EventCreateView(LoginRequiredMixin, StaffRequiredMixin, CreateView):
         return context
 
 
-class EventUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
+class EventUpdateView(LoginRequiredMixin, OrganizerRequiredMixin, ManagedEventMixin, EventFormUserMixin, UpdateView):
     """Update an existing event."""
     model = Event
     form_class = EventForm
@@ -272,7 +275,7 @@ class EventUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
         return context
 
 
-class EventDeleteView(LoginRequiredMixin, StaffRequiredMixin, DeleteView):
+class EventDeleteView(LoginRequiredMixin, OrganizerRequiredMixin, ManagedEventMixin, DeleteView):
     """Delete an event."""
     model = Event
     template_name = 'events/event_confirm_delete.html'
@@ -283,7 +286,7 @@ class EventDeleteView(LoginRequiredMixin, StaffRequiredMixin, DeleteView):
         return super().form_valid(form)
 
 
-class EventParticipantsView(LoginRequiredMixin, StaffRequiredMixin, DetailView):
+class EventParticipantsView(LoginRequiredMixin, OrganizerRequiredMixin, ManagedEventMixin, DetailView):
     """View participants for a specific event."""
     model = Event
     template_name = 'events/event_participants.html'
@@ -298,7 +301,7 @@ class EventParticipantsView(LoginRequiredMixin, StaffRequiredMixin, DetailView):
         return context
 
 
-class AdminUserListView(LoginRequiredMixin, StaffRequiredMixin, ListView):
+class AdminUserListView(LoginRequiredMixin, AdminRequiredMixin, ListView):
     """Admin user management."""
     model = User
     template_name = 'events/admin_user_list.html'
@@ -311,7 +314,7 @@ class AdminUserListView(LoginRequiredMixin, StaffRequiredMixin, ListView):
         ).order_by('-date_joined')
 
 
-class ToggleUserStatusView(LoginRequiredMixin, StaffRequiredMixin, View):
+class ToggleUserStatusView(LoginRequiredMixin, AdminRequiredMixin, View):
     """Toggle user active/inactive status."""
 
     def post(self, request, pk):
@@ -326,7 +329,7 @@ class ToggleUserStatusView(LoginRequiredMixin, StaffRequiredMixin, View):
         return redirect('events:admin_user_list')
 
 
-class ToggleOrganizerStatusView(LoginRequiredMixin, StaffRequiredMixin, View):
+class ToggleOrganizerStatusView(LoginRequiredMixin, AdminRequiredMixin, View):
     """Toggle user organizer (staff) status."""
     
     def post(self, request, pk):
@@ -371,7 +374,7 @@ class AboutView(TemplateView):
 
 # ─────────── ATTENDANCE VIEWS ───────────
 
-class AttendanceDashboardView(LoginRequiredMixin, StaffRequiredMixin, DetailView):
+class AttendanceDashboardView(LoginRequiredMixin, OrganizerRequiredMixin, ManagedEventMixin, DetailView):
     model = Event
     template_name = 'events/attendance_dashboard.html'
     context_object_name = 'event'
@@ -400,9 +403,9 @@ class AttendanceDashboardView(LoginRequiredMixin, StaffRequiredMixin, DetailView
         return context
 
 
-class GenerateQRView(LoginRequiredMixin, StaffRequiredMixin, View):
+class GenerateQRView(LoginRequiredMixin, OrganizerRequiredMixin, View):
     def post(self, request, slug):
-        event = get_object_or_404(Event, slug=slug)
+        event = get_object_or_404(managed_events(request.user, Event.objects.all()), slug=slug)
         session = event.attendance_sessions.filter(is_active=True).first()
         if not session:
             session = AttendanceSession.objects.create(event=event, is_active=True)
@@ -412,7 +415,7 @@ class GenerateQRView(LoginRequiredMixin, StaffRequiredMixin, View):
         return redirect('events:display_qr', slug=slug)
 
 
-class DisplayQRView(LoginRequiredMixin, StaffRequiredMixin, DetailView):
+class DisplayQRView(LoginRequiredMixin, OrganizerRequiredMixin, ManagedEventMixin, DetailView):
     model = Event
     template_name = 'events/qr_display.html'
     context_object_name = 'event'

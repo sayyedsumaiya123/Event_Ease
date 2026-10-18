@@ -255,17 +255,19 @@ class AdminAccessTest(TestCase):
         self.client = Client()
         self.normal_user = create_user('normal')
         self.admin_user = create_user('staff_user', is_staff=True)
+        self.admin_user.is_superuser = True
+        self.admin_user.save()
         self.organizer = create_user('ad_org', is_staff=True)
         self.event = create_event(self.organizer, title='Admin Test Event')
 
-    def test_admin_dashboard_requires_staff(self):
+    def test_admin_dashboard_requires_admin(self):
         """Normal users cannot access admin dashboard."""
         self.client.login(username='normal', password='Test@1234')
         response = self.client.get(reverse('events:admin_dashboard'))
         self.assertEqual(response.status_code, 403)
 
-    def test_admin_dashboard_accessible_by_staff(self):
-        """Staff users can access admin dashboard."""
+    def test_admin_dashboard_accessible_by_superuser(self):
+        """Administrators can access the global dashboard."""
         self.client.login(username='staff_user', password='Test@1234')
         response = self.client.get(reverse('events:admin_dashboard'))
         self.assertEqual(response.status_code, 200)
@@ -290,3 +292,82 @@ class AdminAccessTest(TestCase):
         )
         self.assertEqual(response.status_code, 302)
         self.assertFalse(Event.objects.filter(slug=self.event.slug).exists())
+
+
+class OrganizerPermissionTest(TestCase):
+    def setUp(self):
+        self.organizer = create_user('owner', is_staff=True)
+        self.other = create_user('other-owner', is_staff=True)
+        self.member = create_user('member')
+        self.admin = User.objects.create_superuser('superadmin', password='Test@1234')
+        self.own = create_event(self.organizer, title='Owned Event')
+        self.foreign = create_event(self.other, title='Other Event')
+        self.client.force_login(self.organizer)
+
+    def test_organizer_cannot_access_admin_or_change_users(self):
+        for name in ('events:admin_dashboard', 'events:admin_user_list', 'admin:index', 'admin:login'):
+            with self.subTest(name=name):
+                self.assertEqual(self.client.get(reverse(name)).status_code, 403)
+        for name in ('events:toggle_user_status', 'events:toggle_organizer_status'):
+            self.assertEqual(self.client.post(reverse(name, args=[self.member.pk])).status_code, 403)
+        self.member.refresh_from_db()
+        self.assertTrue(self.member.is_active)
+        self.assertFalse(self.member.is_staff)
+
+    def test_organizer_only_sees_own_events(self):
+        response = self.client.get(reverse('events:admin_event_list'))
+        self.assertEqual(list(response.context['events']), [self.own])
+        self.assertContains(response, 'Manage My Events')
+        self.assertNotContains(response, 'dropdown-toggle" href="#" data-bs-toggle="dropdown">Admin')
+        self.assertNotContains(response, reverse('events:admin_user_list'))
+
+    def test_foreign_event_get_and_post_are_blocked(self):
+        routes = {'event_edit': ('get', 'post'), 'event_delete': ('get', 'post'),
+                  'event_participants': ('get',), 'attendance_dashboard': ('get',),
+                  'display_qr': ('get',), 'generate_qr': ('post',)}
+        for name, methods in routes.items():
+            url = reverse('events:' + name, args=[self.foreign.slug])
+            for method in methods:
+                with self.subTest(name=name, method=method):
+                    self.assertEqual(getattr(self.client, method)(url).status_code, 404)
+        self.assertTrue(Event.objects.filter(pk=self.foreign.pk).exists())
+        self.assertFalse(self.foreign.attendance_sessions.exists())
+
+    def test_owner_can_access_event_tools(self):
+        for name in ('event_edit', 'event_participants', 'attendance_dashboard', 'display_qr'):
+            self.assertEqual(self.client.get(reverse('events:' + name, args=[self.own.slug])).status_code, 200)
+        self.assertEqual(self.client.post(reverse('events:generate_qr', args=[self.own.slug])).status_code, 302)
+
+    def event_data(self, title):
+        return {'title': title, 'description': 'An event', 'date': '2027-01-01',
+                'time': '10:00', 'venue': 'Hall', 'capacity': 20, 'status': 'upcoming',
+                'price': '0', 'is_free': True, 'organizer': self.other.pk, 'featured': True}
+
+    def test_create_and_update_cannot_transfer_ownership_or_promote(self):
+        response = self.client.post(reverse('events:event_create'), self.event_data('Created Safely'))
+        self.assertEqual(response.status_code, 302)
+        created = Event.objects.get(title='Created Safely')
+        self.assertEqual(created.organizer_id, self.organizer.pk)
+        self.assertFalse(created.featured)
+        response = self.client.post(reverse('events:event_edit', args=[self.own.slug]), self.event_data('Updated Safely'))
+        self.assertEqual(response.status_code, 302)
+        self.own.refresh_from_db()
+        self.assertEqual(self.own.organizer_id, self.organizer.pk)
+        self.assertFalse(self.own.featured)
+
+    def test_event_controls_hidden_for_other_organizer(self):
+        for event, allowed in ((self.own, True), (self.foreign, False)):
+            response = self.client.get(reverse('events:event_detail', args=[event.slug]))
+            self.assertEqual(response.context['can_manage_event'], allowed)
+
+    def test_superuser_retains_full_access(self):
+        self.client.force_login(self.admin)
+        self.assertEqual(self.client.get(reverse('admin:index')).status_code, 200)
+        self.assertEqual(self.client.get(reverse('events:admin_user_list')).status_code, 200)
+        self.assertEqual(self.client.get(reverse('events:event_edit', args=[self.foreign.slug])).status_code, 200)
+        self.assertEqual(self.client.get(reverse('events:admin_event_list')).context['events'].count(), 2)
+
+    def test_revoked_organizer_cannot_use_event_tools(self):
+        self.organizer.is_staff = False
+        self.organizer.save()
+        self.assertEqual(self.client.get(reverse('events:event_edit', args=[self.own.slug])).status_code, 403)

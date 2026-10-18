@@ -35,11 +35,22 @@ class EventForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
         from django.contrib.auth import get_user_model
         User = get_user_model()
-        self.fields['organizer'].queryset = User.objects.filter(is_staff=True)
+        from django.db.models import Q
+        self.fields['organizer'].queryset = User.objects.filter(
+            Q(is_staff=True) | Q(is_superuser=True), is_active=True
+        )
         self.fields['organizer'].empty_label = "Select Organizer"
+        if user is not None and not user.is_superuser:
+            self.fields['organizer'].queryset = User.objects.filter(pk=user.pk)
+            self.fields['organizer'].initial = user.pk
+            self.initial['organizer'] = user.pk
+            self.fields['organizer'].disabled = True
+            # Homepage promotion is controlled by administrators.
+            self.fields['featured'].disabled = True
 
     def save(self, commit=True):
         event = super().save(commit=False)

@@ -6,8 +6,10 @@
 <section class="list-header" style="padding: 60px 0; margin-bottom: 40px;">
     <div class="container">
         <div style="font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: rgba(255,255,255,0.6); margin-bottom: 16px;">
+            {% if user.is_superuser %}
             <a href="{% url 'events:admin_dashboard' %}" style="color: rgba(255,255,255,0.9); text-decoration: none;">Dashboard</a>
             <i class="bi bi-chevron-right mx-2"></i>
+            {% endif %}
             <a href="{% url 'events:admin_event_list' %}" style="color: rgba(255,255,255,0.9); text-decoration: none;">Events</a>
             <i class="bi bi-chevron-right mx-2"></i>
             <span style="color: var(--accent);">{{ form_title }}</span>

@@ -289,7 +289,7 @@
             <!-- Sidebar -->
             <div class="col-lg-4">
                 <div class="registration-sidebar">
-                    {% if user.is_staff or user == event.organizer %}
+                    {% if can_manage_event %}
                     <div style="background: var(--navy); border-radius: 8px; padding: 24px; margin-bottom: 24px; color: white;">
                         <h4 style="font-weight: 800; margin-bottom: 8px;">Attendance</h4>
                         <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-bottom: 16px;">Manage QR check-ins for this event.</p>

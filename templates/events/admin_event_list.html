@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
 
-{% block title %}Manage Events — EventEase Admin{% endblock %}
+{% block title %}Manage Events — EventEase{% endblock %}
 
 {% block content %}
 <section class="list-header" style="padding: 60px 0; margin-bottom: 40px;">
     <div class="container">
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
             <div>
-                <h1 class="list-title"><i class="bi bi-calendar-week me-2"></i>Manage Events</h1>
+                <h1 class="list-title"><i class="bi bi-calendar-week me-2"></i>{% if user.is_superuser %}Manage Events{% else %}Manage My Events{% endif %}</h1>
                 <p class="list-subtitle">{{ page_obj.paginator.count }} total events</p>
             </div>
             <a href="{% url 'events:event_create' %}" class="btn-brand">
