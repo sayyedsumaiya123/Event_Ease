@@ -2,6 +2,7 @@
 Management command to seed initial demo data for EventEase.
 Usage: python manage.py seed_data
 """
+
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 from django.utils.text import slugify
@@ -13,19 +14,24 @@ from events.models import Event, Category, Registration
 
 CATEGORIES = [
     {'name': 'Technology', 'slug': 'technology', 'icon': 'bi-cpu', 'color': '#6366f1'},
-    {'name': 'Hackathon',  'slug': 'hackathon',  'icon': 'bi-code-square', 'color': '#8b5cf6'},
-    {'name': 'Workshop',   'slug': 'workshop',   'icon': 'bi-tools', 'color': '#10b981'},
-    {'name': 'Cultural',   'slug': 'cultural',   'icon': 'bi-music-note-beamed', 'color': '#f59e0b'},
-    {'name': 'Sports',     'slug': 'sports',     'icon': 'bi-trophy', 'color': '#ef4444'},
-    {'name': 'AI & ML',    'slug': 'ai-ml',      'icon': 'bi-robot', 'color': '#38bdf8'},
-    {'name': 'Business',   'slug': 'business',   'icon': 'bi-briefcase', 'color': '#ec4899'},
-    {'name': 'Science',    'slug': 'science',    'icon': 'bi-flask', 'color': '#a78bfa'},
+    {'name': 'Hackathon', 'slug': 'hackathon', 'icon': 'bi-code-square', 'color': '#8b5cf6'},
+    {'name': 'Workshop', 'slug': 'workshop', 'icon': 'bi-tools', 'color': '#10b981'},
+    {'name': 'Cultural', 'slug': 'cultural', 'icon': 'bi-music-note-beamed', 'color': '#f59e0b'},
+    {'name': 'Sports', 'slug': 'sports', 'icon': 'bi-trophy', 'color': '#ef4444'},
+    {'name': 'AI & ML', 'slug': 'ai-ml', 'icon': 'bi-robot', 'color': '#38bdf8'},
+    {'name': 'Business', 'slug': 'business', 'icon': 'bi-briefcase', 'color': '#ec4899'},
+    {'name': 'Science', 'slug': 'science', 'icon': 'bi-flask', 'color': '#a78bfa'},
 ]
 
 EVENTS = [
     {
         'title': 'Tech Fest 2026',
-        'description': 'The biggest technology festival of the year! Join us for 3 days of talks, workshops, and networking with industry leaders from top tech companies. Topics include AI, cloud computing, DevOps, blockchain, and emerging technologies.',
+        'description': (
+            'The biggest technology festival of the year! Join us for 3 days of talks, w'
+            'orkshops, and networking with industry leaders from top tech companies. Top'
+            'ics include AI, cloud computing, DevOps, blockchain, and emerging technolog'
+            'ies.'
+        ),
         'venue': 'College Auditorium',
         'capacity': 500,
         'days': 5,
@@ -37,7 +43,11 @@ EVENTS = [
     },
     {
         'title': '24-Hour Hackathon',
-        'description': 'Code your way to victory! Teams of 2–4 students compete to build innovative solutions for real-world problems. Exciting prizes worth ₹50,000 await the winners. Food and refreshments provided throughout.',
+        'description': (
+            'Code your way to victory! Teams of 2–4 students compete to build innovative'
+            ' solutions for real-world problems. Exciting prizes worth ₹50,000 await the'
+            ' winners. Food and refreshments provided throughout.'
+        ),
         'venue': 'CS Lab, Block B',
         'capacity': 200,
         'days': 12,
@@ -49,7 +59,11 @@ EVENTS = [
     },
     {
         'title': 'AI & Machine Learning Workshop',
-        'description': 'A hands-on workshop on Artificial Intelligence and Machine Learning. Learn about neural networks, TensorFlow, PyTorch, and build your first ML model. Beginner-friendly with expert guidance throughout.',
+        'description': (
+            'A hands-on workshop on Artificial Intelligence and Machine Learning. Learn '
+            'about neural networks, TensorFlow, PyTorch, and build your first ML model. '
+            'Beginner-friendly with expert guidance throughout.'
+        ),
         'venue': 'Seminar Hall 1',
         'capacity': 80,
         'days': 8,
@@ -61,7 +75,11 @@ EVENTS = [
     },
     {
         'title': 'Annual Sports Meet',
-        'description': 'The annual inter-college sports competition featuring cricket, football, basketball, volleyball, badminton, and athletics. Come support your college team and participate in individual events!',
+        'description': (
+            'The annual inter-college sports competition featuring cricket, football, ba'
+            'sketball, volleyball, badminton, and athletics. Come support your college t'
+            'eam and participate in individual events!'
+        ),
         'venue': 'Sports Ground',
         'capacity': 1000,
         'days': 15,
@@ -73,7 +91,11 @@ EVENTS = [
     },
     {
         'title': 'DevOps Masterclass',
-        'description': 'A comprehensive masterclass on DevOps practices. Topics: Git, CI/CD with Jenkins, Docker containerization, Kubernetes orchestration, and monitoring with Prometheus & Grafana. Industry experts as speakers.',
+        'description': (
+            'A comprehensive masterclass on DevOps practices. Topics: Git, CI/CD with Je'
+            'nkins, Docker containerization, Kubernetes orchestration, and monitoring wi'
+            'th Prometheus & Grafana. Industry experts as speakers.'
+        ),
         'venue': 'IT Department Seminar Hall',
         'capacity': 100,
         'days': 20,
@@ -85,7 +107,11 @@ EVENTS = [
     },
     {
         'title': 'Cultural Night 2026',
-        'description': 'Celebrate diversity with an evening of music, dance, drama, and art. Students showcase their cultural heritage through performances. Followed by a grand dinner and DJ night.',
+        'description': (
+            'Celebrate diversity with an evening of music, dance, drama, and art. Studen'
+            'ts showcase their cultural heritage through performances. Followed by a gra'
+            'nd dinner and DJ night.'
+        ),
         'venue': 'Open Air Theatre',
         'capacity': 800,
         'days': 18,
@@ -97,7 +123,11 @@ EVENTS = [
     },
     {
         'title': 'Web Development Bootcamp',
-        'description': 'Intensive 2-day bootcamp covering HTML, CSS, JavaScript, React, Django, and deployment. Build a complete full-stack web application from scratch. Certificate of completion awarded.',
+        'description': (
+            'Intensive 2-day bootcamp covering HTML, CSS, JavaScript, React, Django, and'
+            ' deployment. Build a complete full-stack web application from scratch. Cert'
+            'ificate of completion awarded.'
+        ),
         'venue': 'Computer Lab 3',
         'capacity': 50,
         'days': 25,
@@ -109,7 +139,11 @@ EVENTS = [
     },
     {
         'title': 'Startup Pitch Competition',
-        'description': 'Present your startup idea to a panel of investors and industry experts. Get mentorship, feedback, and a chance to win seed funding up to ₹1,00,000. Open to all students and recent graduates.',
+        'description': (
+            'Present your startup idea to a panel of investors and industry experts. Get'
+            ' mentorship, feedback, and a chance to win seed funding up to ₹1,00,000. Op'
+            'en to all students and recent graduates.'
+        ),
         'venue': 'Business School Auditorium',
         'capacity': 150,
         'days': 30,
@@ -121,7 +155,11 @@ EVENTS = [
     },
     {
         'title': 'Cloud Computing Seminar',
-        'description': 'Expert session on AWS, Google Cloud, and Azure. Learn about cloud architecture, microservices, serverless computing, and cost optimization strategies. Live demos included.',
+        'description': (
+            'Expert session on AWS, Google Cloud, and Azure. Learn about cloud architect'
+            'ure, microservices, serverless computing, and cost optimization strategies.'
+            ' Live demos included.'
+        ),
         'venue': 'Online + Main Auditorium',
         'capacity': 300,
         'days': -5,
@@ -133,7 +171,11 @@ EVENTS = [
     },
     {
         'title': 'Data Science Symposium',
-        'description': 'Research paper presentations and expert talks on Data Science, Big Data, and Analytics. Open for paper submissions from students and faculty. Best paper award sponsored by TCS.',
+        'description': (
+            'Research paper presentations and expert talks on Data Science, Big Data, an'
+            'd Analytics. Open for paper submissions from students and faculty. Best pap'
+            'er award sponsored by TCS.'
+        ),
         'venue': 'Conference Hall',
         'capacity': 200,
         'days': -10,
@@ -145,7 +187,11 @@ EVENTS = [
     },
     {
         'title': 'Campus Design Sprint',
-        'description': 'A focused design sprint for students and creators to ideate, prototype, and pitch real product concepts. Includes mentorship from UI/UX mentors and product designers.',
+        'description': (
+            'A focused design sprint for students and creators to ideate, prototype, and'
+            ' pitch real product concepts. Includes mentorship from UI/UX mentors and pr'
+            'oduct designers.'
+        ),
         'venue': 'Innovation Center Hall',
         'capacity': 120,
         'days': 3,
@@ -186,8 +232,8 @@ class Command(BaseCommand):
                     username=username,
                     email=f'{username}@test.com',
                     password='Test@1234',
-                    first_name=f'Test',
-                    last_name=f'User{i}'
+                    first_name='Test',
+                    last_name=f'User{i}',
                 )
                 test_users.append(user)
                 self.stdout.write(f'  Created user: {username} / Test@1234')
@@ -197,10 +243,7 @@ class Command(BaseCommand):
         # Create categories
         category_map = {}
         for cat_data in CATEGORIES:
-            cat, created = Category.objects.get_or_create(
-                slug=cat_data['slug'],
-                defaults=cat_data
-            )
+            cat, created = Category.objects.get_or_create(slug=cat_data['slug'], defaults=cat_data)
             category_map[cat_data['name']] = cat
             if created:
                 self.stdout.write(f'  Created category: {cat.name}')
@@ -239,19 +282,18 @@ class Command(BaseCommand):
                 num_regs = random.randint(5, min(30, ev_data['capacity']))
                 users_to_register = random.sample(test_users, min(num_regs, len(test_users)))
                 for user in users_to_register:
-                    Registration.objects.get_or_create(
-                        user=user, event=event,
-                        defaults={'status': 'confirmed'}
-                    )
+                    Registration.objects.get_or_create(user=user, event=event, defaults={'status': 'confirmed'})
 
             event_count += 1
 
         self.stdout.write(self.style.SUCCESS(f'{event_count} events created'))
 
-        self.stdout.write(self.style.SUCCESS(
-            '\nDatabase seeded successfully!\n'
-            'Admin:  admin / Admin@123\n'
-            'Users:  user1-5 / Test@1234\n'
-            f'Events: {event_count} events created\n'
-            'Visit:  http://localhost:8000\n'
-        ))
+        self.stdout.write(
+            self.style.SUCCESS(
+                '\nDatabase seeded successfully!\n'
+                'Admin:  admin / Admin@123\n'
+                'Users:  user1-5 / Test@1234\n'
+                f'Events: {event_count} events created\n'
+                'Visit:  http://localhost:8000\n'
+            )
+        )

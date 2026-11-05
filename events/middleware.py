@@ -3,6 +3,7 @@ from django.core.exceptions import PermissionDenied
 
 class AdminAccessMiddleware:
     """Staff is the organizer role; only superusers may enter Django admin."""
+
     def __init__(self, get_response):
         self.get_response = get_response
 

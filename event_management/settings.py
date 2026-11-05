@@ -2,7 +2,7 @@
 Django settings for EventEase Event Management System.
 """
 
-import os
+from django.contrib.messages import constants as messages
 from pathlib import Path
 from decouple import config
 
@@ -17,15 +17,14 @@ DEBUG = config('DEBUG', default=True, cast=bool)
 
 ALLOWED_HOSTS = [
     host.strip()
-    for host in config(
-        'ALLOWED_HOSTS',
-        default='localhost,127.0.0.1,0.0.0.0,[::1]'
-    ).split(',')
+    for host in config('ALLOWED_HOSTS', default='localhost,127.0.0.1,0.0.0.0,[::1]').split(',')
     if host.strip()
 ]
 
 # HTTPS reverse proxy settings are opt-in for the local tunnel.
-CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in config('CSRF_TRUSTED_ORIGINS', default='').split(',') if origin.strip()]
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip() for origin in config('CSRF_TRUSTED_ORIGINS', default='').split(',') if origin.strip()
+]
 if config('TRUST_HTTPS_PROXY', default=False, cast=bool):
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
@@ -140,7 +139,6 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
 CRISPY_TEMPLATE_PACK = 'bootstrap5'
 
 # Messages
-from django.contrib.messages import constants as messages
 MESSAGE_TAGS = {
     messages.DEBUG: 'secondary',
     messages.INFO: 'info',

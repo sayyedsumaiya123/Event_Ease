@@ -22,6 +22,7 @@ def managed_events(user, queryset):
 
 class ManagedEventMixin:
     """Scope object lookup for both GET and POST, including attendance views."""
+
     def get_queryset(self):
         return managed_events(self.request.user, super().get_queryset())
 

@@ -46,12 +46,14 @@ class Event(models.Model):
     capacity = models.PositiveIntegerField(default=100)
     image = models.ImageField(upload_to='events/', blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='upcoming')
-    certificates_enabled = models.BooleanField(default=False, help_text='Allow checked-in participants to download a certificate.')
+    certificates_enabled = models.BooleanField(
+        default=False, help_text='Allow checked-in participants to download a certificate.')
     is_free = models.BooleanField(default=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     tags = models.CharField(max_length=500, blank=True, help_text='Comma-separated tags')
     organizer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='organized_events')
-    coordinators = models.ManyToManyField(User, blank=True, related_name='coordinated_events', help_text='Approved coordinators who can help manage this event.')
+    coordinators = models.ManyToManyField(User, blank=True, related_name='coordinated_events',
+                                          help_text='Approved coordinators who can help manage this event.')
     featured = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -131,7 +133,7 @@ class Registration(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='confirmed')
     notes = models.TextField(blank=True)
     ticket_number = models.CharField(max_length=20, unique=True, blank=True)
-    
+
     # Extra fields for students
     branch = models.CharField(max_length=100, blank=True)
     student_class = models.CharField(max_length=100, blank=True)

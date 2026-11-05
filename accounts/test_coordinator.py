@@ -8,16 +8,26 @@ from .models import CoordinatorApplication
 
 class CoordinatorFlowTests(TestCase):
     def data(self, **changes):
-        data = dict(first_name='Event', last_name='Coordinator', username='event_coordinator',
-                    email='coordinator@example.com', phone='+919876543210', organization='Event Club',
-                    event_type='technical', expected_attendees=100,
-                    event_plan='We plan hands-on technical workshops for students.',
-                    password1='StrongDemoPass!829', password2='StrongDemoPass!829')
+        data = dict(
+            first_name='Event',
+            last_name='Coordinator',
+            username='event_coordinator',
+            email='coordinator@example.com',
+            phone='+919876543210',
+            organization='Event Club',
+            event_type='technical',
+            expected_attendees=100,
+            event_plan='We plan hands-on technical workshops for students.',
+            password1='StrongDemoPass!829',
+            password2='StrongDemoPass!829',
+        )
         data.update(changes)
         return data
 
     def apply(self):
-        response = self.client.post(reverse('accounts:coordinator_register'), self.data(is_staff=True, is_superuser=True))
+        response = self.client.post(
+            reverse('accounts:coordinator_register'), self.data(is_staff=True, is_superuser=True)
+        )
         self.assertRedirects(response, reverse('accounts:coordinator_panel'))
         return User.objects.get(username='event_coordinator')
 
@@ -32,8 +42,14 @@ class CoordinatorFlowTests(TestCase):
         self.assertEqual(self.client.get(reverse('events:event_create')).status_code, 403)
 
     def test_regex_and_question_validation(self):
-        for bad in (dict(username='bad name!'), dict(phone='not-a-phone'), dict(phone='123'),
-                    dict(event_type='unknown'), dict(expected_attendees=0), dict(event_plan='short')):
+        for bad in (
+            dict(username='bad name!'),
+            dict(phone='not-a-phone'),
+            dict(phone='123'),
+            dict(event_type='unknown'),
+            dict(expected_attendees=0),
+            dict(event_plan='short'),
+        ):
             with self.subTest(bad=bad):
                 self.assertFalse(CoordinatorRegisterForm(self.data(**bad)).is_valid())
         self.assertFalse(User.objects.exists())
@@ -44,7 +60,9 @@ class CoordinatorFlowTests(TestCase):
 
     def test_member_cannot_use_coordinator_login_or_panel(self):
         user = User.objects.create_user('attendee', password='StrongDemoPass!829')
-        response = self.client.post(reverse('accounts:coordinator_login'), dict(username=user.username, password='StrongDemoPass!829'))
+        response = self.client.post(
+            reverse('accounts:coordinator_login'), dict(username=user.username, password='StrongDemoPass!829')
+        )
         self.assertContains(response, 'not registered as an event coordinator')
         self.assertNotIn('_auth_user_id', self.client.session)
         self.client.force_login(user)
@@ -53,7 +71,9 @@ class CoordinatorFlowTests(TestCase):
     def test_pending_applicant_can_login_and_admin_can_approve_and_revoke(self):
         user = self.apply()
         self.client.logout()
-        response = self.client.post(reverse('accounts:coordinator_login'), dict(username=user.username, password='StrongDemoPass!829'))
+        response = self.client.post(
+            reverse('accounts:coordinator_login'), dict(username=user.username, password='StrongDemoPass!829')
+        )
         self.assertRedirects(response, reverse('accounts:coordinator_panel'))
         admin = User.objects.create_superuser('reviewer', password='StrongDemoPass!829')
         self.client.force_login(admin)
@@ -75,7 +95,12 @@ class CoordinatorFlowTests(TestCase):
 
     def test_legacy_organizer_without_application_can_login(self):
         User.objects.create_user('legacy', password='StrongDemoPass!829', is_staff=True)
-        self.assertRedirects(self.client.post(reverse('accounts:coordinator_login'), dict(username='legacy', password='StrongDemoPass!829')), reverse('accounts:coordinator_panel'))
+        self.assertRedirects(
+            self.client.post(
+                reverse('accounts:coordinator_login'), dict(username='legacy', password='StrongDemoPass!829')
+            ),
+            reverse('accounts:coordinator_panel'),
+        )
 
     def test_guest_can_find_coordinator_buttons(self):
         for route in ('accounts:login', 'accounts:register'):
@@ -83,18 +108,36 @@ class CoordinatorFlowTests(TestCase):
             self.assertContains(response, 'Register as Coordinator')
             self.assertContains(response, reverse('accounts:coordinator_login'))
 
+
 class CoordinatorReviewAndPanelTests(TestCase):
     def setUp(self):
         from events.models import Event
         from datetime import timedelta, time
         from django.utils import timezone
+
         self.organizer = User.objects.create_user('review_organizer', password='StrongDemoPass!829', is_staff=True)
         self.organizer.profile.is_organizer = True
         self.organizer.profile.save()
-        self.coordinator = User.objects.create_user('approved_coordinator', password='StrongDemoPass!829', is_staff=True)
+        self.coordinator = User.objects.create_user(
+            'approved_coordinator', password='StrongDemoPass!829', is_staff=True
+        )
         self.candidate = User.objects.create_user('pending_candidate', password='StrongDemoPass!829')
-        self.application = CoordinatorApplication.objects.create(user=self.candidate, organization='Campus Club', event_type='technical', expected_attendees=40, event_plan='Plan a hands-on workshop for students.')
-        self.event = Event.objects.create(title='Owned Event', slug='owned-event', description='A test', date=timezone.localdate()+timedelta(days=10), time=time(12), venue='Hall', organizer=self.organizer)
+        self.application = CoordinatorApplication.objects.create(
+            user=self.candidate,
+            organization='Campus Club',
+            event_type='technical',
+            expected_attendees=40,
+            event_plan='Plan a hands-on workshop for students.',
+        )
+        self.event = Event.objects.create(
+            title='Owned Event',
+            slug='owned-event',
+            description='A test',
+            date=timezone.localdate() + timedelta(days=10),
+            time=time(12),
+            venue='Hall',
+            organizer=self.organizer,
+        )
         self.event.coordinators.add(self.coordinator)
         self.url = reverse('accounts:coordinator_application_decision', args=[self.application.pk])
 

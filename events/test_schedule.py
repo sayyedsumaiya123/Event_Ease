@@ -63,7 +63,8 @@ class EventScheduleTests(TestCase):
                                      organizer=self.user, date=self.now.date() - timedelta(days=10),
                                      time='10:00', venue='Hall')
         event.refresh_from_db()
-        form = EventForm(self.data(date=event.date.isoformat(), time='10:00', title='Updated history'), instance=event, user=self.user)
+        form = EventForm(self.data(date=event.date.isoformat(), time='10:00',
+                         title='Updated history'), instance=event, user=self.user)
         self.assertTrue(form.is_valid(), form.errors)
         form.save()
         form = EventForm(self.data(date='2029-01-01'), instance=event, user=self.user)

@@ -7,24 +7,36 @@ from django.db import transaction
 from io import BytesIO
 import base64
 import qrcode
-from django.http import JsonResponse, HttpResponse, FileResponse, Http404
+from django.http import HttpResponse, FileResponse, Http404
 import csv
 import uuid
 from django.urls import reverse_lazy, reverse
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-from .models import Event, Category, Registration, EventFeedback, AttendanceSession, AttendanceRecord, ParticipationCertificate
+from .models import (
+    Event,
+    Category,
+    Registration,
+    EventFeedback,
+    AttendanceSession,
+    AttendanceRecord,
+    ParticipationCertificate,
+)
 from .passport import attended_events, category_summary, certificate_is_valid, certificate_pdf
 from .forms import EventForm, EventSearchForm, FeedbackForm
 from .permissions import (
-    AdminRequiredMixin, OrganizerRequiredMixin, ManagedEventMixin,
-    EventFormUserMixin, managed_events,
+    AdminRequiredMixin,
+    OrganizerRequiredMixin,
+    ManagedEventMixin,
+    EventFormUserMixin,
+    managed_events,
 )
 
 
 class HomeView(TemplateView):
     """Home page with featured events and statistics."""
+
     template_name = 'events/home.html'
 
     def get_context_data(self, **kwargs):
@@ -33,9 +45,11 @@ class HomeView(TemplateView):
         context['featured_events'] = Event.objects.filter(
             status='upcoming', featured=True, date__gte=today
         ).select_related('category', 'organizer')[:6]
-        context['upcoming_events'] = Event.objects.filter(
-            status='upcoming', date__gte=today
-        ).select_related('category', 'organizer').order_by('date')[:6]
+        context['upcoming_events'] = (
+            Event.objects.filter(status='upcoming', date__gte=today)
+            .select_related('category', 'organizer')
+            .order_by('date')[:6]
+        )
         context['categories'] = Category.objects.annotate(event_count=Count('events'))[:8]
         context['total_events'] = Event.objects.count()
         context['total_users'] = User.objects.count()
@@ -46,6 +60,7 @@ class HomeView(TemplateView):
 
 class EventListView(ListView):
     """Browse all events with filtering and search."""
+
     model = Event
     template_name = 'events/event_list.html'
     context_object_name = 'events'
@@ -63,10 +78,7 @@ class EventListView(ListView):
 
             if q:
                 queryset = queryset.filter(
-                    Q(title__icontains=q) |
-                    Q(description__icontains=q) |
-                    Q(venue__icontains=q) |
-                    Q(tags__icontains=q)
+                    Q(title__icontains=q) | Q(description__icontains=q) | Q(venue__icontains=q) | Q(tags__icontains=q)
                 )
             if category:
                 queryset = queryset.filter(category=category)
@@ -88,6 +100,7 @@ class EventListView(ListView):
 
 class EventDetailView(DetailView):
     """Event detail page."""
+
     model = Event
     template_name = 'events/event_detail.html'
     context_object_name = 'event'
@@ -98,20 +111,21 @@ class EventDetailView(DetailView):
         user = self.request.user
 
         if user.is_authenticated:
-            context['user_registration'] = Registration.objects.filter(
-                user=user, event=event
-            ).first()
-            context['user_feedback'] = EventFeedback.objects.filter(
-                user=user, event=event
-            ).first()
+            context['user_registration'] = Registration.objects.filter(user=user, event=event).first()
+            context['user_feedback'] = EventFeedback.objects.filter(user=user, event=event).first()
 
-        context['related_events'] = Event.objects.filter(
-            category=event.category, status='upcoming'
-        ).exclude(pk=event.pk)[:3]
+        context['related_events'] = Event.objects.filter(category=event.category, status='upcoming').exclude(
+            pk=event.pk
+        )[:3]
         context['feedback_form'] = FeedbackForm()
         context['registration_open'] = event.status == 'upcoming' and event.date >= timezone.localdate()
-        context['can_manage_event'] = user.is_authenticated and user.is_active and (
-            user.is_superuser or (user.is_staff and (event.organizer_id == user.pk or event.coordinators.filter(pk=user.pk).exists()))
+        context['can_manage_event'] = (
+            user.is_authenticated
+            and user.is_active
+            and (
+                user.is_superuser
+                or (user.is_staff and (event.organizer_id == user.pk or event.coordinators.filter(pk=user.pk).exists()))
+            )
         )
         context['feedbacks'] = event.feedbacks.select_related('user').order_by('-created_at')[:5]
         return context
@@ -140,7 +154,11 @@ class EventRegisterView(LoginRequiredMixin, View):
             else:
                 registration = Registration(user=request.user, event=event, status=status)
             for field in ('branch', 'student_class', 'roll_number'):
-                setattr(registration, field, request.POST.get(field, '').strip()[:Registration._meta.get_field(field).max_length])
+                setattr(
+                    registration,
+                    field,
+                    request.POST.get(field, '').strip()[: Registration._meta.get_field(field).max_length],
+                )
             registration.save()
         if status == 'waitlisted':
             messages.info(request, 'The event is full. You have joined the waitlist; check your dashboard for updates.')
@@ -161,7 +179,9 @@ class CancelRegistrationView(LoginRequiredMixin, View):
             registration.save(update_fields=['status'])
             if was_confirmed and event.status == 'upcoming' and event.date >= timezone.localdate():
                 while event.available_seats:
-                    next_registration = event.registrations.filter(status='waitlisted').order_by('registration_date', 'pk').first()
+                    next_registration = (
+                        event.registrations.filter(status='waitlisted').order_by('registration_date', 'pk').first()
+                    )
                     if not next_registration:
                         break
                     next_registration.status = 'confirmed'
@@ -172,6 +192,7 @@ class CancelRegistrationView(LoginRequiredMixin, View):
 
 class UserDashboardView(LoginRequiredMixin, TemplateView):
     """User personal dashboard."""
+
     template_name = 'events/user_dashboard.html'
 
     def get_context_data(self, **kwargs):
@@ -179,15 +200,15 @@ class UserDashboardView(LoginRequiredMixin, TemplateView):
         user = self.request.user
         today = timezone.now().date()
 
-        registrations = Registration.objects.filter(
-            user=user
-        ).select_related('event', 'event__category').order_by('-registration_date')
+        registrations = (
+            Registration.objects.filter(user=user)
+            .select_related('event', 'event__category')
+            .order_by('-registration_date')
+        )
 
         context['registrations'] = registrations
         context['confirmed_count'] = registrations.filter(status='confirmed').count()
-        context['upcoming_events'] = registrations.filter(
-            status='confirmed', event__date__gte=today
-        ).count()
+        context['upcoming_events'] = registrations.filter(status='confirmed', event__date__gte=today).count()
         context['attended_count'] = attended_events(user).count()
         context['cancelled_count'] = registrations.filter(status='cancelled').count()
         return context
@@ -211,11 +232,21 @@ class PassportExportView(LoginRequiredMixin, View):
         response['Content-Disposition'] = 'attachment; filename="eventease-passport.csv"'
         writer = csv.writer(response)
         writer.writerow(['Event', 'Date', 'Category', 'Venue', 'Attendance'])
+
         def safe(value):
             value = str(value or '')
             return "'" + value if value.lstrip().startswith(('=', '+', '-', '@', '\t', '\r')) else value
+
         for event in attended_events(request.user):
-            writer.writerow([safe(event.title), event.date.isoformat(), safe(event.category.name if event.category else 'Other'), safe(event.venue), 'Recorded'])
+            writer.writerow(
+                [
+                    safe(event.title),
+                    event.date.isoformat(),
+                    safe(event.category.name if event.category else 'Other'),
+                    safe(event.venue),
+                    'Recorded',
+                ]
+            )
         return response
 
 
@@ -223,13 +254,28 @@ class CertificateDownloadView(LoginRequiredMixin, View):
     def post(self, request, slug):
         # Lock the registration while issuing; only the attendee can request it.
         with transaction.atomic():
-            reg = get_object_or_404(Registration.objects.select_for_update().select_related('event', 'user'), event__slug=slug, user=request.user, status='confirmed')
-            if not reg.event.certificates_enabled or reg.event.status == 'cancelled' or not AttendanceRecord.objects.filter(session__event=reg.event, user=request.user, status='present').exists():
+            reg = get_object_or_404(
+                Registration.objects.select_for_update().select_related('event', 'user'),
+                event__slug=slug,
+                user=request.user,
+                status='confirmed',
+            )
+            if (
+                not reg.event.certificates_enabled
+                or reg.event.status == 'cancelled'
+                or not AttendanceRecord.objects.filter(
+                    session__event=reg.event, user=request.user, status='present'
+                ).exists()
+            ):
                 raise Http404('Certificate is not available.')
-            cert, _ = ParticipationCertificate.objects.get_or_create(registration=reg, defaults={
-                'attendee_name': request.user.get_full_name().strip() or request.user.username,
-                'event_title': reg.event.title, 'event_date': reg.event.date,
-            })
+            cert, _ = ParticipationCertificate.objects.get_or_create(
+                registration=reg,
+                defaults={
+                    'attendee_name': request.user.get_full_name().strip() or request.user.username,
+                    'event_title': reg.event.title,
+                    'event_date': reg.event.date,
+                },
+            )
         verification_url = request.build_absolute_uri(reverse('events:verify_certificate', args=[cert.pk]))
         response = FileResponse(certificate_pdf(cert, verification_url), content_type='application/pdf')
         response['Content-Disposition'] = f'attachment; filename="eventease-certificate-{cert.pk}.pdf"'
@@ -244,23 +290,38 @@ class CertificateLookupView(View):
             try:
                 return redirect('events:verify_certificate', certificate_id=uuid.UUID(raw))
             except ValueError:
-                return render(request, 'events/certificate_lookup.html', {'error': 'Enter a valid certificate ID.', 'entered_id': raw})
+                return render(
+                    request,
+                    'events/certificate_lookup.html',
+                    {'error': 'Enter a valid certificate ID.', 'entered_id': raw},
+                )
         return render(request, 'events/certificate_lookup.html')
 
 
 class CertificateVerificationView(View):
     def get(self, request, certificate_id):
-        cert = ParticipationCertificate.objects.select_related('registration__event', 'registration__user').filter(pk=certificate_id).first()
+        cert = (
+            ParticipationCertificate.objects.select_related('registration__event', 'registration__user')
+            .filter(pk=certificate_id)
+            .first()
+        )
         valid = bool(cert and certificate_is_valid(cert))
-        response = render(request, 'events/certificate_verify.html', {'certificate': cert if valid else None, 'valid': valid}, status=200 if valid else 404)
+        response = render(
+            request,
+            'events/certificate_verify.html',
+            {'certificate': cert if valid else None, 'valid': valid},
+            status=200 if valid else 404,
+        )
         response['Cache-Control'] = 'no-store'
         return response
 
 
 # ─────────── ADMIN VIEWS ───────────
 
+
 class AdminDashboardView(LoginRequiredMixin, AdminRequiredMixin, TemplateView):
     """Admin statistics dashboard."""
+
     template_name = 'events/admin_dashboard.html'
 
     def get_context_data(self, **kwargs):
@@ -272,33 +333,33 @@ class AdminDashboardView(LoginRequiredMixin, AdminRequiredMixin, TemplateView):
         context['total_registrations'] = Registration.objects.filter(status='confirmed').count()
         context['upcoming_events'] = Event.objects.filter(status='upcoming', date__gte=today).count()
         context['recent_events'] = Event.objects.select_related('category', 'organizer').order_by('-created_at')[:5]
-        context['top_events'] = Event.objects.annotate(
-            reg_count=Count('registrations')
-        ).order_by('-reg_count')[:5]
-        context['recent_registrations'] = Registration.objects.select_related(
-            'user', 'event'
-        ).order_by('-registration_date')[:10]
-        context['categories'] = Category.objects.annotate(
-            event_count=Count('events')
-        )
+        context['top_events'] = Event.objects.annotate(reg_count=Count('registrations')).order_by('-reg_count')[:5]
+        context['recent_registrations'] = Registration.objects.select_related('user', 'event').order_by(
+            '-registration_date'
+        )[:10]
+        context['categories'] = Category.objects.annotate(event_count=Count('events'))
         return context
 
 
 class AdminEventListView(LoginRequiredMixin, OrganizerRequiredMixin, ListView):
     """Admin event management list."""
+
     model = Event
     template_name = 'events/admin_event_list.html'
     context_object_name = 'events'
     paginate_by = 15
 
     def get_queryset(self):
-        return managed_events(self.request.user, Event.objects.select_related('category', 'organizer')).annotate(
-            reg_count=Count('registrations', distinct=True)
-        ).order_by('-created_at')
+        return (
+            managed_events(self.request.user, Event.objects.select_related('category', 'organizer'))
+            .annotate(reg_count=Count('registrations', distinct=True))
+            .order_by('-created_at')
+        )
 
 
 class EventCreateView(LoginRequiredMixin, OrganizerRequiredMixin, EventFormUserMixin, CreateView):
     """Create a new event."""
+
     model = Event
     form_class = EventForm
     template_name = 'events/event_form.html'
@@ -324,6 +385,7 @@ class EventCreateView(LoginRequiredMixin, OrganizerRequiredMixin, EventFormUserM
 
 class EventUpdateView(LoginRequiredMixin, OrganizerRequiredMixin, ManagedEventMixin, EventFormUserMixin, UpdateView):
     """Update an existing event."""
+
     model = Event
     form_class = EventForm
     template_name = 'events/event_form.html'
@@ -342,6 +404,7 @@ class EventUpdateView(LoginRequiredMixin, OrganizerRequiredMixin, ManagedEventMi
 
 class EventDeleteView(LoginRequiredMixin, OrganizerRequiredMixin, ManagedEventMixin, DeleteView):
     """Delete an event."""
+
     model = Event
     template_name = 'events/event_confirm_delete.html'
     success_url = reverse_lazy('events:admin_event_list')
@@ -357,6 +420,7 @@ class EventDeleteView(LoginRequiredMixin, OrganizerRequiredMixin, ManagedEventMi
 
 class EventParticipantsView(LoginRequiredMixin, OrganizerRequiredMixin, ManagedEventMixin, DetailView):
     """View participants for a specific event."""
+
     model = Event
     template_name = 'events/event_participants.html'
     context_object_name = 'event'
@@ -364,23 +428,26 @@ class EventParticipantsView(LoginRequiredMixin, OrganizerRequiredMixin, ManagedE
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         event = self.get_object()
-        context['registrations'] = Registration.objects.filter(
-            event=event
-        ).select_related('user').order_by('status', '-registration_date')
+        context['registrations'] = (
+            Registration.objects.filter(event=event).select_related('user').order_by('status', '-registration_date')
+        )
         return context
 
 
 class AdminUserListView(LoginRequiredMixin, AdminRequiredMixin, ListView):
     """Admin user management."""
+
     model = User
     template_name = 'events/admin_user_list.html'
     context_object_name = 'users'
     paginate_by = 20
 
     def get_queryset(self):
-        return User.objects.select_related('coordinator_application').annotate(
-            reg_count=Count('registrations')
-        ).order_by('-date_joined')
+        return (
+            User.objects.select_related('coordinator_application')
+            .annotate(reg_count=Count('registrations'))
+            .order_by('-date_joined')
+        )
 
 
 class ToggleUserStatusView(LoginRequiredMixin, AdminRequiredMixin, View):
@@ -389,7 +456,7 @@ class ToggleUserStatusView(LoginRequiredMixin, AdminRequiredMixin, View):
     def post(self, request, pk):
         user = get_object_or_404(User, pk=pk)
         if user == request.user:
-            messages.error(request, "You cannot deactivate your own account.")
+            messages.error(request, 'You cannot deactivate your own account.')
         else:
             user.is_active = not user.is_active
             user.save()
@@ -400,22 +467,21 @@ class ToggleUserStatusView(LoginRequiredMixin, AdminRequiredMixin, View):
 
 class ToggleOrganizerStatusView(LoginRequiredMixin, AdminRequiredMixin, View):
     """Toggle user organizer (staff) status."""
-    
+
     def post(self, request, pk):
         if not request.user.is_superuser:
-            messages.error(request, "Only Superusers can grant or revoke organizer access.")
+            messages.error(request, 'Only Superusers can grant or revoke organizer access.')
             return redirect('events:admin_user_list')
-            
+
         user = get_object_or_404(User, pk=pk)
         if user == request.user or user.is_superuser:
-            messages.error(request, "You cannot modify organizer status for this user.")
+            messages.error(request, 'You cannot modify organizer status for this user.')
         else:
             user.is_staff = not user.is_staff
             user.save()
             from accounts.models import CoordinatorApplication
-            CoordinatorApplication.objects.filter(user=user).update(
-                status='approved' if user.is_staff else 'revoked'
-            )
+
+            CoordinatorApplication.objects.filter(user=user).update(status='approved' if user.is_staff else 'revoked')
             status = 'granted organizer access to' if user.is_staff else 'revoked organizer access from'
             messages.success(request, f'Successfully {status} "{user.username}".')
         return redirect('events:admin_user_list')
@@ -423,6 +489,7 @@ class ToggleOrganizerStatusView(LoginRequiredMixin, AdminRequiredMixin, View):
 
 class CategoryEventView(ListView):
     """Events filtered by category."""
+
     model = Event
     template_name = 'events/event_list.html'
     context_object_name = 'events'
@@ -442,10 +509,12 @@ class CategoryEventView(ListView):
 
 class AboutView(TemplateView):
     """About page."""
+
     template_name = 'events/about.html'
 
 
 # ─────────── ATTENDANCE VIEWS ───────────
+
 
 class AttendanceDashboardView(LoginRequiredMixin, OrganizerRequiredMixin, ManagedEventMixin, DetailView):
     model = Event
@@ -458,27 +527,39 @@ class AttendanceDashboardView(LoginRequiredMixin, OrganizerRequiredMixin, Manage
         session = event.attendance_sessions.filter(is_active=True).first()
         if not session:
             session = event.attendance_sessions.order_by('-created_at').first()
-            
+
         context['session'] = session
-        context['session_active'] = bool(session and session.is_active and session.token_expires_at and session.token_expires_at > timezone.now())
+        context['session_active'] = bool(
+            session and session.is_active and session.token_expires_at and session.token_expires_at > timezone.now()
+        )
 
         # Stats
         total_registered = event.registrations.filter(status='confirmed').count()
-        present = AttendanceRecord.objects.filter(session__event=event, user__registrations__event=event, user__registrations__status='confirmed').values('user_id').distinct().count()
+        present = (
+            AttendanceRecord.objects.filter(
+                session__event=event, user__registrations__event=event, user__registrations__status='confirmed'
+            )
+            .values('user_id')
+            .distinct()
+            .count()
+        )
         absent = total_registered - present
         percentage = round((present / total_registered * 100), 1) if total_registered > 0 else 0
-        
+
         context['total_registered'] = total_registered
         context['present_count'] = present
         context['absent_count'] = absent
         context['attendance_percentage'] = percentage
-        context['recent_checkins'] = AttendanceRecord.objects.filter(session__event=event).select_related('user').order_by('-scanned_at')[:50]
-        
+        context['recent_checkins'] = (
+            AttendanceRecord.objects.filter(session__event=event).select_related('user').order_by('-scanned_at')[:50]
+        )
+
         return context
 
 
 class AttendanceExportView(LoginRequiredMixin, OrganizerRequiredMixin, View):
     """Download one attendance row per confirmed participant."""
+
     def get(self, request, slug):
         event = get_object_or_404(managed_events(request.user, Event.objects.all()), slug=slug)
         present_ids = set(AttendanceRecord.objects.filter(session__event=event).values_list('user_id', flat=True))
@@ -486,11 +567,22 @@ class AttendanceExportView(LoginRequiredMixin, OrganizerRequiredMixin, View):
         response['Content-Disposition'] = 'attachment; filename="attendance.csv"'
         writer = csv.writer(response)
         writer.writerow(['Name', 'Username', 'Branch', 'Class / year', 'Roll number', 'Attendance'])
+
         def safe(value):
             value = str(value or '')
             return "'" + value if value.lstrip().startswith(('=', '+', '-', '@', '\t', '\r')) else value
+
         for reg in event.registrations.filter(status='confirmed').select_related('user').order_by('user__username'):
-            writer.writerow([safe(reg.user.get_full_name()), safe(reg.user.username), safe(reg.branch), safe(reg.student_class), safe(reg.roll_number), 'Present' if reg.user_id in present_ids else 'Absent'])
+            writer.writerow(
+                [
+                    safe(reg.user.get_full_name()),
+                    safe(reg.user.username),
+                    safe(reg.branch),
+                    safe(reg.student_class),
+                    safe(reg.roll_number),
+                    'Present' if reg.user_id in present_ids else 'Absent',
+                ]
+            )
         return response
 
 
@@ -515,15 +607,22 @@ class DisplayQRView(LoginRequiredMixin, OrganizerRequiredMixin, ManagedEventMixi
         context = super().get_context_data(**kwargs)
         event = self.get_object()
         session = event.attendance_sessions.filter(is_active=True).first()
-        
+
         if session and session.token_expires_at and session.token_expires_at > timezone.now():
-            url = self.request.build_absolute_uri(reverse_lazy('events:scan_qr', kwargs={'token': session.current_qr_token}))
+            url = self.request.build_absolute_uri(
+                reverse_lazy('events:scan_qr', kwargs={'token': session.current_qr_token})
+            )
             context['qr_data'] = url
             image = qrcode.make(url)
             output = BytesIO()
             image.save(output, format='PNG')
             context['qr_image'] = base64.b64encode(output.getvalue()).decode('ascii')
-            context['local_address'] = self.request.get_host().split(':')[0] in ('localhost', '127.0.0.1', '0.0.0.0', '[::1]')
+            context['local_address'] = self.request.get_host().split(':')[0] in (
+                'localhost',
+                '127.0.0.1',
+                '0.0.0.0',
+                '[::1]',
+            )
             context['session'] = session
             # seconds left
             context['seconds_left'] = int((session.token_expires_at - timezone.now()).total_seconds())
@@ -542,29 +641,29 @@ class ParticipantScannerView(LoginRequiredMixin, TemplateView):
 class ScanQRView(LoginRequiredMixin, View):
     def get(self, request, token):
         session = AttendanceSession.objects.filter(current_qr_token=token, is_active=True).first()
-        
+
         if not session:
             messages.error(request, 'This attendance QR has expired or is invalid.')
             return render(request, 'events/scan_error.html', {'error': 'Invalid or expired QR code.'})
-            
+
         if not session.token_expires_at or session.token_expires_at <= timezone.now():
             session.is_active = False
             session.save()
             messages.error(request, 'This attendance QR has expired.')
             return render(request, 'events/scan_error.html', {'error': 'QR code has expired.'})
-            
+
         event = session.event
-        
+
         # Check registration
         if not Registration.objects.filter(event=event, user=request.user, status='confirmed').exists():
             messages.error(request, 'You are not registered for this event.')
             return render(request, 'events/scan_error.html', {'error': 'Not registered for this event.'})
-            
+
         # Check if already marked
         if AttendanceRecord.objects.filter(session=session, user=request.user).exists():
             messages.warning(request, 'Attendance has already been recorded.')
             return render(request, 'events/scan_error.html', {'error': 'Attendance already recorded.'})
-            
+
         return render(request, 'events/scan_confirm.html', {'event': event, 'token': token})
 
 
@@ -574,21 +673,19 @@ class ConfirmAttendanceView(LoginRequiredMixin, View):
         if not session or not session.token_expires_at or session.token_expires_at <= timezone.now():
             messages.error(request, 'QR expired. Please scan the latest QR on the screen.')
             return redirect('events:home')
-            
+
         if not Registration.objects.filter(event=session.event, user=request.user, status='confirmed').exists():
             messages.error(request, 'You are not registered for this event.')
             return redirect('events:home')
-            
+
         # Prevent duplicate
         record, created = AttendanceRecord.objects.get_or_create(
-            session=session,
-            user=request.user,
-            defaults={'status': 'present'}
+            session=session, user=request.user, defaults={'status': 'present'}
         )
-        
+
         if created:
             messages.success(request, f'✓ Your attendance has been recorded successfully for {session.event.title}.')
         else:
             messages.info(request, 'Attendance was already marked.')
-            
+
         return redirect('events:user_dashboard')

@@ -6,6 +6,7 @@ from django.dispatch import receiver
 
 class UserProfile(models.Model):
     """Extended user profile."""
+
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     is_organizer = models.BooleanField(default=False, help_text='Can review coordinator applications.')
     phone = models.CharField(max_length=16, blank=True)
@@ -27,16 +28,23 @@ class UserProfile(models.Model):
 
 class CoordinatorApplication(models.Model):
     EVENT_TYPES = [
-        ('technical', 'Technical / workshop'), ('cultural', 'Cultural / festival'),
-        ('sports', 'Sports'), ('academic', 'Academic / seminar'),
-        ('community', 'Community / charity'), ('other', 'Other'),
+        ('technical', 'Technical / workshop'),
+        ('cultural', 'Cultural / festival'),
+        ('sports', 'Sports'),
+        ('academic', 'Academic / seminar'),
+        ('community', 'Community / charity'),
+        ('other', 'Other'),
     ]
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='coordinator_application')
     organization = models.CharField(max_length=200)
     event_type = models.CharField(max_length=20, choices=EVENT_TYPES)
     expected_attendees = models.PositiveIntegerField()
     event_plan = models.TextField(max_length=1000)
-    status = models.CharField(max_length=10, choices=[('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected'), ('revoked', 'Revoked')], default='pending')
+    status = models.CharField(
+        max_length=10,
+        choices=[('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected'), ('revoked', 'Revoked')],
+        default='pending',
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
 

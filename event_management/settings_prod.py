@@ -1,7 +1,10 @@
 """
 Production settings for EventEase.
 """
-from .settings import *
+
+from decouple import config
+
+from .settings import *  # noqa: F401,F403
 
 DEBUG = False
 

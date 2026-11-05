@@ -7,15 +7,33 @@ from django.utils import timezone
 class EventForm(forms.ModelForm):
     """Form for creating/editing events."""
 
-    coordinator = forms.ChoiceField(required=False, label='Coordinator for this event', widget=forms.Select(attrs={'class': 'form-select'}))
+    coordinator = forms.ChoiceField(
+        required=False, label='Coordinator for this event', widget=forms.Select(attrs={'class': 'form-select'})
+    )
 
     class Meta:
         model = Event
         fields = [
-            'title', 'description', 'short_description', 'organizer', 'coordinator', 'category',
-            'date', 'time', 'end_date', 'end_time',
-            'venue', 'venue_address', 'capacity',
-            'image', 'status', 'is_free', 'price', 'tags', 'featured', 'certificates_enabled'
+            'title',
+            'description',
+            'short_description',
+            'organizer',
+            'coordinator',
+            'category',
+            'date',
+            'time',
+            'end_date',
+            'end_time',
+            'venue',
+            'venue_address',
+            'capacity',
+            'image',
+            'status',
+            'is_free',
+            'price',
+            'tags',
+            'featured',
+            'certificates_enabled',
         ]
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Event title'}),
@@ -33,8 +51,9 @@ class EventForm(forms.ModelForm):
             'image': forms.FileInput(attrs={'class': 'form-control'}),
             'status': forms.Select(attrs={'class': 'form-select'}),
             'price': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'step': 0.01}),
-            'tags': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'tech, workshop, AI (comma-separated)'}),
-            'tags': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'tech, workshop, AI (comma-separated)'}),
+            'tags': forms.TextInput(
+                attrs={'class': 'form-control', 'placeholder': 'tech, workshop, AI (comma-separated)'}
+            ),
         }
 
     def __init__(self, *args, **kwargs):
@@ -48,13 +67,15 @@ class EventForm(forms.ModelForm):
         self.fields['date'].widget.format = '%Y-%m-%d'
         self.fields['end_date'].widget.format = '%Y-%m-%d'
         from django.contrib.auth import get_user_model
+
         User = get_user_model()
         from django.db.models import Q
-        self.fields['organizer'].queryset = User.objects.filter(
-            Q(is_staff=True) | Q(is_superuser=True), is_active=True
-        )
-        self.fields['organizer'].empty_label = "Select Organizer"
-        available = User.objects.filter(is_active=True, is_staff=True, is_superuser=False, profile__is_organizer=False).order_by('username')
+
+        self.fields['organizer'].queryset = User.objects.filter(Q(is_staff=True) | Q(is_superuser=True), is_active=True)
+        self.fields['organizer'].empty_label = 'Select Organizer'
+        available = User.objects.filter(
+            is_active=True, is_staff=True, is_superuser=False, profile__is_organizer=False
+        ).order_by('username')
         owner_id = self.instance.organizer_id if self.instance.pk else (user.pk if user else None)
         if owner_id:
             available = available.exclude(pk=owner_id)
@@ -69,7 +90,10 @@ class EventForm(forms.ModelForm):
             self.coordinator_keep_notice = True
         elif existing:
             self.initial['coordinator'] = str(existing[0].pk)
-        options.extend((str(person.pk), f'{person.get_full_name() or person.username} (@{person.username})') for person in available)
+        options.extend(
+            (str(person.pk), f'{person.get_full_name() or person.username} (@{person.username})')
+            for person in available
+        )
         self.fields['coordinator'].choices = options
         self.coordinator_options_available = bool(eligible_ids)
         if user is not None and not user.is_superuser:
@@ -89,17 +113,20 @@ class EventForm(forms.ModelForm):
             slug = base_slug
             counter = 1
             from .models import Event
+
             while Event.objects.filter(slug=slug).exists():
                 slug = f'{base_slug}-{counter}'
                 counter += 1
             event.slug = slug
         save_model_relations = self.save_m2m
+
         def save_relations():
             save_model_relations()
             if 'coordinator' in self.cleaned_data:
                 selection = self.cleaned_data['coordinator']
                 if selection != '__keep__':
                     event.coordinators.set([int(selection)] if selection else [])
+
         self.save_m2m = save_relations
         if commit:
             event.save()
@@ -109,32 +136,29 @@ class EventForm(forms.ModelForm):
 
 class EventSearchForm(forms.Form):
     """Search and filter form for events."""
+
     q = forms.CharField(
         required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Search events...',
-        })
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control',
+                'placeholder': 'Search events...',
+            }
+        ),
     )
     category = forms.ModelChoiceField(
         queryset=Category.objects.all(),
         required=False,
         empty_label='All Categories',
-        widget=forms.Select(attrs={'class': 'form-select'})
+        widget=forms.Select(attrs={'class': 'form-select'}),
     )
     status = forms.ChoiceField(
         choices=[('', 'All Status'), ('upcoming', 'Upcoming'), ('ongoing', 'Ongoing'), ('completed', 'Completed')],
         required=False,
-        widget=forms.Select(attrs={'class': 'form-select'})
+        widget=forms.Select(attrs={'class': 'form-select'}),
     )
-    date_from = forms.DateField(
-        required=False,
-        widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'})
-    )
-    date_to = forms.DateField(
-        required=False,
-        widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'})
-    )
+    date_from = forms.DateField(required=False, widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}))
+    date_to = forms.DateField(required=False, widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}))
 
 
 class FeedbackForm(forms.ModelForm):
@@ -145,5 +169,7 @@ class FeedbackForm(forms.ModelForm):
         fields = ['rating', 'comment']
         widgets = {
             'rating': forms.Select(attrs={'class': 'form-select'}),
-            'comment': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Share your experience...'}),
+            'comment': forms.Textarea(
+                attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Share your experience...'}
+            ),
         }

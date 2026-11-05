@@ -1,8 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login, logout, authenticate
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login, logout
 from django.contrib import messages
-from django.views.generic import CreateView, View, TemplateView, UpdateView
+from django.views.generic import CreateView, View, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.core.exceptions import PermissionDenied
@@ -17,6 +16,7 @@ from .models import CoordinatorApplication
 
 class RegisterView(CreateView):
     """User registration view."""
+
     form_class = RegisterForm
     template_name = 'accounts/register.html'
     success_url = reverse_lazy('events:home')
@@ -39,6 +39,7 @@ class RegisterView(CreateView):
 
 class LoginView(View):
     """Custom login view."""
+
     template_name = 'accounts/login.html'
 
     def dispatch(self, request, *args, **kwargs):
@@ -57,7 +58,9 @@ class LoginView(View):
             login(request, user)
             messages.success(request, f'Welcome back, {user.first_name or user.username}! 👋')
             next_url = request.GET.get('next', '')
-            if not url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+            if not url_has_allowed_host_and_scheme(
+                next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()
+            ):
                 next_url = 'events:home'
             return redirect(next_url)
         else:
@@ -103,39 +106,65 @@ class CoordinatorPanelView(LoginRequiredMixin, TemplateView):
             raise PermissionDenied('A coordinator account is required.')
         context['application'] = application
         context['coordinator_approved'] = user.is_active and (user.is_staff or user.is_superuser)
-        context['can_review_coordinators'] = user.is_active and (user.is_superuser or (user.is_staff and user.profile.is_organizer))
+        context['can_review_coordinators'] = user.is_active and (
+            user.is_superuser or (user.is_staff and user.profile.is_organizer)
+        )
         if context['coordinator_approved']:
             context['own_events'] = Event.objects.filter(organizer=user).order_by('date', 'time')
-            context['assigned_events'] = Event.objects.filter(coordinators=user).exclude(organizer=user).select_related('organizer').order_by('date', 'time')
-            context['coordinator_directory'] = User.objects.filter(is_active=True, is_staff=True, is_superuser=False, profile__is_organizer=False).order_by('username')
+            context['assigned_events'] = (
+                Event.objects.filter(coordinators=user)
+                .exclude(organizer=user)
+                .select_related('organizer')
+                .order_by('date', 'time')
+            )
+            context['coordinator_directory'] = User.objects.filter(
+                is_active=True, is_staff=True, is_superuser=False, profile__is_organizer=False
+            ).order_by('username')
         if context['can_review_coordinators']:
-            context['pending_applications'] = CoordinatorApplication.objects.filter(status='pending', user__is_active=True).select_related('user').order_by('created_at')
+            context['pending_applications'] = (
+                CoordinatorApplication.objects.filter(status='pending', user__is_active=True)
+                .select_related('user')
+                .order_by('created_at')
+            )
         return context
 
 
 class CoordinatorApplicationDecisionView(LoginRequiredMixin, View):
     def post(self, request, pk):
         reviewer = request.user
-        if not (reviewer.is_active and (reviewer.is_superuser or (reviewer.is_staff and reviewer.profile.is_organizer))):
+        if not (
+            reviewer.is_active and (reviewer.is_superuser or (reviewer.is_staff and reviewer.profile.is_organizer))
+        ):
             raise PermissionDenied('Organizer access is required to review coordinator applications.')
         decision = request.POST.get('decision')
         if decision not in ('approve', 'reject'):
             raise PermissionDenied('Invalid decision.')
         with transaction.atomic():
-            application = get_object_or_404(CoordinatorApplication.objects.select_for_update().select_related('user'), pk=pk)
-            if application.status != 'pending' or not application.user.is_active or application.user.is_staff or application.user.is_superuser or application.user.profile.is_organizer:
+            application = get_object_or_404(
+                CoordinatorApplication.objects.select_for_update().select_related('user'), pk=pk
+            )
+            if (
+                application.status != 'pending'
+                or not application.user.is_active
+                or application.user.is_staff
+                or application.user.is_superuser
+                or application.user.profile.is_organizer
+            ):
                 messages.warning(request, 'This application is no longer pending.')
             else:
                 application.status = 'approved' if decision == 'approve' else 'rejected'
                 application.save(update_fields=['status'])
                 application.user.is_staff = decision == 'approve'
                 application.user.save(update_fields=['is_staff'])
-                messages.success(request, f"Coordinator application {application.status} for {application.user.username}.")
+                messages.success(
+                    request, f'Coordinator application {application.status} for {application.user.username}.'
+                )
         return redirect('accounts:coordinator_panel')
 
 
 class LogoutView(View):
     """Logout view."""
+
     def post(self, request):
         logout(request)
         messages.info(request, 'You have been logged out. See you next time!')
@@ -144,19 +173,24 @@ class LogoutView(View):
 
 class ProfileView(LoginRequiredMixin, TemplateView):
     """View user profile."""
+
     template_name = 'accounts/profile.html'
 
 
 class ProfileUpdateView(LoginRequiredMixin, View):
     """Update user profile."""
+
     template_name = 'accounts/profile_edit.html'
 
     def get(self, request):
-        form = ProfileUpdateForm(instance=request.user.profile, initial={
-            'first_name': request.user.first_name,
-            'last_name': request.user.last_name,
-            'email': request.user.email,
-        })
+        form = ProfileUpdateForm(
+            instance=request.user.profile,
+            initial={
+                'first_name': request.user.first_name,
+                'last_name': request.user.last_name,
+                'email': request.user.email,
+            },
+        )
         return render(request, self.template_name, {'form': form})
 
     def post(self, request):
