@@ -8,7 +8,7 @@ pipeline {
 
     environment {
         IMAGE = 'mujahiddxd/eventease'
-        EC2_HOST = '98.84.188.39'
+        EC2_HOST = '54.242.246.143'
     }
 
     stages {
