@@ -163,6 +163,39 @@
     border-radius: var(--radius);
     margin-bottom: 16px;
 }
+
+/* Event page: calm surfaces, clear hierarchy and responsive actions. */
+.breadcrumb-premium { padding:28px 0; font-size:.73rem; letter-spacing:.06em; }
+.event-detail-layout { padding-bottom:80px; }
+.event-detail-main { min-width:0; }
+.detail-tag-group { margin-bottom:16px; gap:8px; }
+.detail-tag { border:1px solid #d5e9ef; border-radius:99px; padding:7px 12px; background:rgba(255,255,255,.72); color:#427487; font-size:.68rem; letter-spacing:.06em; }
+.detail-headline { font-size:clamp(2.25rem,4vw,3.6rem); line-height:1.08; letter-spacing:-.055em; margin:0 0 26px; }
+.event-cover-img,.event-cover-placeholder { height:clamp(230px,29vw,360px); border-radius:24px; margin-bottom:28px; }
+.event-cover-placeholder { background:linear-gradient(135deg,#d6eef8,#fff3c1); border:1px solid white; display:flex; flex-direction:column; gap:12px; color:#43758a; }
+.event-cover-placeholder i { font-size:2.8rem; }
+.event-cover-placeholder span { font-size:.85rem; font-weight:700; }
+.meta-grid-premium { grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px; padding:24px; margin:0 0 30px; border:1px solid white; border-radius:22px; background:rgba(255,255,255,.72); box-shadow:0 12px 30px rgba(52,103,122,.06); }
+.meta-item-premium { gap:12px; min-width:0; }
+.meta-item-premium i { flex:none; width:40px; height:40px; display:grid; place-items:center; border-radius:13px; background:#e4f4fa; color:#427f96; font-size:1.1rem; }
+.meta-item-label { font-size:.67rem; letter-spacing:.08em; color:#71909d; }
+.meta-item-value { font-size:.9rem; overflow-wrap:anywhere; }
+.about-content { font-size:1rem; line-height:1.75; margin-bottom:32px; }
+.registration-sidebar { background:rgba(255,255,255,.78); border:1px solid white; border-radius:24px; padding:25px; box-shadow:0 15px 38px rgba(52,103,122,.09); backdrop-filter:blur(16px); top:100px; }
+.event-tools { padding:20px; border:1px solid #d7ebf0; border-radius:18px; background:linear-gradient(135deg,#e8f7fb,#fff8da); }
+.event-tools-kicker { display:block; color:#638494; font-size:.65rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase; margin-bottom:9px; }
+.event-tools h2 { font-size:1.15rem; margin:0 0 6px; }
+.event-tools p { color:#617f8d; font-size:.83rem; line-height:1.55; margin:0 0 17px; }
+.event-tool-links { display:flex; flex-direction:column; gap:9px; }
+.event-tool-links a { display:flex; align-items:center; justify-content:center; gap:8px; min-height:42px; padding:9px 12px !important; font-size:.84rem !important; line-height:1.3; text-align:center; }
+.event-tool-links a i { flex:none; }
+.event-tools-summary { border-top:1px solid #dbeaf0; margin-top:18px; padding-top:15px; display:flex; justify-content:space-between; gap:10px; font-size:.8rem; color:#688592; }
+.event-tools-summary strong { color:#315a6d; }
+.registration-sidebar .btn-brand,.registration-sidebar .btn-nav-outline,.registration-sidebar .btn-navy { display:flex; align-items:center; justify-content:center; gap:7px; min-height:46px; }
+.registration-sidebar .reg-price { font-size:2.3rem; }
+.registration-sidebar input.form-control { border-radius:12px !important; }
+@media(max-width:991px) { .registration-sidebar { position:static; } .event-detail-layout { padding-bottom:55px; } }
+@media(max-width:575px) { .breadcrumb-premium { padding:21px 0; font-size:.65rem; } .meta-grid-premium { grid-template-columns:1fr; padding:20px; } .detail-headline { font-size:2.25rem; } .event-cover-img,.event-cover-placeholder { height:220px; } .registration-sidebar { padding:20px; } }
 </style>
 {% endblock %}
 
@@ -177,20 +210,11 @@
     </div>
 </div>
 
-<section class="section-spacing" style="padding-top: 0;">
+<section class="event-detail-layout">
     <div class="container">
         <div class="row g-5">
             <!-- Main Content -->
-            <div class="col-lg-8">
-                <!-- Event Image -->
-                {% if event.image %}
-                <img src="{{ event.image.url }}" alt="{{ event.title }}" class="event-cover-img">
-                {% else %}
-                <div class="event-cover-placeholder">
-                    <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=1200&auto=format&fit=crop" class="event-cover-img m-0" alt="Fallback Event Image">
-                </div>
-                {% endif %}
-
+            <div class="col-lg-8 event-detail-main">
                 <!-- Event Info -->
                 <div class="detail-tag-group">
                     {% if event.category %}
@@ -203,6 +227,12 @@
                 </div>
 
                 <h1 class="detail-headline">{{ event.title }}</h1>
+
+                {% if event.image %}
+                <img src="{{ event.image.url }}" alt="" class="event-cover-img">
+                {% else %}
+                <div class="event-cover-placeholder" aria-label="No event cover image"><i class="bi bi-calendar2-event" aria-hidden="true"></i><span>Event details</span></div>
+                {% endif %}
 
                 <div class="meta-grid-premium">
                     <div class="meta-item-premium">
@@ -290,15 +320,22 @@
             <div class="col-lg-4">
                 <div class="registration-sidebar">
                     {% if can_manage_event %}
-                    <div style="background: var(--navy); border-radius: 8px; padding: 24px; margin-bottom: 24px; color: white;">
-                        <h4 style="font-weight: 800; margin-bottom: 8px;">Attendance</h4>
-                        <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-bottom: 16px;">Manage QR check-ins for this event.</p>
-                        <a href="{% url 'events:attendance_dashboard' event.slug %}" class="btn-brand w-100 text-center d-block">Open Dashboard</a>
+                    <div class="event-tools{% if user_registration %} mb-4{% endif %}">
+                        <span class="event-tools-kicker"><i class="bi bi-grid-1x2 me-1" aria-hidden="true"></i> Event management</span>
+                        <h2>Manage this event</h2>
+                        <p>Keep track of your event, participants, and attendance.</p>
+                        <div class="event-tool-links">
+                            <a href="{% url 'events:attendance_dashboard' event.slug %}" class="btn-brand"><i class="bi bi-qr-code-scan" aria-hidden="true"></i>Attendance</a>
+                            <a href="{% url 'events:event_participants' event.slug %}" class="btn-nav-outline"><i class="bi bi-people" aria-hidden="true"></i>View participants</a>
+                            <a href="{% url 'events:event_edit' event.slug %}" class="btn-nav-outline"><i class="bi bi-pencil" aria-hidden="true"></i>Edit event</a>
+                        </div>
+                        <div class="event-tools-summary"><span>Registration status</span><strong>{% if registration_open %}Open{% else %}Closed{% endif %}</strong></div>
                     </div>
                     {% endif %}
-                    
+
+                    {% if not can_manage_event or user_registration %}
                     {% if user.is_authenticated %}
-                        {% if user_registration %}
+                        {% if user_registration and user_registration.status != "cancelled" %}
                             {% if user_registration.status == 'confirmed' %}
                             <div class="text-center mb-4">
                                 <i class="bi bi-check-circle-fill" style="font-size: 3rem; color: var(--navy);"></i>
@@ -306,6 +343,13 @@
                                 <div style="font-size: 1.25rem; font-weight: 700; padding: 12px; border: 2px dashed var(--border); border-radius: 8px; margin-bottom: 24px;">
                                     <i class="bi bi-ticket-perforated me-2"></i>{{ user_registration.ticket_number }}
                                 </div>
+                                {% if not user.is_staff %}
+                                <div class="attendance-instructions" style="text-align:left; background:#edf8fc; border:1px solid #cde5ef; border-radius:14px; padding:16px; margin:0 0 18px;">
+                                    <strong style="display:block; color:var(--text-main); margin-bottom:6px;"><i class="bi bi-qr-code-scan me-2" aria-hidden="true"></i>How to mark attendance</strong>
+                                    <p style="font-size:.9rem; color:var(--text-muted); line-height:1.5; margin:0;">At the event, scan the attendance QR code displayed by the organizer. Sign in if prompted, then select <strong>Mark Attendance</strong>.</p>
+                                    <a href="{% url 'events:participant_scanner' %}" class="btn-nav-outline d-block text-center mt-3"><i class="bi bi-qr-code-scan me-2"></i>Open QR scanner</a>
+                                </div>
+                                {% endif %}
                                 <form method="post" action="{% url 'events:cancel_registration' event.slug %}">
                                     {% csrf_token %}
                                     <button type="submit" class="btn-nav-outline w-100" onclick="return confirm('Are you sure you want to cancel your registration?')">
@@ -317,17 +361,11 @@
                             <div class="text-center mb-4">
                                 <i class="bi bi-hourglass-split" style="font-size: 3rem; color: var(--accent);"></i>
                                 <h3 class="mt-3 mb-2" style="font-weight: 800;">Waitlisted</h3>
-                                <p style="color: var(--text-muted);">You'll be notified if a spot opens up.</p>
-                                <div style="font-weight: 700;">Ticket: {{ user_registration.ticket_number }}</div>
-                            </div>
-                            {% elif user_registration.status == 'cancelled' %}
-                            <div class="text-center text-muted mb-4">
-                                <i class="bi bi-x-circle mb-3 d-block" style="font-size: 3rem;"></i>
-                                <h4 style="font-weight: 800;">Registration Cancelled</h4>
-                                <p>You previously cancelled your registration.</p>
+                                <p style="color: var(--text-muted);">Check your dashboard for updates when a spot opens up.</p>
+                                <div style="font-weight: 700;">Ticket: {{ user_registration.ticket_number }}</div><form method="post" action="{% url 'events:cancel_registration' event.slug %}" class="mt-3">{% csrf_token %}<button class="btn-nav-outline w-100" type="submit">Leave waitlist</button></form>
                             </div>
                             {% endif %}
-                        {% elif event.status == 'upcoming' %}
+                        {% elif registration_open %}
                             
                             <div class="reg-price">{% if event.is_free %}Free{% else %}₹{{ event.price }}{% endif %}</div>
                             
@@ -385,6 +423,7 @@
                         <a href="{% url 'accounts:register' %}" class="btn-nav-outline w-100 text-center d-block">
                             Create Free Account
                         </a>
+                    {% endif %}
                     {% endif %}
                 </div>
             </div>

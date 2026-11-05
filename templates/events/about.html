@@ -1,96 +1,63 @@
 {% extends 'base.html' %}
-
-{% block title %}About EventEase — DevOps Project{% endblock %}
-
+{% block title %}About EventEase{% endblock %}
+{% block meta_description %}Discover how EventEase helps participants find events and organizers manage registrations and attendance.{% endblock %}
+{% block extra_css %}
+<style>
+.about-page { background:radial-gradient(ellipse at 90% 3%,#fff3c2,transparent 28%),radial-gradient(ellipse at 0 35%,#d9f1fa,transparent 35%),#eff8fb; padding:55px 0 90px; }
+.about-wrap { max-width:1120px; }
+.about-hero { position:relative; overflow:hidden; padding:clamp(28px,5vw,65px); border:1px solid rgba(255,255,255,.95); border-radius:30px; background:linear-gradient(120deg,rgba(255,255,255,.88),rgba(224,244,251,.75) 65%,rgba(255,242,186,.78)); box-shadow:0 18px 50px rgba(52,103,122,.09); }
+.about-hero:after { content:''; position:absolute; right:-70px; top:-120px; width:310px; height:310px; border:1px solid rgba(96,155,177,.2); border-radius:50%; box-shadow:0 0 0 48px rgba(255,255,255,.17),0 0 0 96px rgba(255,255,255,.1); pointer-events:none; }
+.about-label { display:inline-flex; gap:8px; align-items:center; border-radius:99px; padding:8px 13px; background:#fff8d8; color:#80651f; font-size:.68rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }
+.about-hero h1 { max-width:740px; margin:20px 0; font-size:clamp(2.7rem,5.3vw,4.8rem); line-height:1.06; letter-spacing:-.055em; }
+.about-hero h1 span { color:#5294ac; }
+.about-hero p { max-width:650px; color:#587988; font-size:1.05rem; line-height:1.75; margin:0; }
+.about-actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:28px; position:relative; z-index:1; }
+.about-actions a { display:inline-flex; align-items:center; gap:9px; }
+.about-section { margin-top:68px; }
+.about-section-head { margin-bottom:24px; }
+.about-section-head h2 { font-size:clamp(1.65rem,3vw,2.3rem); letter-spacing:-.045em; margin:0 0 8px; }
+.about-section-head p { color:#6a8794; margin:0; line-height:1.6; }
+.about-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+.about-card { border:1px solid rgba(255,255,255,.95); border-radius:23px; background:rgba(255,255,255,.75); padding:27px; box-shadow:0 14px 35px rgba(52,103,122,.07); backdrop-filter:blur(14px); }
+.about-icon { display:grid; place-items:center; width:48px; height:48px; border-radius:16px; background:#dff2fa; color:#34728a; font-size:1.3rem; margin-bottom:22px; }
+.about-card:nth-child(2) .about-icon { background:#fff0b9; color:#98751e; }
+.about-card h3 { font-size:1.1rem; margin:0 0 10px; }
+.about-card p { margin:0; color:#64818d; font-size:.91rem; line-height:1.75; }
+.about-steps { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+.about-step { border-top:2px solid #b9dae7; padding:22px 4px 0; }
+.about-step span { color:#568ba0; font-weight:800; font-size:.75rem; letter-spacing:.08em; }
+.about-step h3 { font-size:1.05rem; margin:12px 0 8px; }
+.about-step p { color:#64818d; font-size:.9rem; line-height:1.7; margin:0; }
+.about-note { margin-top:65px; border:1px solid white; border-radius:24px; padding:30px; background:linear-gradient(110deg,rgba(219,242,250,.8),rgba(255,246,204,.7)); display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap; }
+.about-note h2 { font-size:1.4rem; margin:0 0 6px; }
+.about-note p { color:#64818d; margin:0; line-height:1.6; }
+@media(max-width:767px) { .about-page { padding:26px 0 65px; } .about-grid,.about-steps { grid-template-columns:1fr; } .about-section { margin-top:48px; } .about-card { padding:22px; } .about-icon { margin-bottom:15px; } .about-note { margin-top:45px; } }
+</style>
+{% endblock %}
 {% block content %}
-<section class="list-header">
-    <div class="container text-center">
-        <h1 class="list-title">About EventEase</h1>
-        <p class="list-subtitle">A containerized event management system built with DevOps best practices</p>
+<div class="about-page"><div class="container about-wrap">
+  <header class="about-hero">
+    <span class="about-label"><i class="bi bi-stars" aria-hidden="true"></i> About EventEase</span>
+    <h1>Good events bring <span>people together</span></h1>
+    <p>EventEase helps people discover events and helps the teams behind them stay organized—from the first registration to the final check-in.</p>
+    <div class="about-actions"><a class="btn-brand" href="{% url 'events:event_list' %}">Explore events <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>{% if not user.is_authenticated %}<a class="btn-nav-outline" href="{% url 'accounts:register' %}">Create an account</a>{% endif %}</div>
+  </header>
+  <section class="about-section" aria-labelledby="features-title">
+    <div class="about-section-head"><h2 id="features-title">A place for everyone involved</h2><p>Whether you’re showing up or making it happen, there’s a place for you here.</p></div>
+    <div class="about-grid">
+      <article class="about-card"><div class="about-icon"><i class="bi bi-compass" aria-hidden="true"></i></div><h3>For participants</h3><p>Browse and search events, see the details, register for a spot, and keep track of your tickets in your dashboard. If an event is full, you can join its waitlist.</p></article>
+      <article class="about-card"><div class="about-icon"><i class="bi bi-calendar2-week" aria-hidden="true"></i></div><h3>For organizers</h3><p>Create events, manage details and capacity, view registrations, and assign approved coordinators to help manage your events.</p></article>
+      <article class="about-card"><div class="about-icon"><i class="bi bi-people" aria-hidden="true"></i></div><h3>For coordinators</h3><p>Apply for coordinator access, create your own events, and help manage the events assigned to you—including participants and attendance.</p></article>
     </div>
-</section>
-
-<section class="section-spacing" style="padding-top: 0;">
-    <div class="container">
-        <div class="row g-5 align-items-center mb-5">
-            <div class="col-lg-6">
-                <h2 style="font-size: 2.5rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 24px;">What is EventEase?</h2>
-                <p style="font-size: 1.15rem; color: var(--text-muted); line-height: 1.8;">
-                    EventEase is a full-featured event management platform that demonstrates the complete
-                    DevOps software delivery lifecycle — from code to deployment and monitoring.
-                </p>
-                <p style="font-size: 1.15rem; color: var(--text-muted); line-height: 1.8;">
-                    Built as a college DevOps project, it showcases how modern software teams
-                    use tools like Docker, Jenkins, Prometheus, and Grafana to build reliable,
-                    scalable applications.
-                </p>
-                
-                <div class="mt-5">
-                    <h5 style="font-weight: 700; margin-bottom: 24px;">DevOps Pipeline</h5>
-                    <div class="d-flex flex-column gap-3">
-                        <div class="d-flex align-items-center gap-3 p-3" style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);">
-                            <div style="background: var(--navy); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;">1</div>
-                            <span style="font-weight: 600;">Code in Django</span>
-                        </div>
-                        <div class="d-flex align-items-center gap-3 p-3" style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);">
-                            <div style="background: var(--navy); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;">2</div>
-                            <span style="font-weight: 600;">Push to GitHub</span>
-                        </div>
-                        <div class="d-flex align-items-center gap-3 p-3" style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);">
-                            <div style="background: var(--navy); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;">3</div>
-                            <span style="font-weight: 600;">Jenkins CI/CD</span>
-                        </div>
-                        <div class="d-flex align-items-center gap-3 p-3" style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);">
-                            <div style="background: var(--navy); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;">4</div>
-                            <span style="font-weight: 600;">Docker Build & Deploy</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-6">
-                <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 40px;">
-                    <h3 style="font-weight: 800; margin-bottom: 32px;">Technology Stack</h3>
-                    <div class="d-flex flex-column gap-4">
-                        <div class="d-flex gap-3 align-items-start">
-                            <i class="bi bi-filetype-py" style="font-size: 1.5rem; color: var(--accent);"></i>
-                            <div>
-                                <strong style="display: block; font-size: 1.1rem; color: var(--text-main);">Django 5.0</strong>
-                                <span style="color: var(--text-muted);">Python web framework</span>
-                            </div>
-                        </div>
-                        <div class="d-flex gap-3 align-items-start">
-                            <i class="bi bi-database" style="font-size: 1.5rem; color: var(--navy);"></i>
-                            <div>
-                                <strong style="display: block; font-size: 1.1rem; color: var(--text-main);">PostgreSQL 16</strong>
-                                <span style="color: var(--text-muted);">Relational database</span>
-                            </div>
-                        </div>
-                        <div class="d-flex gap-3 align-items-start">
-                            <i class="bi bi-box" style="font-size: 1.5rem; color: var(--accent);"></i>
-                            <div>
-                                <strong style="display: block; font-size: 1.1rem; color: var(--text-main);">Docker & Compose</strong>
-                                <span style="color: var(--text-muted);">Containerization</span>
-                            </div>
-                        </div>
-                        <div class="d-flex gap-3 align-items-start">
-                            <i class="bi bi-gear-wide-connected" style="font-size: 1.5rem; color: var(--navy);"></i>
-                            <div>
-                                <strong style="display: block; font-size: 1.1rem; color: var(--text-main);">Jenkins</strong>
-                                <span style="color: var(--text-muted);">CI/CD automation</span>
-                            </div>
-                        </div>
-                        <div class="d-flex gap-3 align-items-start">
-                            <i class="bi bi-activity" style="font-size: 1.5rem; color: var(--accent);"></i>
-                            <div>
-                                <strong style="display: block; font-size: 1.1rem; color: var(--text-main);">Prometheus + Grafana</strong>
-                                <span style="color: var(--text-muted);">Monitoring & dashboards</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+  </section>
+  <section class="about-section" aria-labelledby="how-title">
+    <div class="about-section-head"><h2 id="how-title">From plans to check-in</h2><p>A simple way to follow an event from start to finish.</p></div>
+    <div class="about-steps">
+      <article class="about-step"><span>01 / DISCOVER</span><h3>Find your next event</h3><p>Explore events by category or search for something that interests you.</p></article>
+      <article class="about-step"><span>02 / REGISTER</span><h3>Save your spot</h3><p>Sign in and register. You can find your registration and ticket number in My Events.</p></article>
+      <article class="about-step"><span>03 / CHECK IN</span><h3>Show up and scan</h3><p>At the event, scan the attendance QR displayed by the organizer and confirm your check-in.</p></article>
     </div>
-</section>
+  </section>
+  <section class="about-note"><div><h2>Ready to find something to do?</h2><p>See what’s happening and find an event that’s right for you.</p></div><a class="btn-brand" href="{% url 'events:event_list' %}">Browse events <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i></a></section>
+</div></div>
 {% endblock %}

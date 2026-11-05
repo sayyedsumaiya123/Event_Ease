@@ -64,7 +64,7 @@ class CoordinatorFlowTests(TestCase):
         self.assertFalse(user.is_superuser)
         self.assertEqual(CoordinatorApplication.objects.get(user=user).status, 'approved')
         self.client.force_login(user)
-        self.assertContains(self.client.get(reverse('accounts:coordinator_panel')), 'Manage My Events')
+        self.assertContains(self.client.get(reverse('accounts:coordinator_panel')), 'Events I created')
         self.assertEqual(self.client.get(reverse('admin:index')).status_code, 403)
         self.client.force_login(admin)
         self.client.post(reverse('events:toggle_organizer_status', args=[user.pk]))
@@ -82,3 +82,62 @@ class CoordinatorFlowTests(TestCase):
             response = self.client.get(reverse(route))
             self.assertContains(response, 'Register as Coordinator')
             self.assertContains(response, reverse('accounts:coordinator_login'))
+
+class CoordinatorReviewAndPanelTests(TestCase):
+    def setUp(self):
+        from events.models import Event
+        from datetime import timedelta, time
+        from django.utils import timezone
+        self.organizer = User.objects.create_user('review_organizer', password='StrongDemoPass!829', is_staff=True)
+        self.organizer.profile.is_organizer = True
+        self.organizer.profile.save()
+        self.coordinator = User.objects.create_user('approved_coordinator', password='StrongDemoPass!829', is_staff=True)
+        self.candidate = User.objects.create_user('pending_candidate', password='StrongDemoPass!829')
+        self.application = CoordinatorApplication.objects.create(user=self.candidate, organization='Campus Club', event_type='technical', expected_attendees=40, event_plan='Plan a hands-on workshop for students.')
+        self.event = Event.objects.create(title='Owned Event', slug='owned-event', description='A test', date=timezone.localdate()+timedelta(days=10), time=time(12), venue='Hall', organizer=self.organizer)
+        self.event.coordinators.add(self.coordinator)
+        self.url = reverse('accounts:coordinator_application_decision', args=[self.application.pk])
+
+    def test_organizer_sees_directory_assignments_and_can_approve(self):
+        self.client.force_login(self.organizer)
+        response = self.client.get(reverse('accounts:coordinator_panel'))
+        for text in ('Coordinator applications', 'pending_candidate', 'approved_coordinator', 'Owned Event'):
+            self.assertContains(response, text)
+        self.assertEqual(self.client.post(self.url, {'decision': 'approve'}).status_code, 302)
+        self.application.refresh_from_db()
+        self.candidate.refresh_from_db()
+        self.assertEqual(self.application.status, 'approved')
+        self.assertTrue(self.candidate.is_staff)
+        self.assertFalse(self.candidate.profile.is_organizer)
+
+    def test_organizer_can_reject_without_granting_access(self):
+        self.client.force_login(self.organizer)
+        self.client.post(self.url, {'decision': 'reject'})
+        self.application.refresh_from_db()
+        self.candidate.refresh_from_db()
+        self.assertEqual(self.application.status, 'rejected')
+        self.assertFalse(self.candidate.is_staff)
+        self.client.force_login(self.candidate)
+        self.assertContains(self.client.get(reverse('accounts:coordinator_panel')), 'was not approved')
+
+    def test_coordinator_cannot_review_applications(self):
+        self.client.force_login(self.coordinator)
+        self.assertEqual(self.client.post(self.url, {'decision': 'approve'}).status_code, 403)
+        self.assertNotContains(self.client.get(reverse('accounts:coordinator_panel')), 'Coordinator applications')
+        self.application.refresh_from_db()
+        self.assertEqual(self.application.status, 'pending')
+
+    def test_coordinator_sees_assigned_event_but_not_other_teams(self):
+        self.client.force_login(self.coordinator)
+        response = self.client.get(reverse('accounts:coordinator_panel'))
+        self.assertContains(response, 'Events assigned to me')
+        self.assertContains(response, 'Owned Event')
+        self.assertNotContains(response, 'Coordinator access by event')
+
+    def test_organizer_does_not_see_coordinator_assignment_card(self):
+        self.client.force_login(self.organizer)
+        response = self.client.get(reverse('accounts:coordinator_panel'))
+        self.assertNotContains(response, 'Events assigned to me')
+        self.assertContains(response, 'Events I created')
+        self.client.force_login(self.coordinator)
+        self.assertContains(self.client.get(reverse('accounts:coordinator_panel')), 'Events assigned to me')

@@ -23,11 +23,13 @@
                 </div>
 
                 <div style="background: white; padding: 24px; border-radius: 16px; border: 1px solid var(--border-light); display: inline-block; margin-bottom: 32px;">
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=400x400&data={{ qr_data|urlencode }}&margin=0" alt="Attendance QR Code" style="width: 400px; height: 400px; display: block;">
+                    <img src="data:image/png;base64,{{ qr_image }}" alt="Attendance QR Code" style="width: min(400px, 65vw); height: auto; display: block;">
                 </div>
                 
+                <p>Scan with your phone camera, sign in, then confirm attendance.</p>
+                {% if local_address %}<p role="alert">This QR uses a local address that other devices cannot reach. Open EventEase on the organizer's computer using its network address, then generate the QR again. Phones must be on the same network.</p>{% endif %}
                 <div style="font-size: 1.1rem; font-weight: 600; color: var(--text-muted);">
-                    <i class="bi bi-arrow-clockwise me-2"></i>QR code refreshes automatically
+                    <i class="bi bi-arrow-clockwise me-2"></i>This code expires in five minutes. Generate a new one from the dashboard.
                 </div>
             </div>
             

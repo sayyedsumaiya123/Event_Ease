@@ -75,6 +75,7 @@
                                     <a href="{% url 'events:event_detail' event.slug %}" class="btn-nav-outline" style="padding: 4px 12px; font-size: 0.85rem;" title="Preview">
                                         <i class="bi bi-eye"></i>
                                     </a>
+                                    {% if user.is_superuser or event.organizer_id == user.id %}
                                     <form method="post" action="{% url 'events:event_delete' event.slug %}" style="display:inline"
                                           onsubmit="return confirm('Delete {{ event.title }}? This cannot be undone.')">
                                         {% csrf_token %}
@@ -82,6 +83,7 @@
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </form>
+                                    {% endif %}
                                 </div>
                             </td>
                         </tr>

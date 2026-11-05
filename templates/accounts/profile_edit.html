@@ -1,69 +1,60 @@
 {% extends 'base.html' %}
-
 {% block title %}Edit Profile — EventEase{% endblock %}
-
+{% block extra_css %}
+<style>
+.edit-page { min-height:75vh; padding:48px 0 90px; background:radial-gradient(ellipse at 90% 5%,#fff2bd,transparent 32%),radial-gradient(ellipse at 0 35%,#d7f0f9,transparent 35%),#eff8fb; }
+.edit-wrap { max-width:920px; }
+.edit-back { color:#4d788a; font-weight:700; font-size:.85rem; text-decoration:none; display:inline-flex; align-items:center; gap:7px; margin-bottom:24px; }
+.edit-back:hover { color:#1c5268; }
+.edit-heading { margin-bottom:26px; }
+.edit-eyebrow { display:inline-flex; gap:8px; align-items:center; color:#7d651f; background:#fff8d8; border:1px solid white; border-radius:99px; padding:7px 12px; font-size:.68rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }
+.edit-heading h1 { font-size:clamp(2.2rem,4vw,3.25rem); letter-spacing:-.055em; margin:14px 0 6px; }
+.edit-heading p { margin:0; color:#65828e; line-height:1.6; }
+.edit-card { border:1px solid rgba(255,255,255,.95); border-radius:25px; background:rgba(255,255,255,.77); box-shadow:0 15px 38px rgba(52,103,122,.08); backdrop-filter:blur(16px); padding:clamp(22px,4vw,38px); }
+.edit-section-head { display:flex; align-items:flex-start; gap:12px; margin-bottom:22px; }
+.edit-section-head ~ .edit-section-head { margin-top:32px; padding-top:28px; border-top:1px solid #e5eff2; }
+.edit-icon { width:42px; height:42px; display:grid; place-items:center; flex:none; border-radius:14px; background:#e1f2f9; color:#39768e; font-size:1.1rem; }
+.edit-icon.sun { background:#fff2c3; color:#97731d; }
+.edit-section-head h2 { font-size:1.05rem; margin:1px 0 4px; }
+.edit-section-head p { color:#78919c; font-size:.82rem; margin:0; line-height:1.5; }
+.edit-field label { display:block; color:#34586a; font-size:.82rem; font-weight:700; margin-bottom:7px; }
+.edit-field .form-control { background:rgba(244,250,252,.88) !important; border-color:#d9eaf0 !important; border-radius:12px !important; min-height:48px; }
+.edit-field textarea.form-control { min-height:100px; }
+.edit-field input[type=file] { padding:10px !important; font-size:.85rem; }
+.edit-field input[type=file]::file-selector-button { border:0; border-radius:8px; background:#dceff7; color:#305c70; font-weight:700; padding:6px 10px; margin-right:10px; }
+.edit-field .errorlist,.edit-errors { list-style:none; margin:6px 0 0; padding:0; color:#a53c36; font-size:.82rem; }
+.edit-avatar { display:flex; align-items:center; gap:14px; margin-bottom:18px; }
+.edit-avatar-image { width:58px; height:58px; display:grid; place-items:center; flex:none; overflow:hidden; border:3px solid white; border-radius:18px; background:#d5edf6; color:#2f6b82; font-weight:800; font-size:1.4rem; }
+.edit-avatar-image img { width:100%; height:100%; object-fit:cover; }
+.edit-avatar p { color:#78919c; font-size:.82rem; margin:3px 0 0; }
+.edit-actions { display:flex; justify-content:flex-end; flex-wrap:wrap; gap:10px; margin-top:30px; padding-top:24px; border-top:1px solid #e5eff2; }
+@media(max-width:767px) { .edit-page { padding:28px 0 65px; } .edit-actions a,.edit-actions button { flex:1; text-align:center; } }
+</style>
+{% endblock %}
 {% block content %}
-<section class="page-header">
-    <div class="container">
-        <h1 class="page-title"><i class="bi bi-pencil me-2"></i>Edit Profile</h1>
+<section class="edit-page"><div class="container edit-wrap">
+  <a class="edit-back" href="{% url 'accounts:profile' %}"><i class="bi bi-arrow-left" aria-hidden="true"></i> Back to profile</a>
+  <div class="edit-heading"><span class="edit-eyebrow"><i class="bi bi-person" aria-hidden="true"></i> Your account</span><h1>Edit Profile</h1><p>Update the details that appear on your EventEase profile.</p></div>
+  <form class="edit-card" method="post" enctype="multipart/form-data" id="profileEditForm">{% csrf_token %}
+    {% if form.non_field_errors %}<div class="edit-errors" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+    <div class="edit-section-head"><span class="edit-icon"><i class="bi bi-person-lines-fill" aria-hidden="true"></i></span><div><h2>Personal details</h2><p>Tell us a little about yourself.</p></div></div>
+    <div class="row g-3">
+      <div class="col-md-6 edit-field"><label for="{{ form.first_name.id_for_label }}">First name</label>{{ form.first_name }}{{ form.first_name.errors }}</div>
+      <div class="col-md-6 edit-field"><label for="{{ form.last_name.id_for_label }}">Last name</label>{{ form.last_name }}{{ form.last_name.errors }}</div>
+      <div class="col-md-6 edit-field"><label for="{{ form.email.id_for_label }}">Email</label>{{ form.email }}{{ form.email.errors }}</div>
+      <div class="col-md-6 edit-field"><label for="{{ form.phone.id_for_label }}">Phone</label>{{ form.phone }}{{ form.phone.errors }}</div>
     </div>
-</section>
-
-<section class="section-padding">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-7">
-                <div class="detail-card">
-                    <form method="POST" enctype="multipart/form-data" id="profileEditForm">
-                        {% csrf_token %}
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label">First Name</label>
-                                {{ form.first_name }}
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Last Name</label>
-                                {{ form.last_name }}
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label">Email</label>
-                                {{ form.email }}
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Phone</label>
-                                {{ form.phone }}
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Organization</label>
-                                {{ form.organization }}
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label">Location</label>
-                                {{ form.location }}
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label">Bio</label>
-                                {{ form.bio }}
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label">Website</label>
-                                {{ form.website }}
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label">Avatar</label>
-                                {{ form.avatar }}
-                            </div>
-                        </div>
-                        <div class="d-flex gap-3 justify-content-end mt-4">
-                            <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary">Cancel</a>
-                            <button type="submit" class="btn btn-primary" id="saveProfileBtn">
-                                <i class="bi bi-check me-1"></i>Save Changes
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+    <div class="edit-section-head"><span class="edit-icon sun"><i class="bi bi-card-text" aria-hidden="true"></i></span><div><h2>More about you</h2><p>These details are optional.</p></div></div>
+    <div class="row g-3">
+      <div class="col-md-6 edit-field"><label for="{{ form.organization.id_for_label }}">Organization</label>{{ form.organization }}{{ form.organization.errors }}</div>
+      <div class="col-md-6 edit-field"><label for="{{ form.location.id_for_label }}">Location</label>{{ form.location }}{{ form.location.errors }}</div>
+      <div class="col-12 edit-field"><label for="{{ form.website.id_for_label }}">Website</label>{{ form.website }}{{ form.website.errors }}</div>
+      <div class="col-12 edit-field"><label for="{{ form.bio.id_for_label }}">Bio</label>{{ form.bio }}{{ form.bio.errors }}</div>
     </div>
-</section>
+    <div class="edit-section-head"><span class="edit-icon"><i class="bi bi-image" aria-hidden="true"></i></span><div><h2>Profile photo</h2><p>Choose a photo to personalize your profile.</p></div></div>
+    <div class="edit-avatar"><div class="edit-avatar-image">{% if user.profile.avatar %}<img src="{{ user.profile.avatar.url }}" alt="">{% else %}{{ user.first_name|first|upper|default:user.username|first|upper }}{% endif %}</div><div><strong>{{ user.get_full_name|default:user.username }}</strong><p>Current profile photo</p></div></div>
+    <div class="edit-field"><label for="{{ form.avatar.id_for_label }}">Choose a photo</label>{{ form.avatar }}{{ form.avatar.errors }}</div>
+    <div class="edit-actions"><a href="{% url 'accounts:profile' %}" class="btn-nav-outline">Cancel</a><button type="submit" class="btn-brand" id="saveProfileBtn"><i class="bi bi-check2 me-1" aria-hidden="true"></i>Save Changes</button></div>
+  </form>
+</div></section>
 {% endblock %}

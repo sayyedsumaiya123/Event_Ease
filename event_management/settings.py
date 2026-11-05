@@ -24,6 +24,11 @@ ALLOWED_HOSTS = [
     if host.strip()
 ]
 
+# HTTPS reverse proxy settings are opt-in for the local tunnel.
+CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in config('CSRF_TRUSTED_ORIGINS', default='').split(',') if origin.strip()]
+if config('TRUST_HTTPS_PROXY', default=False, cast=bool):
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',

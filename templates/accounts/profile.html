@@ -1,305 +1,64 @@
 {% extends 'base.html' %}
-
 {% block title %}My Profile — EventEase{% endblock %}
-
 {% block extra_css %}
 <style>
-    .profile-hero {
-        background: #0f1728;
-        border-bottom: 1px solid rgba(255,255,255,0.07);
-        padding: 32px 0 32px;
-    }
-
-    .profile-hero-title {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        color: #ffffff !important;
-        font-size: clamp(2rem, 2vw, 2.4rem);
-        font-weight: 700;
-        letter-spacing: -0.05em;
-        margin: 0;
-        line-height: 1.2;
-    }
-
-    .profile-hero-title i {
-        font-size: 1.7rem;
-        color: #dfe8ff !important;
-    }
-
-    .profile-shell {
-        background: #f5f3ef;
-        padding: 56px 0 80px;
-    }
-
-    .profile-grid {
-        display: grid;
-        grid-template-columns: 320px minmax(0, 1fr);
-        gap: 28px;
-        align-items: stretch;
-    }
-
-    .profile-card {
-        background: #111827;
-        border: 1px solid rgba(255,255,255,0.06);
-        border-radius: 20px;
-        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
-    }
-
-    .profile-summary {
-        padding: 28px 24px 20px;
-        text-align: left;
-        color: #eef4ff;
-        min-height: 320px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
-
-    .profile-avatar-xl {
-        width: 92px;
-        height: 92px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 800;
-        font-size: 2.5rem;
-        margin: 0 auto 20px;
-        letter-spacing: -0.04em;
-        box-shadow: 0 10px 25px rgba(245, 158, 11, 0.28);
-    }
-
-    .profile-name {
-        font-size: clamp(2rem, 2vw, 2.4rem);
-        font-weight: 800;
-        letter-spacing: -0.06em;
-        line-height: 1.1;
-        margin: 0 0 8px;
-        color: #ffffff !important;
-        text-shadow: 0 1px 0 rgba(255,255,255,0.06);
-    }
-
-    .profile-email {
-        color: #d8e6ff !important;
-        font-size: 0.98rem;
-        margin: 0 0 16px;
-        line-height: 1.5;
-        word-break: break-word;
-        opacity: 0.96;
-    }
-
-    .profile-meta-list {
-        list-style: none;
-        padding: 0;
-        margin: 0 0 22px;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        color: #dfeaff !important;
-        font-size: 0.9rem;
-        width: 100%;
-    }
-
-    .profile-meta-list li {
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        gap: 8px;
-        text-align: left;
-        color: #dfeaff !important;
-        opacity: 0.98;
-    }
-
-    .profile-meta-list i {
-        color: #d1dcff !important;
-    }
-
-    .profile-edit-btn {
-        display: inline-flex;
-        justify-content: center;
-        align-items: center;
-        gap: 8px;
-        border: 1px solid rgba(179, 197, 255, 0.5);
-        color: #eaf1ff;
-        background: transparent;
-        border-radius: 999px;
-        padding: 10px 18px;
-        font-weight: 600;
-        text-decoration: none;
-        transition: all 0.2s ease;
-    }
-
-    .profile-edit-btn:hover {
-        background: rgba(255,255,255,0.04);
-        border-color: rgba(179, 197, 255, 0.8);
-        color: #fff;
-    }
-
-    .profile-details {
-        padding: 24px 26px 18px;
-        color: #edf3ff;
-        min-height: 320px;
-    }
-
-    .details-header {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-size: 0.72rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.12em;
-        color: rgba(223, 232, 255, 0.7);
-        padding-bottom: 12px;
-        border-bottom: 1px solid rgba(255,255,255,0.09);
-        margin-bottom: 6px;
-    }
-
-    .details-header i {
-        font-size: 1rem;
-        color: #a7b8ff;
-    }
-
-    .profile-info-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-
-    .profile-info-row {
-        display: grid;
-        grid-template-columns: 180px 1fr;
-        gap: 18px;
-        align-items: center;
-        padding: 16px 0;
-        border-bottom: 1px solid rgba(255,255,255,0.08);
-    }
-
-    .profile-info-row:last-child {
-        border-bottom: none;
-    }
-
-    .profile-info-label {
-        color: rgba(223, 232, 255, 0.72);
-        font-size: 0.96rem;
-        font-weight: 500;
-    }
-
-    .profile-info-value {
-        color: #f5f7ff;
-        font-size: 0.98rem;
-        font-weight: 500;
-        text-align: left;
-        word-break: break-word;
-    }
-
-    .profile-actions {
-        display: flex;
-        justify-content: center;
-        margin-top: 28px;
-    }
-
-    .profile-events-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        padding: 12px 24px;
-        border-radius: 999px;
-        font-weight: 600;
-        text-decoration: none;
-        color: #5b77ff;
-        border: 1px solid rgba(91, 119, 255, 0.5);
-        background: rgba(91, 119, 255, 0.05);
-        transition: all 0.2s ease;
-    }
-
-    .profile-events-btn:hover {
-        background: rgba(91, 119, 255, 0.12);
-        color: #415ef5;
-        border-color: rgba(91, 119, 255, 0.8);
-    }
-
-    @media (max-width: 991.98px) {
-        .profile-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .profile-summary,
-        .profile-details {
-            min-height: auto;
-        }
-    }
+.profile-page { min-height:75vh; padding:48px 0 90px; background:radial-gradient(ellipse at 90% 5%,#fff2bd,transparent 32%),radial-gradient(ellipse at 0% 35%,#d7f0f9,transparent 35%),#eff8fb; }
+.profile-wrap { max-width:1080px; }
+.profile-heading { display:flex; align-items:end; justify-content:space-between; flex-wrap:wrap; gap:18px; margin-bottom:25px; }
+.profile-eyebrow { display:inline-flex; gap:8px; align-items:center; color:#7d651f; background:#fff8d8; border:1px solid white; border-radius:99px; padding:7px 12px; font-size:.68rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }
+.profile-heading h1 { font-size:clamp(2.2rem,4vw,3.25rem); letter-spacing:-.055em; margin:14px 0 6px; }
+.profile-heading p { margin:0; color:#65828e; line-height:1.6; }
+.profile-layout { display:grid; grid-template-columns:320px minmax(0,1fr); gap:18px; align-items:start; }
+.profile-panel { border:1px solid rgba(255,255,255,.95); border-radius:25px; background:rgba(255,255,255,.76); box-shadow:0 15px 38px rgba(52,103,122,.08); backdrop-filter:blur(16px); }
+.profile-summary { overflow:hidden; }
+.profile-cover { height:100px; background:linear-gradient(115deg,#ccebf7,#eaf8fc 60%,#fff0b8); }
+.profile-summary-inner { padding:0 25px 25px; }
+.profile-avatar { width:84px; height:84px; margin-top:-42px; display:grid; place-items:center; position:relative; border:5px solid #fff; border-radius:25px; background:#d5edf6; color:#2f6b82; font-size:2rem; font-weight:800; overflow:hidden; box-shadow:0 10px 22px rgba(58,105,122,.12); }
+.profile-avatar img { width:100%; height:100%; object-fit:cover; }
+.profile-name { margin:17px 0 4px; font-size:1.4rem !important; overflow-wrap:anywhere; }
+.profile-username { color:#78919c; font-size:.86rem; margin:0 0 15px; overflow-wrap:anywhere; }
+.profile-role { display:inline-flex; gap:7px; align-items:center; padding:7px 11px; border-radius:99px; background:#fff4c8; color:#80641d; font-size:.72rem; font-weight:800; }
+.profile-summary-links { display:flex; flex-direction:column; gap:10px; padding-top:23px; margin-top:23px; border-top:1px solid #e5eff2; }
+.profile-summary-links a { text-align:center; }
+.profile-detail { padding:clamp(22px,4vw,32px); }
+.profile-detail-header { display:flex; gap:13px; align-items:flex-start; margin-bottom:20px; }
+.profile-detail-icon { display:grid; place-items:center; width:42px; height:42px; flex:none; border-radius:14px; background:#e2f3fa; color:#39768e; font-size:1.1rem; }
+.profile-detail h2 { font-size:1.1rem; margin:1px 0 4px; }
+.profile-detail-header p { color:#77909b; font-size:.82rem; margin:0; }
+.profile-info { margin:0; }
+.profile-info-row { display:grid; grid-template-columns:minmax(110px, .42fr) 1fr; gap:14px; padding:16px 0; border-top:1px solid #e9f1f3; }
+.profile-info dt { color:#718c98; font-size:.83rem; font-weight:600; }
+.profile-info dd { color:#254b5e; font-size:.9rem; font-weight:700; margin:0; overflow-wrap:anywhere; }
+.profile-info dd.missing { color:#96aab2; font-weight:500; }
+.profile-bio { margin-top:19px; padding:17px; border-radius:16px; background:#f1f9fb; color:#5d7d8a; font-size:.87rem; line-height:1.65; overflow-wrap:anywhere; white-space:pre-wrap; }
+.profile-bio strong { display:block; color:#315a6d; margin-bottom:5px; }
+@media(max-width:767px) { .profile-page { padding:28px 0 65px; } .profile-layout { grid-template-columns:1fr; } .profile-heading { align-items:start; } }
+@media(max-width:390px) { .profile-info-row { grid-template-columns:1fr; gap:4px; } }
 </style>
 {% endblock %}
-
 {% block content %}
-<section class="profile-hero">
-    <div class="container">
-        <h1 class="profile-hero-title"><i class="bi bi-person-fill"></i> My Profile</h1>
-    </div>
-</section>
-
-<section class="profile-shell">
-    <div class="container">
-        <div class="profile-grid">
-            <div class="profile-card profile-summary">
-                <div class="profile-avatar-xl">
-                    {{ user.first_name|first|upper|default:user.username|first|upper }}
-                </div>
-                <h2 class="profile-name">{{ user.get_full_name|default:user.username }}</h2>
-                <p class="profile-email">{{ user.email }}</p>
-
-                <ul class="profile-meta-list">
-                    {% if user.profile.phone %}<li><i class="bi bi-telephone"></i>{{ user.profile.phone }}</li>{% endif %}
-                    {% if user.profile.organization %}<li><i class="bi bi-building"></i>{{ user.profile.organization }}</li>{% endif %}
-                    {% if user.profile.location %}<li><i class="bi bi-geo-alt"></i>{{ user.profile.location }}</li>{% endif %}
-                </ul>
-
-                <a href="{% url 'accounts:profile_edit' %}" class="profile-edit-btn" id="editProfileLinkBtn">
-                    <i class="bi bi-pencil-square"></i> Edit Profile
-                </a>
-            </div>
-
-            <div class="profile-card profile-details">
-                <div class="details-header">
-                    <i class="bi bi-info-circle"></i>
-                    <span>Account Details</span>
-                </div>
-
-                <ul class="profile-info-list">
-                    <li class="profile-info-row">
-                        <span class="profile-info-label">Username</span>
-                        <span class="profile-info-value">{{ user.username }}</span>
-                    </li>
-                    <li class="profile-info-row">
-                        <span class="profile-info-label">Full Name</span>
-                        <span class="profile-info-value">{{ user.get_full_name|default:"Not set" }}</span>
-                    </li>
-                    <li class="profile-info-row">
-                        <span class="profile-info-label">Email</span>
-                        <span class="profile-info-value">{{ user.email }}</span>
-                    </li>
-                    <li class="profile-info-row">
-                        <span class="profile-info-label">Member Since</span>
-                        <span class="profile-info-value">{{ user.date_joined|date:"F j, Y" }}</span>
-                    </li>
-                    <li class="profile-info-row">
-                        <span class="profile-info-label">Role</span>
-                        <span class="profile-info-value">{% if user.is_superuser %}Admin{% elif user.is_staff %}Organizer{% else %}Member{% endif %}</span>
-                    </li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="profile-actions">
-            <a href="{% url 'events:user_dashboard' %}" class="profile-events-btn" id="goToDashboardBtn">
-                <i class="bi bi-calendar3"></i> View My Events
-            </a>
-        </div>
-    </div>
-</section>
+<section class="profile-page"><div class="container profile-wrap">
+  <div class="profile-heading"><div><span class="profile-eyebrow"><i class="bi bi-person" aria-hidden="true"></i> Your account</span><h1>My Profile</h1><p>Your account details, all in one place.</p></div><a href="{% url 'accounts:profile_edit' %}" class="btn-brand" id="editProfileLinkBtn"><i class="bi bi-pencil me-2" aria-hidden="true"></i>Edit Profile</a></div>
+  <div class="profile-layout">
+    <aside class="profile-panel profile-summary"><div class="profile-cover"></div><div class="profile-summary-inner">
+      <div class="profile-avatar">{% if user.profile.avatar %}<img src="{{ user.profile.avatar.url }}" alt="">{% else %}{{ user.first_name|first|upper|default:user.username|first|upper }}{% endif %}</div>
+      <h2 class="profile-name">{{ user.get_full_name|default:user.username }}</h2><p class="profile-username">@{{ user.username }}</p>
+      <span class="profile-role"><i class="bi bi-person-check" aria-hidden="true"></i>{% if user.is_superuser %}Admin{% elif user.is_staff and user.profile.is_organizer %}Organizer{% elif user.is_staff %}Coordinator{% else %}Participant{% endif %}</span>
+      <div class="profile-summary-links"><a class="btn-nav-outline" href="{% url 'events:user_dashboard' %}" id="goToDashboardBtn"><i class="bi bi-calendar2-event me-2" aria-hidden="true"></i>View My Events</a>{% if user.is_staff %}<a class="btn-nav-outline" href="{% url 'accounts:coordinator_panel' %}"><i class="bi bi-grid me-2" aria-hidden="true"></i>Coordinator Panel</a>{% endif %}</div>
+    </div></aside>
+    <section class="profile-panel profile-detail" aria-labelledby="account-details"><div class="profile-detail-header"><span class="profile-detail-icon"><i class="bi bi-person-lines-fill" aria-hidden="true"></i></span><div><h2 id="account-details">Account details</h2><p>The information on your EventEase profile.</p></div></div>
+      <dl class="profile-info">
+        <div class="profile-info-row"><dt>Username</dt><dd>{{ user.username }}</dd></div>
+        <div class="profile-info-row"><dt>Full name</dt><dd{% if not user.get_full_name %} class="missing"{% endif %}>{{ user.get_full_name|default:'Not added yet' }}</dd></div>
+        <div class="profile-info-row"><dt>Email</dt><dd{% if not user.email %} class="missing"{% endif %}>{{ user.email|default:'Not added yet' }}</dd></div>
+        <div class="profile-info-row"><dt>Phone</dt><dd{% if not user.profile.phone %} class="missing"{% endif %}>{{ user.profile.phone|default:'Not added yet' }}</dd></div>
+        <div class="profile-info-row"><dt>Organization</dt><dd{% if not user.profile.organization %} class="missing"{% endif %}>{{ user.profile.organization|default:'Not added yet' }}</dd></div>
+        <div class="profile-info-row"><dt>Location</dt><dd{% if not user.profile.location %} class="missing"{% endif %}>{{ user.profile.location|default:'Not added yet' }}</dd></div>
+        <div class="profile-info-row"><dt>Website</dt><dd{% if not user.profile.website %} class="missing"{% endif %}>{{ user.profile.website|default:'Not added yet' }}</dd></div>
+        <div class="profile-info-row"><dt>Member since</dt><dd>{{ user.date_joined|date:'F j, Y' }}</dd></div>
+      </dl>
+      {% if user.profile.bio %}<div class="profile-bio"><strong>About me</strong>{{ user.profile.bio }}</div>{% endif %}
+    </section>
+  </div>
+</div></section>
 {% endblock %}

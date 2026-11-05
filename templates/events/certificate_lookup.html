@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block title %}Verify a certificate — EventEase{% endblock %}
+{% block content %}
+<section style="min-height:65vh;padding:65px 0;background:linear-gradient(125deg,#e4f4fa,#fff8d9)"><div class="container" style="max-width:680px"><div style="padding:clamp(24px,5vw,45px);border:1px solid white;border-radius:25px;background:rgba(255,255,255,.85);box-shadow:0 16px 40px rgba(52,103,122,.09)">
+  <h1 style="font-size:2rem">Verify a certificate</h1><p class="text-muted">Enter the certificate ID printed at the bottom of an EventEase certificate.</p>
+  <form method="get"><label class="form-label fw-bold" for="certificate-id">Certificate ID</label><input class="form-control mb-2" id="certificate-id" name="id" type="text" value="{{ entered_id|default:'' }}" placeholder="e.g. 12345678-1234-1234-1234-123456789abc" required maxlength="36" {% if error %}aria-invalid="true" aria-describedby="certificate-error"{% endif %}>{% if error %}<p id="certificate-error" class="text-danger small" role="alert">{{ error }}</p>{% endif %}<button class="btn-brand mt-3" type="submit">Verify certificate</button></form>
+</div></div></section>
+{% endblock %}

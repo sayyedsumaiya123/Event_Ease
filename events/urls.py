@@ -15,6 +15,11 @@ urlpatterns = [
 
     # Dashboard
     path('dashboard/', views.UserDashboardView.as_view(), name='user_dashboard'),
+    path('passport/', views.EventPassportView.as_view(), name='event_passport'),
+    path('passport/export/', views.PassportExportView.as_view(), name='passport_export'),
+    path('passport/events/<slug:slug>/certificate/', views.CertificateDownloadView.as_view(), name='certificate_download'),
+    path('certificates/', views.CertificateLookupView.as_view(), name='certificate_lookup'),
+    path('certificates/<uuid:certificate_id>/', views.CertificateVerificationView.as_view(), name='verify_certificate'),
 
     # Admin Panel
     path('admin-panel/', views.AdminDashboardView.as_view(), name='admin_dashboard'),
@@ -35,8 +40,10 @@ urlpatterns = [
 
     # Attendance
     path('admin-panel/events/<slug:slug>/attendance/', views.AttendanceDashboardView.as_view(), name='attendance_dashboard'),
+    path('admin-panel/events/<slug:slug>/attendance/export/', views.AttendanceExportView.as_view(), name='attendance_export'),
     path('admin-panel/events/<slug:slug>/attendance/generate/', views.GenerateQRView.as_view(), name='generate_qr'),
     path('admin-panel/events/<slug:slug>/attendance/qr/', views.DisplayQRView.as_view(), name='display_qr'),
+    path('attendance/scanner/', views.ParticipantScannerView.as_view(), name='participant_scanner'),
     path('attendance/scan/<str:token>/', views.ScanQRView.as_view(), name='scan_qr'),
     path('attendance/confirm/<str:token>/', views.ConfirmAttendanceView.as_view(), name='confirm_attendance'),
 ]

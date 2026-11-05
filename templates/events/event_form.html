@@ -44,6 +44,16 @@
                                 <label class="form-label" style="font-weight: 700; color: var(--navy); font-size: 0.9rem;">Category</label>
                                 {{ form.category }}
                             </div>
+                            {% if form.coordinator %}
+                            <div class="col-12">
+                                <label class="form-label" for="{{ form.coordinator.id_for_label }}" style="font-weight:700;color:var(--navy);font-size:.9rem">Coordinator for this event</label>
+                                <p class="small text-muted">Choose an approved coordinator to help manage this event, or select None.</p>
+                                {{ form.coordinator }}
+                                {% if form.coordinator_keep_notice %}<p class="small text-muted mt-2">This event has existing assignments that cannot all be shown as one selection. Keep the current team, or choose a new option to replace it.</p>{% endif %}
+                                {% if not form.coordinator_options_available %}<p class="small text-muted mt-2">No approved coordinators are available yet.</p>{% endif %}
+                                {% for error in form.coordinator.errors %}<div class="text-danger small" role="alert">{{ error }}</div>{% endfor %}
+                            </div>
+                            {% endif %}
                             <div class="col-md-12">
                                 <label class="form-label" style="font-weight: 700; color: var(--navy); font-size: 0.9rem;">Status</label>
                                 {{ form.status }}
@@ -137,6 +147,14 @@
                                     <label class="form-check-label" style="font-weight: 600; color: var(--text-main);">Show in featured section</label>
                                 </div>
                             </div>
+                        </div>
+
+                        <h5 style="font-weight:800;color:var(--navy);margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--border)"><i class="bi bi-award me-2"></i>Certificates</h5>
+                        <div class="form-check mb-5">
+                            {{ form.certificates_enabled }}
+                            <label class="form-check-label" for="{{ form.certificates_enabled.id_for_label }}" style="font-weight:700">Enable participation certificates</label>
+                            <div class="small text-muted mt-1">Confirmed participants with a recorded check-in can download a certificate from their Event Passport. Turning this off also makes previously issued certificates unverifiable until re-enabled.</div>
+                            {{ form.certificates_enabled.errors }}
                         </div>
 
                         <!-- Submit -->

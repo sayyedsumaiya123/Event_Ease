@@ -1,28 +1,93 @@
 {% extends 'base.html' %}
 {% block title %}Coordinator Panel — EventEase{% endblock %}
+{% block extra_css %}
+<style>
+.team-page { min-height:80vh; padding:48px 0 90px; background:radial-gradient(ellipse at 88% 4%,#fff1b6 0,transparent 32%),radial-gradient(ellipse at 0% 36%,#d3eef8 0,transparent 35%),#eff8fb; }
+.team-wrap { max-width:1200px; }
+.team-hero { position:relative;overflow:hidden;padding:clamp(26px,4vw,44px);border:1px solid rgba(255,255,255,.95);border-radius:28px;background:linear-gradient(115deg,rgba(255,255,255,.88),rgba(226,245,251,.66) 68%,rgba(255,241,177,.72));box-shadow:0 18px 50px rgba(52,103,122,.1); }
+.team-hero:after { content:'';position:absolute;width:250px;height:250px;border:1px solid rgba(85,153,178,.19);border-radius:50%;right:-55px;top:-105px;box-shadow:0 0 0 42px rgba(255,255,255,.14),0 0 0 84px rgba(255,255,255,.1);pointer-events:none; }
+.team-eyebrow { display:inline-flex;align-items:center;gap:8px;background:#fff8d6;color:#83641c;border:1px solid #fff;border-radius:99px;padding:7px 12px;font-weight:800;font-size:.67rem;letter-spacing:.09em;text-transform:uppercase; }
+.team-title { font-size:clamp(2rem,4vw,3.15rem);letter-spacing:-.055em;line-height:1.08;margin:16px 0 9px; }
+.team-intro { color:#5a7887;max-width:570px;margin:0;line-height:1.65; }
+.team-actions { display:flex;gap:12px;flex-wrap:wrap;margin-top:25px;position:relative;z-index:1; }
+.team-actions a { display:inline-flex;align-items:center;gap:9px; }
+.team-overview { display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:20px 0 36px; }
+.team-overview.organizer { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.team-stat { padding:20px;border:1px solid rgba(255,255,255,.95);border-radius:20px;background:rgba(255,255,255,.68);box-shadow:0 10px 26px rgba(51,104,123,.06); }
+.team-stat-top { display:flex;justify-content:space-between;align-items:center;gap:10px;color:#617d89;font-size:.74rem;font-weight:700; }
+.team-icon { width:38px;height:38px;display:grid;place-items:center;flex-shrink:0;border-radius:13px;background:#dff2fa;color:#35728c;font-size:1.05rem; }
+.team-icon.sun { background:#fff0b9;color:#9a751d; }
+.team-stat strong { display:block;color:#173b50;font-size:1.8rem;line-height:1;margin-top:14px; }
+.team-grid { display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start; }
+.team-card { min-width:0;padding:25px;border:1px solid rgba(255,255,255,.95);border-radius:24px;background:rgba(255,255,255,.74);box-shadow:0 15px 38px rgba(52,103,122,.08);backdrop-filter:blur(16px); }
+.team-card.wide { grid-column:1 / -1; }
+.team-card-head { display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:18px; }
+.team-card-title { display:flex;gap:12px;align-items:flex-start; }
+.team-card h2 { font-size:1.08rem !important;letter-spacing:-.03em;margin:1px 0 5px; }
+.team-card-sub { color:#6a8794;font-size:.8rem;line-height:1.5;margin:0; }
+.team-count { border-radius:99px;padding:5px 10px;background:#edf7fb;color:#517688;font-size:.7rem;font-weight:800;white-space:nowrap; }
+.team-empty { padding:22px 15px;text-align:center;border:1px dashed #cfe2e8;border-radius:16px;background:rgba(240,249,251,.6);color:#6c8793;font-size:.85rem; }
+.team-empty i { display:block;color:#94b8c7;font-size:1.55rem;margin-bottom:8px; }
+.team-row { display:flex;align-items:center;gap:14px;padding:14px 0;border-top:1px solid #e9f1f3; }
+.team-row:first-of-type { border-top:0; }
+.team-date { display:flex;flex-direction:column;align-items:center;justify-content:center;width:48px;min-height:51px;border-radius:14px;background:#edf7fb;color:#3b788d;font-size:.65rem;text-transform:uppercase;font-weight:800;line-height:1.2;flex-shrink:0; }
+.team-date strong { color:#1d5065;font-size:1.1rem; }
+.team-row-main { min-width:0;flex:1; }
+.team-row-main strong,.team-row-main a { color:#20465a;font-size:.88rem;font-weight:800;text-decoration:none;overflow-wrap:anywhere; }
+.team-row-main a:hover { text-decoration:underline; }
+.team-meta { display:block;color:#78919c;font-size:.76rem;margin-top:4px;line-height:1.45;overflow-wrap:anywhere; }
+.team-arrow { color:#668d9d;text-decoration:none;font-size:1.1rem;padding:8px; }
+.team-request { padding:19px;border:1px solid #dfeef2;border-radius:17px;background:rgba(244,251,252,.75);margin-top:12px; }
+.team-request-title { display:flex;align-items:center;gap:10px;flex-wrap:wrap; }
+.team-avatar { width:38px;height:38px;display:grid;place-items:center;flex:none;border-radius:13px;background:#dbeff7;color:#326d83;font-weight:800; }
+.team-request-title h3 { font-size:.92rem !important;margin:0; }
+.team-plan { margin:12px 0;color:#557380;font-size:.84rem;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere; }
+.team-request form { display:flex;flex-wrap:wrap;gap:8px; }
+.team-request .btn-brand,.team-request .btn-nav-outline { padding:8px 17px !important;font-size:.8rem !important; }
+.team-person { display:inline-flex;align-items:center;gap:9px;margin:0 7px 8px 0;padding:7px 13px 7px 7px;border:1px solid #e4f0f2;border-radius:99px;background:#f5fbfc;font-size:.8rem;font-weight:700;color:#31586b; }
+.team-person .team-avatar { width:30px;height:30px;border-radius:50%;font-size:.75rem; }
+.team-access-link { color:#2b718b;font-size:.78rem;font-weight:800;text-decoration:none;white-space:nowrap; }
+.team-application { margin-top:24px;padding:20px 24px;border:1px solid white;border-radius:20px;background:rgba(255,255,255,.7); }
+.team-application summary { cursor:pointer;font-weight:700;color:#31586b; }
+@media(max-width:767px) { .team-page { padding:25px 0 65px; } .team-overview, .team-overview.organizer { grid-template-columns:repeat(2,minmax(0,1fr)); } .team-grid { grid-template-columns:1fr; } .team-card.wide { grid-column:auto; } .team-card { padding:20px; } .team-hero:after { opacity:.55; } }
+@media(max-width:390px) { .team-stat { padding:15px; } .team-row { align-items:flex-start; } .team-access-link { white-space:normal; } }
+</style>
+{% endblock %}
 {% block content %}
-<section class="section-spacing"><div class="container" style="max-width: 860px;">
-  <h1>Event Coordinator Panel</h1>
-  <p>Welcome, {{ user.first_name|default:user.username }}.</p>
+<section class="team-page"><div class="container team-wrap">
+  <header class="team-hero">
+    <span class="team-eyebrow"><i class="bi bi-grid-1x2-fill" aria-hidden="true"></i> EVENT MANAGEMENT</span>
+    <h1 class="team-title">Coordinator Panel</h1>
+    <p class="team-intro">Welcome, {{ user.first_name|default:user.username }}. {% if coordinator_approved %}Your events, your team, and everything you need to keep things moving.{% else %}Check the status of your coordinator application here.{% endif %}</p>
+    {% if coordinator_approved %}<div class="team-actions"><a class="btn-brand" href="{% url 'events:event_create' %}"><i class="bi bi-plus-lg" aria-hidden="true"></i> Create Event</a></div>{% endif %}
+  </header>
   {% if coordinator_approved %}
-    <div class="alert alert-success">Your coordinator access is active. You can manage your own events.</div>
-    <div class="d-flex flex-wrap gap-3 mb-4">
-      <a class="btn-brand" href="{% url 'events:admin_event_list' %}">Manage My Events</a>
-      <a class="btn-nav-outline" href="{% url 'events:event_create' %}">Create Event</a>
-    </div>
-  {% elif application.status == 'revoked' %}
-    <div class="alert alert-warning">Your coordinator access has been revoked. Contact an administrator for review.</div>
-  {% else %}
-    <div class="alert alert-info">Your request is pending administrator approval. Event management will be available after approval.</div>
-  {% endif %}
-  {% if application %}
-  <h2 class="h4 mt-4">Your event plans</h2>
-  <dl class="row">
-    <dt class="col-sm-4">Organization</dt><dd class="col-sm-8">{{ application.organization }}</dd>
-    <dt class="col-sm-4">Event type</dt><dd class="col-sm-8">{{ application.get_event_type_display }}</dd>
-    <dt class="col-sm-4">Expected attendees</dt><dd class="col-sm-8">{{ application.expected_attendees }}</dd>
-    <dt class="col-sm-4">Plan</dt><dd class="col-sm-8" style="overflow-wrap:anywhere;">{{ application.event_plan }}</dd>
-  </dl>
-  {% endif %}
+  <div class="team-overview{% if can_review_coordinators %} organizer{% endif %}" aria-label="Overview">
+    <div class="team-stat"><div class="team-stat-top"><span>Events I created</span><span class="team-icon"><i class="bi bi-calendar2-event" aria-hidden="true"></i></span></div><strong>{{ own_events|length }}</strong></div>
+    {% if not can_review_coordinators %}<div class="team-stat"><div class="team-stat-top"><span>Assigned to me</span><span class="team-icon sun"><i class="bi bi-bookmark-check" aria-hidden="true"></i></span></div><strong>{{ assigned_events|length }}</strong></div>{% endif %}
+    <div class="team-stat"><div class="team-stat-top"><span>Coordinators</span><span class="team-icon"><i class="bi bi-people" aria-hidden="true"></i></span></div><strong>{{ coordinator_directory|length }}</strong></div>
+    {% if can_review_coordinators %}<div class="team-stat"><div class="team-stat-top"><span>Pending requests</span><span class="team-icon sun"><i class="bi bi-inbox" aria-hidden="true"></i></span></div><strong>{{ pending_applications|length }}</strong></div>{% endif %}
+  </div>
+  <div class="team-grid">
+    {% if can_review_coordinators %}<section class="team-card wide" aria-labelledby="requests-title"><div class="team-card-head"><div class="team-card-title"><span class="team-icon sun"><i class="bi bi-person-plus" aria-hidden="true"></i></span><div><h2 id="requests-title">Coordinator applications</h2><p class="team-card-sub">Review requests to join as a coordinator.</p></div></div><span class="team-count">{{ pending_applications|length }} pending</span></div>
+      {% for item in pending_applications %}<div class="team-request"><div class="team-request-title"><span class="team-avatar">{{ item.user.first_name|first|upper|default:item.user.username|first|upper }}</span><div><h3>{{ item.user.get_full_name|default:item.user.username }}</h3><span class="team-meta">@{{ item.user.username }} · {{ item.organization }}</span></div></div><span class="team-meta">{{ item.get_event_type_display }} · {{ item.expected_attendees }} expected attendees</span><p class="team-plan">{{ item.event_plan }}</p><form method="post" action="{% url 'accounts:coordinator_application_decision' item.pk %}">{% csrf_token %}<button class="btn-brand" type="submit" name="decision" value="approve">Approve</button><button class="btn-nav-outline" type="submit" name="decision" value="reject">Reject</button></form></div>
+      {% empty %}<div class="team-empty"><i class="bi bi-inbox" aria-hidden="true"></i>No pending coordinator applications.</div>{% endfor %}
+    </section>{% endif %}
+    <section class="team-card{% if can_review_coordinators %} wide{% endif %}" aria-labelledby="own-events-title"><div class="team-card-head"><div class="team-card-title"><span class="team-icon"><i class="bi bi-calendar2-event" aria-hidden="true"></i></span><div><h2 id="own-events-title">Events I created</h2><p class="team-card-sub">The events you’re organizing.</p></div></div><span class="team-count">{{ own_events|length }} events</span></div>
+      {% for event in own_events %}<div class="team-row"><span class="team-date">{{ event.date|date:'M' }}<strong>{{ event.date|date:'d' }}</strong></span><div class="team-row-main"><a href="{% url 'events:event_edit' event.slug %}">{{ event.title }}</a><span class="team-meta">{{ event.venue }} · {{ event.get_status_display }}</span></div><a class="team-arrow" href="{% url 'events:event_edit' event.slug %}" aria-label="Manage {{ event.title }}"><i class="bi bi-arrow-up-right" aria-hidden="true"></i></a></div>{% empty %}<div class="team-empty"><i class="bi bi-calendar2-plus" aria-hidden="true"></i>You haven’t created any events yet.</div>{% endfor %}
+    </section>
+    {% if not can_review_coordinators %}
+    <section class="team-card" aria-labelledby="assigned-title"><div class="team-card-head"><div class="team-card-title"><span class="team-icon sun"><i class="bi bi-bookmark-check" aria-hidden="true"></i></span><div><h2 id="assigned-title">Events assigned to me</h2><p class="team-card-sub">Events you’re helping coordinate.</p></div></div><span class="team-count">{{ assigned_events|length }} events</span></div>
+      {% for event in assigned_events %}<div class="team-row"><span class="team-date">{{ event.date|date:'M' }}<strong>{{ event.date|date:'d' }}</strong></span><div class="team-row-main"><a href="{% url 'events:event_edit' event.slug %}">{{ event.title }}</a><span class="team-meta">Organizer: {{ event.organizer.get_full_name|default:event.organizer.username }}</span></div><a class="team-arrow" href="{% url 'events:event_edit' event.slug %}" aria-label="Manage {{ event.title }}"><i class="bi bi-arrow-up-right" aria-hidden="true"></i></a></div>{% empty %}<div class="team-empty"><i class="bi bi-bookmark" aria-hidden="true"></i>No events assigned to you yet.</div>{% endfor %}
+    </section>
+    {% endif %}
+    <section class="team-card wide" aria-labelledby="directory-title"><div class="team-card-head"><div class="team-card-title"><span class="team-icon"><i class="bi bi-people" aria-hidden="true"></i></span><div><h2 id="directory-title">Approved coordinators</h2><p class="team-card-sub">Active coordinators available for event assignments.</p></div></div><span class="team-count">{{ coordinator_directory|length }} people</span></div>
+      {% for coordinator in coordinator_directory %}<span class="team-person"><span class="team-avatar">{{ coordinator.first_name|first|upper|default:coordinator.username|first|upper }}</span>{{ coordinator.get_full_name|default:coordinator.username }} <span class="team-meta" style="display:inline;margin:0">@{{ coordinator.username }}</span></span>{% empty %}<div class="team-empty"><i class="bi bi-people" aria-hidden="true"></i>No approved coordinators yet.</div>{% endfor %}
+    </section>
+  </div>
+  {% elif application.status == 'revoked' %}<div class="alert alert-warning mt-4">Your coordinator access has been revoked. Contact an organizer or administrator for review.</div>
+  {% elif application.status == 'rejected' %}<div class="alert alert-warning mt-4">Your coordinator application was not approved. Contact an organizer for more information.</div>
+  {% else %}<div class="alert alert-info mt-4">Your request is pending administrator approval or organizer review. Event management will be available after approval.</div>{% endif %}
+  {% if application %}<details class="team-application"><summary>Your application details</summary><dl class="row mt-3 mb-0"><dt class="col-sm-4">Organization</dt><dd class="col-sm-8">{{ application.organization }}</dd><dt class="col-sm-4">Event type</dt><dd class="col-sm-8">{{ application.get_event_type_display }}</dd><dt class="col-sm-4">Expected attendees</dt><dd class="col-sm-8">{{ application.expected_attendees }}</dd><dt class="col-sm-4">Plan</dt><dd class="col-sm-8" style="overflow-wrap:anywhere">{{ application.event_plan }}</dd></dl></details>{% endif %}
 </div></section>
 {% endblock %}

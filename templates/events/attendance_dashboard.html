@@ -2,6 +2,19 @@
 
 {% block title %}Attendance - {{ event.title }}{% endblock %}
 
+{% block extra_css %}
+<style>
+.attendance-overview { background:rgba(255,255,255,.8); border:1px solid white; border-radius:22px; padding:clamp(22px,3vw,36px); box-shadow:0 14px 35px rgba(52,103,122,.07); }
+.attendance-actions { display:flex; flex-direction:column; gap:12px; }
+.attendance-actions form { margin:0; width:100%; }
+.attendance-actions a, .attendance-actions button { display:flex; align-items:center; justify-content:center; width:100%; min-height:50px; text-align:center; line-height:1.35; }
+.attendance-list-head { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; margin-bottom:24px; }
+.attendance-list-head a { display:inline-flex; align-items:center; justify-content:center; text-align:center; }
+.attendance-table { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+.attendance-table table { min-width:570px; }
+@media(max-width:575px) { .attendance-list-head { align-items:flex-start; } .attendance-list-head a { width:100%; } }
+</style>
+{% endblock %}
 {% block content %}
 <section class="list-header" style="padding: 60px 0; margin-bottom: 40px;">
     <div class="container">
@@ -16,7 +29,7 @@
 <div class="container mb-5">
     <div class="row g-5">
         <div class="col-lg-4">
-            <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 40px;">
+            <div class="attendance-overview">
                 <h3 style="font-weight: 800; margin-bottom: 24px;">Overview</h3>
                 
                 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -44,30 +57,33 @@
 
                 <hr style="border-color: var(--border); margin: 32px 0;">
                 
-                <h4 style="font-weight: 800; margin-bottom: 16px;">QR Scanner</h4>
-                {% if session and session.is_active %}
+                <h4 style="font-weight: 800; margin-bottom: 16px;">Attendance QR</h4>
+                <p>Attendees scan this code with their phone camera and confirm their check-in. Open this site using an address their phones can reach.</p>
+                {% if session_active %}
                     <div style="background: rgba(22, 128, 92, 0.1); color: var(--success); padding: 12px; border-radius: 8px; font-weight: 700; text-align: center; margin-bottom: 16px;">
                         <i class="bi bi-circle-fill me-2" style="font-size: 0.75rem;"></i>QR is Active
                     </div>
-                    <a href="{% url 'events:display_qr' event.slug %}" class="btn-navy w-100 mb-2">Open Projector View</a>
+                    <div class="attendance-actions"><a href="{% url 'events:display_qr' event.slug %}" class="btn-navy">Open Projector View</a>
                 {% else %}
                     <div style="background: var(--bg-main); color: var(--text-muted); padding: 12px; border-radius: 8px; font-weight: 700; text-align: center; margin-bottom: 16px;">
                         <i class="bi bi-circle-fill me-2" style="font-size: 0.75rem;"></i>QR is Inactive
                     </div>
+                    <div class="attendance-actions">
                 {% endif %}
 
                 <form method="POST" action="{% url 'events:generate_qr' event.slug %}">
                     {% csrf_token %}
                     <button type="submit" class="btn-brand w-100">
-                        {% if session and session.is_active %}Refresh QR Token{% else %}Generate Attendance QR{% endif %}
+                        {% if session_active %}Refresh QR Token{% else %}Generate Attendance QR{% endif %}
                     </button>
                 </form>
+                </div>
             </div>
         </div>
 
         <div class="col-lg-8">
-            <h3 style="font-weight: 800; margin-bottom: 24px;">Live Check-ins</h3>
-            <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden;">
+            <div class="attendance-list-head"><h3 class="mb-0">Recent check-ins</h3><a class="btn-nav-outline" href="{% url 'events:attendance_export' event.slug %}"><i class="bi bi-download me-2" aria-hidden="true"></i>Download attendance CSV</a></div>
+            <div class="attendance-table" style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);">
                 <table class="table mb-0" style="font-size: 0.95rem;">
                     <thead style="background: var(--bg-main);">
                         <tr>

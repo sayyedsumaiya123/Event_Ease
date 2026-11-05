@@ -1,0 +1,11 @@
+Demo event photographs sourced from Unsplash (https://unsplash.com/license).
+These are illustrative stock photos; the events are fictional.
+
+midnight-code-heist: https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1200&q=80
+cosmic-rooftop-silent-disco: https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1200&q=80
+robot-rumble-battle-of-the-bots: https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=1200&q=80
+glow-in-the-dark-art-jam: https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=1200&q=80
+the-great-campus-treasure-hunt: https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1200&q=80
+murder-mystery-at-the-museum: https://images.unsplash.com/photo-1561214115-f2f134cc4912?w=1200&q=80
+zero-gravity-food-lab: https://images.unsplash.com/photo-1556911220-bff31c812dba?w=1200&q=80
+indie-games-after-dark: https://images.unsplash.com/photo-1511512578047-dfb367046420?w=1200&q=80

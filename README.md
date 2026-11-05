@@ -307,3 +307,21 @@ This project is built for educational purposes as a DevOps college project.
 ---
 
 *Built with ❤️ by the EventEase Team | Django + Docker + Jenkins + Prometheus + Grafana*
+
+
+### Phone check-in on a local network
+
+The organizer displays an attendance QR and each attendee scans it with their phone camera, signs in, and confirms check-in. The QR expires after five minutes; generate another from the attendance dashboard when needed. Organizers can download a CSV of confirmed participants and attendance.
+
+For local testing, connect the computer and phones to the same network. Find the computer's LAN IP using `ipconfig`, add that IP to `ALLOWED_HOSTS` in your environment, run `python manage.py runserver 0.0.0.0:8000`, and open `http://<computer-LAN-IP>:8000` on the organizer's computer before generating the QR. `localhost` points to each device itself and will not work across devices. Network isolation or a firewall may also prevent connections. Use a reachable HTTPS domain in production.
+
+### Coordinator applications and event access
+
+Organizers can review coordinator applications in the Coordinator Panel. Approved coordinators can create events or manage events explicitly assigned to them. Organizers assign coordinators when creating or editing an event; the panel lists the assignments for their own events. A superuser can designate organizer reviewers using the `is_organizer` field on a user's profile in Django admin. The user must also be active and have staff status. Existing staff accounts without coordinator applications were marked as organizers during the migration; review those roles when upgrading a populated database.
+
+
+### Event Passport and certificates
+
+Participants can open My Event Passport from My Events to see confirmed registrations with recorded check-ins, a category summary, and a CSV export. Organizers can enable participation certificates when creating or editing an event. Eligible participants can download a PDF certificate containing a QR code and clickable verification link. Verification returns unavailable when the event is cancelled, certificates are disabled, the registration is no longer confirmed, or the attendance record is removed.
+
+The verification URL uses the address from which the certificate was downloaded. Use a stable, publicly reachable HTTPS domain if other people need to verify certificates; local addresses and temporary tunnels will not remain accessible to external verifiers. A shared QR check-in records an action but does not independently establish physical presence.

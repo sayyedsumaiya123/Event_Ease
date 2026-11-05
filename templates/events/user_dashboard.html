@@ -7,6 +7,8 @@
     <div class="container">
         <h1 class="list-title">My Dashboard</h1>
         <p class="list-subtitle">Welcome back, {{ user.first_name|default:user.username }}</p>
+        <a class="btn-nav-outline d-inline-block mt-2 me-2" href="{% url 'events:event_passport' %}"><i class="bi bi-award me-2" aria-hidden="true"></i>My Event Passport</a>
+        {% if not user.is_staff %}<a class="btn-brand d-inline-block mt-2" href="{% url 'events:participant_scanner' %}"><i class="bi bi-qr-code-scan me-2"></i>Scan attendance QR</a>{% endif %}
     </div>
 </section>
 
@@ -35,7 +37,7 @@
                         </div>
                         <div class="d-flex justify-content-between align-items-center">
                             <span style="color: var(--text-muted); font-weight: 600;">Attended</span>
-                            <span style="font-weight: 800; font-size: 1.25rem;">{{ past_events }}</span>
+                            <span style="font-weight: 800; font-size: 1.25rem;">{{ attended_count }}</span>
                         </div>
                     </div>
                 </div>

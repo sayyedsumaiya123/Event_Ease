@@ -2,21 +2,16 @@
 <a href="{% url 'events:event_detail' event.slug %}" class="event-card-premium">
     <div class="event-img">
         <span class="cat-badge">{% if event.category %}{{ event.category.name }}{% else %}Event{% endif %}</span>
-        {% if event.image %}
-        <img src="{{ event.image.url }}" alt="{{ event.title }}">
-        {% else %}
-        <!-- Fallback image based on event name or random -->
-        <img src="https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=600&auto=format&fit=crop" alt="Event Placeholder">
-        {% endif %}
+        {% if event.image %}<img src="{{ event.image.url }}" alt="">{% else %}<div style="height:100%;background:#243a35;display:grid;place-items:center;color:white;font-size:3rem"><i class="bi bi-calendar-event"></i></div>{% endif %}
     </div>
     <div class="event-body">
-        <h4 class="event-title">{{ event.title }}</h4>
-        <div class="event-meta">
-            <span><i class="bi bi-calendar3"></i> {{ event.date|date:"M d, Y" }} &bull; {{ event.time|time:"h:i A" }}</span>
-            <span><i class="bi bi-geo-alt-fill"></i> {{ event.venue }}</span>
-        </div>
-        <div class="event-cta mt-auto">
-            View Details <i class="bi bi-arrow-right"></i>
+        <div style="font-size:.78rem; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:.06em; margin-bottom:8px">{{ event.date|date:"D, M j" }} · {{ event.time|time:"g:i A" }}</div>
+        <h3 class="event-title">{{ event.title }}</h3>
+        <p style="color:var(--text-muted);font-size:.9rem;line-height:1.5">{{ event.short_description|truncatewords:17 }}</p>
+        <div class="event-meta"><span><i class="bi bi-geo-alt"></i> {{ event.venue }}</span></div>
+        <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;border-top:1px solid var(--border);padding-top:16px;margin-top:auto;font-size:.85rem;font-weight:700">
+            <span>{% if event.is_free %}Free{% else %}₹{{ event.price }}{% endif %}</span>
+            <span>{% if event.is_full %}Waitlist available{% else %}{{ event.available_seats }} spots left{% endif %} <i class="bi bi-arrow-right ms-1"></i></span>
         </div>
     </div>
 </a>

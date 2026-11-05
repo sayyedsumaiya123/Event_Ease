@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}Scan attendance QR — EventEase{% endblock %}
+{% block content %}
+<section class="list-header" style="padding:55px 0; margin-bottom:40px"><div class="container"><a href="{% url 'events:user_dashboard' %}" class="d-inline-block mb-3">← My events</a><h1 class="list-title">Scan attendance QR</h1><p class="list-subtitle">Scan the code displayed by your organizer, then confirm your attendance.</p></div></section>
+<div class="container" style="max-width:660px; padding-bottom:80px">
+  <div style="background:rgba(255,255,255,.8); border:1px solid white; border-radius:24px; padding:clamp(20px,5vw,36px); box-shadow:0 14px 38px rgba(56,105,130,.1)">
+    <div id="reader" style="width:100%; border-radius:16px; overflow:hidden"></div>
+    <p id="scanner-status" role="status" aria-live="polite" style="margin:16px 0; color:var(--text-muted)">Ready to scan.</p>
+    <button id="start-camera" class="btn-brand w-100 mb-3" type="button"><i class="bi bi-camera me-2"></i>Use camera</button>
+    <label for="qr-file" class="btn-nav-outline w-100 text-center d-block" style="cursor:pointer">Choose a QR photo or screenshot</label>
+    <input id="qr-file" type="file" accept="image/*" class="visually-hidden">
+    <p class="mt-4 mb-0" style="font-size:.9rem;color:var(--text-muted)">On a phone, camera access inside this page needs HTTPS. For local Wi-Fi testing, use your phone’s camera app to scan the organizer’s code, or choose a saved QR photo above. Both devices must be able to reach the same EventEase address.</p>
+  </div>
+</div>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script>
+(function () {
+  const status = document.getElementById('scanner-status');
+  const start = document.getElementById('start-camera');
+  const file = document.getElementById('qr-file');
+  let scanner = null;
+  let running = false;
+  function report(message) { status.textContent = message; }
+  function openCode(text) {
+    try {
+      const url = new URL(text, window.location.origin);
+      if (url.origin !== window.location.origin || !/^\/attendance\/scan\/[0-9a-f-]{36}\/$/i.test(url.pathname) || url.search || url.hash) throw new Error('invalid');
+      if (running && scanner) scanner.stop().catch(() => {});
+      window.location.assign(url.pathname);
+    } catch (_) { report('This is not an attendance QR for this EventEase address. Ask the organizer for a current code.'); }
+  }
+  if (typeof Html5Qrcode === 'undefined') {
+    report('The scanner could not load. Check your internet connection or use your phone camera app.');
+    start.disabled = true; file.disabled = true; return;
+  }
+  scanner = new Html5Qrcode('reader');
+  start.addEventListener('click', async function () {
+    if (!window.isSecureContext) { report('Camera scanning requires HTTPS on your phone. Use your phone camera app or choose a saved QR image.'); return; }
+    if (running) return;
+    try {
+      await scanner.start({ facingMode: 'environment' }, { fps: 10, qrbox: { width: 220, height: 220 } }, openCode, () => {});
+      running = true; start.disabled = true; report('Point your camera at the organizer’s QR code.');
+    } catch (_) { report('Could not open the camera. Allow camera access or choose a QR image instead.'); }
+  });
+  file.addEventListener('change', async function () {
+    if (!file.files.length) return;
+    try {
+      if (running) { await scanner.stop(); running = false; start.disabled = false; }
+      const text = await scanner.scanFile(file.files[0], true);
+      openCode(text);
+    } catch (_) { report('No QR code found in that image. Try a clearer photo.'); }
+    file.value = '';
+  });
+})();
+</script>
+{% endblock %}

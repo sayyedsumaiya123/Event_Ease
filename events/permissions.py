@@ -1,5 +1,6 @@
 """Role and ownership checks shared by event management views."""
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.db.models import Q
 
 
 class AdminRequiredMixin(UserPassesTestMixin):
@@ -16,7 +17,7 @@ class OrganizerRequiredMixin(UserPassesTestMixin):
 def managed_events(user, queryset):
     if user.is_superuser:
         return queryset
-    return queryset.filter(organizer=user)
+    return queryset.filter(Q(organizer=user) | Q(coordinators=user)).distinct()
 
 
 class ManagedEventMixin:

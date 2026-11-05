@@ -7,13 +7,15 @@ from django.utils import timezone
 class EventForm(forms.ModelForm):
     """Form for creating/editing events."""
 
+    coordinator = forms.ChoiceField(required=False, label='Coordinator for this event', widget=forms.Select(attrs={'class': 'form-select'}))
+
     class Meta:
         model = Event
         fields = [
-            'title', 'description', 'short_description', 'organizer', 'category',
+            'title', 'description', 'short_description', 'organizer', 'coordinator', 'category',
             'date', 'time', 'end_date', 'end_time',
             'venue', 'venue_address', 'capacity',
-            'image', 'status', 'is_free', 'price', 'tags', 'featured'
+            'image', 'status', 'is_free', 'price', 'tags', 'featured', 'certificates_enabled'
         ]
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Event title'}),
@@ -52,13 +54,33 @@ class EventForm(forms.ModelForm):
             Q(is_staff=True) | Q(is_superuser=True), is_active=True
         )
         self.fields['organizer'].empty_label = "Select Organizer"
+        available = User.objects.filter(is_active=True, is_staff=True, is_superuser=False, profile__is_organizer=False).order_by('username')
+        owner_id = self.instance.organizer_id if self.instance.pk else (user.pk if user else None)
+        if owner_id:
+            available = available.exclude(pk=owner_id)
+        existing = list(self.instance.coordinators.order_by('username')) if self.instance.pk else []
+        options = [('', 'None')]
+        eligible_ids = {person.pk for person in available}
+        needs_keep = len(existing) > 1 or any(person.pk not in eligible_ids for person in existing)
+        if needs_keep:
+            names = ', '.join(person.get_full_name() or person.username for person in existing)
+            options.append(('__keep__', f'Keep current: {names}'))
+            self.initial['coordinator'] = '__keep__'
+            self.coordinator_keep_notice = True
+        elif existing:
+            self.initial['coordinator'] = str(existing[0].pk)
+        options.extend((str(person.pk), f'{person.get_full_name() or person.username} (@{person.username})') for person in available)
+        self.fields['coordinator'].choices = options
+        self.coordinator_options_available = bool(eligible_ids)
         if user is not None and not user.is_superuser:
-            self.fields['organizer'].queryset = User.objects.filter(pk=user.pk)
-            self.fields['organizer'].initial = user.pk
-            self.initial['organizer'] = user.pk
+            self.fields['organizer'].queryset = User.objects.filter(pk=owner_id)
+            self.fields['organizer'].initial = owner_id
+            self.initial['organizer'] = owner_id
             self.fields['organizer'].disabled = True
-            # Homepage promotion is controlled by administrators.
             self.fields['featured'].disabled = True
+            if self.instance.pk and owner_id != user.pk:
+                # Assigned coordinators can edit the event but cannot change its team.
+                self.fields.pop('coordinator')
 
     def save(self, commit=True):
         event = super().save(commit=False)
@@ -71,8 +93,17 @@ class EventForm(forms.ModelForm):
                 slug = f'{base_slug}-{counter}'
                 counter += 1
             event.slug = slug
+        save_model_relations = self.save_m2m
+        def save_relations():
+            save_model_relations()
+            if 'coordinator' in self.cleaned_data:
+                selection = self.cleaned_data['coordinator']
+                if selection != '__keep__':
+                    event.coordinators.set([int(selection)] if selection else [])
+        self.save_m2m = save_relations
         if commit:
             event.save()
+            self.save_m2m()
         return event
 
 

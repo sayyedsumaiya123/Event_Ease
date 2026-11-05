@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block title %}Verify certificate — EventEase{% endblock %}
+{% block content %}
+<section style="min-height:65vh;padding:65px 0;background:linear-gradient(125deg,#e4f4fa,#fff8d9)"><div class="container" style="max-width:680px"><div style="padding:clamp(24px,5vw,45px);border:1px solid white;border-radius:25px;background:rgba(255,255,255,.85);box-shadow:0 16px 40px rgba(52,103,122,.09)">
+  {% if valid %}<div style="color:#28785c;font-weight:800;margin-bottom:12px"><i class="bi bi-check-circle-fill me-2" aria-hidden="true"></i>Certificate valid</div><h1 style="font-size:2rem">Participation certificate</h1><p class="text-muted">This certificate matches a recorded event check-in in EventEase.</p><dl style="margin:28px 0 0"><div class="mb-3"><dt>Participant</dt><dd>{{ certificate.attendee_name }}</dd></div><div class="mb-3"><dt>Event</dt><dd>{{ certificate.event_title }}</dd></div><div class="mb-3"><dt>Event date</dt><dd>{{ certificate.event_date|date:'F j, Y' }}</dd></div><div class="mb-3"><dt>Certificate ID</dt><dd style="overflow-wrap:anywhere">{{ certificate.pk }}</dd></div><div><dt>Issued</dt><dd>{{ certificate.issued_at|date:'F j, Y' }}</dd></div></dl><p class="small text-muted mt-3">A recorded QR check-in does not independently prove physical presence.</p>
+  {% else %}<div style="color:#a0473e;font-weight:800;margin-bottom:12px"><i class="bi bi-exclamation-circle me-2" aria-hidden="true"></i>Certificate unavailable</div><h1 style="font-size:2rem">We couldn’t verify this certificate</h1><p class="text-muted">The link may be incorrect, or the certificate may no longer be valid. Contact the event organizer if you need help.</p>{% endif %}
+  <a href="{% url 'events:home' %}" class="btn-nav-outline d-inline-block mt-3">Back to EventEase</a>
+</div></div></section>
+{% endblock %}

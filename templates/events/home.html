@@ -41,6 +41,7 @@
 /* HERO SECTION */
 .hero-premium {
     padding: 80px 0 120px;
+    background: linear-gradient(135deg, #e1f3fc 0%, #f4faff 62%, #fff5c9 100%);
     position: relative;
     overflow: hidden;
 }
@@ -92,7 +93,7 @@
     border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
     padding: 0;
-    background: var(--bg-main);
+    background: #fff5cc;
 }
 
 .cat-list {
@@ -381,14 +382,14 @@
 
 /* FINAL CTA */
 .final-cta {
-    background-color: var(--navy);
-    color: white;
+    background-color: #d8effb;
+    color: var(--text-main);
     padding: 120px 0;
     text-align: center;
 }
 
 .final-cta-title {
-    color: white;
+    color: var(--text-main);
     font-size: clamp(3rem, 5vw, 4.5rem);
     font-weight: 800;
     letter-spacing: -0.03em;
@@ -397,7 +398,7 @@
 
 .final-cta p {
     font-size: 1.25rem;
-    color: rgba(255,255,255,0.7);
+    color: #45687a;
     margin-bottom: 40px;
 }
 
@@ -407,46 +408,32 @@
 {% block content %}
 <div class="page-wrapper">
 
-    <!-- HERO SECTION -->
     <section class="hero-premium">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-6 mb-5 mb-lg-0 pe-lg-5">
-                    <span class="eyebrow">Events • Experiences • Community</span>
-                    <h1 class="title-display">Find something<br>worth showing<br>up for.</h1>
-                    <p class="subtitle-large mb-5">Discover events, reserve your spot, and manage every registration from one premium place.</p>
-                    <div class="d-flex flex-wrap gap-3">
-                        <a href="{% url 'events:event_list' %}" class="btn-brand">Explore Events</a>
-                        {% if not user.is_authenticated %}
-                        <a href="{% url 'accounts:register' %}" class="btn-nav-outline">Create an Account</a>
-                        {% endif %}
-                    </div>
+        <div class="container hero-layout">
+            <div class="hero-copy">
+                <h1 class="title-display">Go where<br>the <em>good stuff</em><br>happens</h1>
+                <p class="subtitle-large">Discover your people, find your plans, and make room for a little more fun.</p>
+                <div class="hero-actions">
+                    <a href="{% url 'events:event_list' %}" class="btn-brand">Explore events <i class="bi bi-arrow-up-right ms-2"></i></a>
+                    <a href="#featured-events" class="hero-secondary">See what’s on <i class="bi bi-arrow-down ms-1"></i></a>
                 </div>
-                <div class="col-lg-5 offset-lg-1 position-relative mt-5 mt-lg-0">
-                    <div class="hero-image-wrapper">
-                        <!-- High quality event imagery from Unsplash -->
-                        <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=1200&auto=format&fit=crop" alt="Live Conference Event">
-                    </div>
-                    <div class="hero-ui-overlay d-none d-md-block">
-                        <div class="ui-row">
-                            <span class="ui-label">Featured Event</span>
-                            <span class="ui-value" style="color: var(--accent);">Live</span>
-                        </div>
-                        <div class="ui-row">
-                            <span class="ui-label">Category</span>
-                            <span class="ui-value">Tech & Design</span>
-                        </div>
-                        <div class="ui-row">
-                            <span class="ui-label">Date</span>
-                            <span class="ui-value">Oct 14, 2026</span>
-                        </div>
-                        <div class="ui-row">
-                            <span class="ui-label">Location</span>
-                            <span class="ui-value">Main Hall, NY</span>
-                        </div>
-                    </div>
-                </div>
+                <div class="hero-proof"><span class="hero-proof-icon"><i class="bi bi-stars"></i></span><span><strong>{{ upcoming_count }} upcoming events</strong><br>Something for every kind of curious.</span></div>
             </div>
+            {% with spotlight=featured_events|first %}
+            {% if spotlight %}
+            <div class="hero-visual">
+                <div class="hero-orbit hero-orbit-one"></div><div class="hero-orbit hero-orbit-two"></div>
+                <div class="hero-photo">{% if spotlight.image %}<img src="{{ spotlight.image.url }}" alt="">{% endif %}<span class="hero-photo-label"><i class="bi bi-sparkle"></i> THE EVENT EDIT</span></div>
+                <a class="hero-glass-card" href="{% url 'events:event_detail' spotlight.slug %}">
+                    <span class="hero-glass-top"><span>UP NEXT</span><i class="bi bi-arrow-up-right"></i></span>
+                    <strong>{{ spotlight.title }}</strong>
+                    <span class="hero-glass-meta"><i class="bi bi-calendar3"></i> {{ spotlight.date|date:'M j' }} · {{ spotlight.time|time:'g:i A' }}</span>
+                    <span class="hero-glass-meta"><i class="bi bi-geo-alt"></i> {{ spotlight.venue }}</span>
+                </a>
+                <span class="hero-sticker"><i class="bi bi-stars"></i><br>MAKE<br>PLANS</span>
+            </div>
+            {% endif %}
+            {% endwith %}
         </div>
     </section>
 
@@ -459,21 +446,13 @@
                     {% for category in categories %}
                     <li class="cat-item"><a href="{% url 'events:category_events' category.slug %}" class="cat-link">{{ category.name }}</a></li>
                     {% endfor %}
-                {% else %}
-                    <!-- Fallback if no dynamic categories -->
-                    <li class="cat-item"><a href="#" class="cat-link">Tech</a></li>
-                    <li class="cat-item"><a href="#" class="cat-link">Sports</a></li>
-                    <li class="cat-item"><a href="#" class="cat-link">Cultural</a></li>
-                    <li class="cat-item"><a href="#" class="cat-link">Workshops</a></li>
-                    <li class="cat-item"><a href="#" class="cat-link">Conferences</a></li>
-                    <li class="cat-item"><a href="#" class="cat-link">Competitions</a></li>
                 {% endif %}
             </ul>
         </div>
     </section>
 
     <!-- FEATURED EVENTS -->
-    <section class="section-premium">
+    <section class="section-premium" id="featured-events">
         <div class="container">
             <div class="mb-5">
                 <h2 class="section-title">What's happening</h2>
@@ -508,46 +487,12 @@
                 <div class="row g-4">
                     {% for event in featured_events|slice:"1:4" %}
                     <div class="col-md-4">
-                        <a href="{% url 'events:event_detail' event.slug %}" class="event-card-premium">
-                            <div class="event-img">
-                                <span class="cat-badge">{% if event.category %}{{ event.category.name }}{% else %}General{% endif %}</span>
-                                {% if event.image %}
-                                <img src="{{ event.image.url }}" alt="{{ event.title }}">
-                                {% else %}
-                                <img src="https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=600&auto=format&fit=crop" alt="Event Placeholder">
-                                {% endif %}
-                            </div>
-                            <div class="event-body">
-                                <h4 class="event-title">{{ event.title }}</h4>
-                                <div class="event-meta">
-                                    <span><i class="bi bi-calendar3"></i> {{ event.date|date:"M d, Y" }}</span>
-                                    <span><i class="bi bi-geo-alt-fill"></i> {{ event.venue }}</span>
-                                </div>
-                                <div class="event-cta">
-                                    View Details <i class="bi bi-arrow-right"></i>
-                                </div>
-                            </div>
-                        </a>
+                        {% include 'events/partials/event_card.html' with event=event %}
                     </div>
                     {% endfor %}
                 </div>
             {% else %}
-                <!-- FALLBACK DUMMY CONTENT IF NO FEATURED EVENTS IN DB -->
-                <div class="featured-large">
-                    <div class="event-img">
-                        <img src="https://images.unsplash.com/photo-1459749411175-04bf5292ceea?q=80&w=1200&auto=format&fit=crop" alt="Concert Event">
-                    </div>
-                    <div class="featured-content">
-                        <span class="cat-badge">Cultural</span>
-                        <h3 class="featured-title">Summer Music Festival 2026</h3>
-                        <p class="featured-desc">Join us for a three-day celebration of music, art, and culture featuring over 50 international artists.</p>
-                        <div class="event-meta mb-4">
-                            <span><i class="bi bi-calendar3"></i> August 12, 2026</span>
-                            <span><i class="bi bi-geo-alt-fill"></i> Central Park, NY</span>
-                        </div>
-                        <a href="{% url 'events:event_list' %}" class="btn-brand" style="align-self: flex-start;">Explore Events</a>
-                    </div>
-                </div>
+                <div class="empty-featured"><i class="bi bi-calendar2-heart"></i><h3>Good things are on the way.</h3><p>There are no featured events just yet. Explore all events to see what’s available.</p><a href="{% url 'events:event_list' %}" class="btn-brand">Explore events</a></div>
             {% endif %}
         </div>
     </section>
@@ -557,20 +502,20 @@
         <div class="container">
             <div class="row text-center text-md-start">
                 <div class="col-md-3 stat-item">
-                    <div class="stat-num">10+</div>
-                    <div class="stat-label">Events Hosted</div>
+                    <div class="stat-num">{{ total_events }}</div>
+                    <div class="stat-label">Events</div>
                 </div>
                 <div class="col-md-3 stat-item">
-                    <div class="stat-num">7K+</div>
-                    <div class="stat-label">Participants</div>
+                    <div class="stat-num">{{ total_users }}</div>
+                    <div class="stat-label">Members</div>
                 </div>
                 <div class="col-md-3 stat-item">
-                    <div class="stat-num">41K+</div>
+                    <div class="stat-num">{{ total_registrations }}</div>
                     <div class="stat-label">Registrations</div>
                 </div>
                 <div class="col-md-3 stat-item">
-                    <div class="stat-num">100%</div>
-                    <div class="stat-label">Organized</div>
+                    <div class="stat-num">{{ upcoming_count }}</div>
+                    <div class="stat-label">Upcoming</div>
                 </div>
             </div>
         </div>
@@ -588,7 +533,7 @@
                 <div class="col-md-4">
                     <div class="step-num">02</div>
                     <h3 class="step-title">REGISTER</h3>
-                    <p class="step-desc">Reserve your spot in seconds. Our seamless checkout and registration flow ensures you never miss out on tickets.</p>
+                    <p class="step-desc">Reserve your spot in seconds. Register in a few steps and keep your ticket in one place.</p>
                 </div>
                 <div class="col-md-4">
                     <div class="step-num">03</div>
@@ -629,7 +574,7 @@
     <section class="final-cta">
         <div class="container">
             <h2 class="final-cta-title">Your next experience is waiting.</h2>
-            <p>Join thousands of others who use EventEase to discover what's happening around them.</p>
+            <p>Find something new to do, and bring your people along.</p>
             <div class="d-flex justify-content-center gap-3">
                 <a href="{% url 'events:event_list' %}" class="btn-brand">Explore Events</a>
             </div>

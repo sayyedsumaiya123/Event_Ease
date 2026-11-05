@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}My Event Passport — EventEase{% endblock %}
+{% block extra_css %}
+<style>
+.passport-page { min-height:75vh; padding:45px 0 85px; background:radial-gradient(ellipse at 90% 0%,#fff2bb,transparent 30%),radial-gradient(ellipse at 0 35%,#d8f0f9,transparent 35%),#eff8fb; }
+.passport-wrap { max-width:1100px; }
+.passport-back { display:inline-flex;align-items:center;gap:7px;color:#537d8e;font-size:.85rem;font-weight:700;text-decoration:none;margin-bottom:20px; }
+.passport-hero { border:1px solid white;border-radius:26px;padding:clamp(24px,4vw,38px);background:linear-gradient(115deg,rgba(255,255,255,.9),rgba(222,244,251,.75),rgba(255,244,195,.75));box-shadow:0 15px 38px rgba(52,103,122,.08); }
+.passport-kicker { display:inline-flex;gap:8px;align-items:center;padding:7px 12px;border-radius:99px;background:#fff7d2;color:#816620;font-size:.68rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase; }
+.passport-hero h1 { font-size:clamp(2.3rem,4vw,3.4rem);letter-spacing:-.055em;margin:15px 0 8px; }
+.passport-hero p { color:#668490;max-width:600px;line-height:1.65;margin:0; }
+.passport-layout { display:grid;grid-template-columns:minmax(0,1fr) 300px;align-items:start;gap:18px;margin-top:20px; }
+.passport-card { background:rgba(255,255,255,.76);border:1px solid white;border-radius:23px;padding:clamp(20px,3vw,28px);box-shadow:0 12px 35px rgba(52,103,122,.07); }
+.passport-head { display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px; }
+.passport-head h2 { font-size:1.15rem;margin:0; }
+.passport-count { border-radius:99px;background:#e6f5fa;padding:6px 11px;color:#47788a;font-size:.72rem;font-weight:800; }
+.passport-event { padding:18px 0;border-top:1px solid #e6f0f3; }
+.passport-event-top { display:flex;gap:13px;align-items:flex-start; }
+.passport-date { display:flex;align-items:center;justify-content:center;flex-direction:column;flex:none;width:52px;height:56px;border-radius:15px;background:#e8f5fa;color:#478099;font-size:.67rem;font-weight:800;text-transform:uppercase; }
+.passport-date strong { color:#225268;font-size:1.15rem;line-height:1.15; }
+.passport-event h3 { font-size:1rem;margin:0 0 5px;overflow-wrap:anywhere; }
+.passport-event h3 a { color:#204b60;text-decoration:none; }
+.passport-meta { color:#728e99;font-size:.81rem;line-height:1.5; }
+.passport-event-actions { display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:14px 0 0 65px; }
+.passport-event-actions form { margin:0; }
+.passport-event-actions button { padding:9px 15px !important;font-size:.8rem !important; }
+.passport-status { display:inline-flex;align-items:center;gap:6px;color:#28785c;background:#e5f5ed;padding:6px 10px;border-radius:99px;font-size:.72rem;font-weight:800; }
+.passport-muted { color:#78919c;font-size:.78rem; }
+.passport-summary-row { display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid #e6f0f3;color:#5d7d8a;font-size:.88rem; }
+.passport-summary-row strong { color:#27546a; }
+.passport-empty { padding:35px 20px;text-align:center;border:1px dashed #cbe2e9;border-radius:18px;background:#f4fafb;color:#6a8996; }
+.passport-empty i { display:block;font-size:2rem;color:#8cb6c6;margin-bottom:10px; }
+.passport-empty h3 { font-size:1rem;margin-bottom:8px; }
+.passport-note { color:#78919c;font-size:.78rem;line-height:1.6;margin:18px 0 0; }
+@media(max-width:767px) { .passport-page { padding:28px 0 65px; } .passport-layout { grid-template-columns:1fr; } .passport-event-actions { margin-left:0; } }
+</style>
+{% endblock %}
+{% block content %}
+<div class="passport-page"><div class="container passport-wrap">
+  <a class="passport-back" href="{% url 'events:user_dashboard' %}"><i class="bi bi-arrow-left" aria-hidden="true"></i> My Events</a>
+  <header class="passport-hero"><span class="passport-kicker"><i class="bi bi-stars" aria-hidden="true"></i> Your event journey</span><h1>My Event Passport</h1><p>Your recorded check-ins in one place. Download certificates for events whose organizers have enabled them.</p></header>
+  <div class="passport-layout">
+    <section class="passport-card" aria-labelledby="history-title"><div class="passport-head"><div><h2 id="history-title">Attendance history</h2><span class="passport-muted">Confirmed registrations with recorded check-ins</span></div><span class="passport-count">{{ attended_total }} event{{ attended_total|pluralize }}</span></div>
+      {% for event in attended_events %}
+      <article class="passport-event"><div class="passport-event-top"><div class="passport-date">{{ event.date|date:'M' }}<strong>{{ event.date|date:'d' }}</strong></div><div><h3><a href="{% url 'events:event_detail' event.slug %}">{{ event.title }}</a></h3><div class="passport-meta">{{ event.date|date:'F j, Y' }} · {% if event.category %}{{ event.category.name }}{% else %}Other{% endif %} · {{ event.venue }}</div></div></div>
+        <div class="passport-event-actions"><span class="passport-status"><i class="bi bi-check2-circle" aria-hidden="true"></i> Check-in recorded</span>{% if event.certificates_enabled and event.status != 'cancelled' %}<form method="post" action="{% url 'events:certificate_download' event.slug %}">{% csrf_token %}<button type="submit" class="btn-brand"><i class="bi bi-download me-1" aria-hidden="true"></i>Download certificate</button></form>{% else %}<span class="passport-muted">Certificate not available</span>{% endif %}</div>
+      </article>
+      {% empty %}<div class="passport-empty"><i class="bi bi-calendar2-check" aria-hidden="true"></i><h3>No check-ins yet</h3><p>Once you check in to an event, it will appear here.</p><a class="btn-nav-outline" href="{% url 'events:event_list' %}">Explore events</a></div>{% endfor %}
+      <p class="passport-note">This history reflects check-ins recorded in EventEase. A QR check-in alone does not independently prove physical presence.</p>
+    </section>
+    <aside class="passport-card" aria-labelledby="summary-title"><div class="passport-head"><h2 id="summary-title">By category</h2><i class="bi bi-pie-chart" aria-hidden="true"></i></div>{% for name,count in category_counts %}<div class="passport-summary-row"><span>{{ name }}</span><strong>{{ count }}</strong></div>{% empty %}<p class="passport-muted">Your category summary will appear after your first check-in.</p>{% endfor %}<a href="{% url 'events:passport_export' %}" class="btn-nav-outline d-block text-center mt-4"><i class="bi bi-download me-2" aria-hidden="true"></i>Export attendance CSV</a><a href="{% url 'events:certificate_lookup' %}" class="d-block text-center mt-3" style="color:#326c83;font-size:.82rem;font-weight:700">Verify a certificate</a></aside>
+  </div>
+</div></div>
+{% endblock %}

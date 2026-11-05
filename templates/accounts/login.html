@@ -2,6 +2,22 @@
 
 {% block title %}Login — EventEase{% endblock %}
 
+{% block extra_css %}
+<style>
+.login-options { margin-top:28px; padding-top:25px; border-top:1px solid #e1edf0; text-align:left; }
+.login-new { display:flex; align-items:center; justify-content:center; gap:6px; flex-wrap:wrap; color:#68828e; font-size:.88rem; margin-bottom:22px; }
+.login-new a, .coordinator-actions a { color:#23657e; font-weight:800; text-decoration:none; }
+.login-new a:hover, .coordinator-actions a:hover { text-decoration:underline; }
+.coordinator-option { display:flex; align-items:flex-start; gap:13px; padding:17px; border:1px solid #dceef2; border-radius:17px; background:linear-gradient(125deg,#edf8fc,#fffbea); }
+.coordinator-icon { width:40px; height:40px; flex:none; display:grid; place-items:center; border-radius:13px; background:#d9eff8; color:#34728a; font-size:1.1rem; }
+.coordinator-content { min-width:0; }
+.coordinator-content strong { display:block; color:#23495d; font-size:.88rem; }
+.coordinator-content p { color:#698591; font-size:.78rem; line-height:1.5; margin:4px 0 10px; }
+.coordinator-actions { display:flex; flex-wrap:wrap; gap:5px 17px; font-size:.78rem; }
+.login-options a:focus-visible { outline:3px solid #25779f; outline-offset:3px; border-radius:3px; }
+</style>
+{% endblock %}
+
 {% block content %}
 <section class="auth-section-premium">
     <div class="container">
@@ -22,21 +38,21 @@
                             {{ form.password }}
                         </div>
                         
-                        <div class="mt-4 mb-4" style="background: rgba(232,93,63,0.05); border: 1px solid rgba(232,93,63,0.2); padding: 12px; border-radius: 8px; color: var(--accent); font-size: 0.85rem; font-weight: 600;">
-                            <span>Demo Access:</span> <strong>admin</strong> / <strong>Admin@123</strong>
-                        </div>
-                        
                         <button type="submit" class="btn-brand w-100" id="loginSubmitBtn">
                             Sign In
                         </button>
                     </form>
                     
-                    <div class="auth-footer-premium">
-                        <a href="{% url 'accounts:coordinator_login' %}">Login as Coordinator</a><br>
-                        <a href="{% url 'accounts:coordinator_register' %}">Register as Coordinator</a><br><br>
-                        Don't have an account yet? 
-                        <br>
-                        <a href="{% url 'accounts:register' %}">Create Account</a>
+                    <div class="login-options">
+                        <div class="login-new"><span>New to EventEase?</span> <a href="{% url 'accounts:register' %}">Create an account <i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>
+                        <div class="coordinator-option">
+                            <span class="coordinator-icon"><i class="bi bi-calendar2-check" aria-hidden="true"></i></span>
+                            <div class="coordinator-content">
+                                <strong>Organizing an event?</strong>
+                                <p>Access your coordinator tools or request an account.</p>
+                                <div class="coordinator-actions"><a href="{% url 'accounts:coordinator_login' %}">Login as Coordinator</a><a href="{% url 'accounts:coordinator_register' %}">Register as Coordinator</a></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -371,3 +371,235 @@ class OrganizerPermissionTest(TestCase):
         self.organizer.is_staff = False
         self.organizer.save()
         self.assertEqual(self.client.get(reverse('events:event_edit', args=[self.own.slug])).status_code, 403)
+
+
+class RegistrationAndAttendanceFlowTest(TestCase):
+    def setUp(self):
+        self.organizer = create_user('flow_org', is_staff=True)
+        self.user = create_user('flow_user')
+        self.other = create_user('flow_other')
+        self.event = create_event(self.organizer, title='Flow event', capacity=1)
+        self.register_url = reverse('events:event_register', args=[self.event.slug])
+        self.cancel_url = reverse('events:cancel_registration', args=[self.event.slug])
+
+    def test_cancel_promotes_oldest_and_rejoin_waitlists(self):
+        first = Registration.objects.create(user=self.user, event=self.event)
+        waiting = Registration.objects.create(user=self.other, event=self.event, status='waitlisted')
+        self.client.force_login(self.user)
+        self.client.post(self.cancel_url)
+        waiting.refresh_from_db()
+        self.assertEqual(waiting.status, 'confirmed')
+        self.client.post(self.register_url)
+        first.refresh_from_db()
+        self.assertEqual(first.status, 'waitlisted')
+        self.assertEqual(Registration.objects.filter(user=self.user, event=self.event).count(), 1)
+
+    def test_full_cancelled_event_does_not_accept_waitlist(self):
+        Registration.objects.create(user=self.other, event=self.event)
+        self.event.status = 'cancelled'
+        self.event.save()
+        self.client.force_login(self.user)
+        self.client.post(self.register_url)
+        self.assertFalse(Registration.objects.filter(user=self.user, event=self.event).exists())
+
+    def test_qr_checkin_and_export(self):
+        from .models import AttendanceSession, AttendanceRecord
+        Registration.objects.create(user=self.user, event=self.event)
+        self.client.force_login(self.organizer)
+        self.client.post(reverse('events:generate_qr', args=[self.event.slug]))
+        session = AttendanceSession.objects.get(event=self.event)
+        response = self.client.get(reverse('events:display_qr', args=[self.event.slug]))
+        self.assertContains(response, 'data:image/png;base64,')
+        self.client.force_login(self.user)
+        self.assertEqual(self.client.get(reverse('events:scan_qr', args=[session.current_qr_token])).status_code, 200)
+        self.client.post(reverse('events:confirm_attendance', args=[session.current_qr_token]))
+        self.client.post(reverse('events:confirm_attendance', args=[session.current_qr_token]))
+        self.assertEqual(AttendanceRecord.objects.filter(session=session, user=self.user).count(), 1)
+        self.client.force_login(self.organizer)
+        response = self.client.get(reverse('events:attendance_export', args=[self.event.slug]))
+        self.assertContains(response, 'Present')
+
+class RoleInterfaceTest(TestCase):
+    def setUp(self):
+        self.organizer = create_user('ui_organizer', is_staff=True)
+        self.participant = create_user('ui_participant')
+
+    def test_scanner_link_is_for_participants(self):
+        self.client.force_login(self.participant)
+        self.assertContains(self.client.get(reverse('events:user_dashboard')), 'Scan attendance QR')
+        self.client.force_login(self.organizer)
+        response = self.client.get(reverse('events:user_dashboard'))
+        self.assertNotContains(response, 'Scan attendance QR')
+        self.assertNotContains(response, 'Scan QR')
+
+    def test_login_does_not_expose_test_credentials_or_redirect_off_site(self):
+        login_url = reverse('accounts:login')
+        response = self.client.get(login_url)
+        self.assertNotContains(response, 'EventDemo@123')
+        response = self.client.post(login_url + '?next=https://example.com/', {'username': 'ui_participant', 'password': 'Test@1234'})
+        self.assertRedirects(response, reverse('events:home'))
+
+    def test_attended_count_uses_checkins(self):
+        from .models import AttendanceSession, AttendanceRecord
+        event = create_event(self.organizer, title='Attendance count')
+        Registration.objects.create(user=self.participant, event=event)
+        session = AttendanceSession.objects.create(event=event)
+        AttendanceRecord.objects.create(user=self.participant, session=session)
+        self.client.force_login(self.participant)
+        response = self.client.get(reverse('events:user_dashboard'))
+        self.assertEqual(response.context['attended_count'], 1)
+
+class EventCoordinatorAssignmentTest(TestCase):
+    def setUp(self):
+        self.owner = create_user('team_owner', is_staff=True)
+        self.coordinator = create_user('team_coordinator', is_staff=True)
+        self.other = create_user('team_other', is_staff=True)
+        self.member = create_user('team_member')
+        self.event = create_event(self.owner, title='Team Event')
+        self.event.coordinators.add(self.coordinator)
+
+    def data(self, **extra):
+        data = {'title': 'Team Event', 'description': 'Test event', 'date': (timezone.localdate() + timedelta(days=10)).isoformat(), 'time': '10:00', 'venue': 'Hall', 'capacity': 20, 'status': 'upcoming', 'is_free': 'on', 'price': '0'}
+        data.update(extra)
+        return data
+
+    def test_owner_can_assign_approved_coordinator_and_remove_them(self):
+        self.client.force_login(self.owner)
+        response = self.client.post(reverse('events:event_edit', args=[self.event.slug]), self.data(coordinator=str(self.other.pk)))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(list(self.event.coordinators.all()), [self.other])
+        self.client.force_login(self.coordinator)
+        self.assertEqual(self.client.get(reverse('events:attendance_dashboard', args=[self.event.slug])).status_code, 404)
+
+    def test_assigned_coordinator_can_manage_but_not_transfer_or_delete(self):
+        self.client.force_login(self.coordinator)
+        for name in ('event_edit', 'event_participants', 'attendance_dashboard', 'display_qr', 'attendance_export'):
+            with self.subTest(name=name):
+                self.assertEqual(self.client.get(reverse('events:' + name, args=[self.event.slug])).status_code, 200)
+        self.assertEqual(self.client.post(reverse('events:generate_qr', args=[self.event.slug])).status_code, 302)
+        response = self.client.post(reverse('events:event_edit', args=[self.event.slug]), self.data(organizer=self.coordinator.pk, coordinator=str(self.other.pk)))
+        self.assertEqual(response.status_code, 302)
+        self.event.refresh_from_db()
+        self.assertEqual(self.event.organizer, self.owner)
+        self.assertEqual(list(self.event.coordinators.all()), [self.coordinator])
+        self.assertEqual(self.client.post(reverse('events:event_delete', args=[self.event.slug])).status_code, 404)
+        self.assertTrue(Event.objects.filter(pk=self.event.pk).exists())
+        self.assertContains(self.client.get(reverse('events:admin_event_list')), self.event.title)
+
+    def test_unapproved_or_inactive_user_cannot_be_assigned(self):
+        self.client.force_login(self.owner)
+        response = self.client.post(reverse('events:event_edit', args=[self.event.slug]), self.data(coordinator=str(self.member.pk)))
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context['form'].errors.get('coordinator'))
+        self.coordinator.is_active = False
+        self.coordinator.save()
+        self.client.force_login(self.coordinator)
+        self.assertNotEqual(self.client.get(reverse('events:attendance_dashboard', args=[self.event.slug])).status_code, 200)
+
+    def test_assigned_coordinator_cannot_access_unrelated_event(self):
+        unrelated = create_event(self.other, title='Unrelated Event')
+        self.client.force_login(self.coordinator)
+        self.assertEqual(self.client.get(reverse('events:attendance_dashboard', args=[unrelated.slug])).status_code, 404)
+
+    def test_assign_when_creating_event(self):
+        self.client.force_login(self.owner)
+        response = self.client.post(reverse('events:event_create'), self.data(title='Created with coordinator', coordinator=str(self.coordinator.pk)))
+        self.assertEqual(response.status_code, 302)
+        event = Event.objects.get(title='Created with coordinator')
+        self.assertTrue(event.coordinators.filter(pk=self.coordinator.pk).exists())
+
+    def test_existing_multiple_coordinators_are_preserved_until_replaced(self):
+        self.event.coordinators.add(self.other)
+        self.client.force_login(self.owner)
+        url = reverse('events:event_edit', args=[self.event.slug])
+        response = self.client.get(url)
+        self.assertContains(response, 'Keep current:')
+        self.assertContains(response, '>None</option>', html=False)
+        self.assertEqual(self.client.post(url, self.data(coordinator='__keep__')).status_code, 302)
+        self.assertSetEqual(set(self.event.coordinators.values_list('pk', flat=True)), {self.coordinator.pk, self.other.pk})
+        self.assertEqual(self.client.post(url, self.data(coordinator=str(self.other.pk))).status_code, 302)
+        self.assertEqual(list(self.event.coordinators.values_list('pk', flat=True)), [self.other.pk])
+
+class EventPassportTest(TestCase):
+    def setUp(self):
+        from .models import AttendanceSession, AttendanceRecord
+        self.owner = create_user('passport_owner', is_staff=True)
+        self.user = create_user('passport_user')
+        self.other = create_user('passport_other')
+        self.category = create_category('Passport Tech', 'passport-tech')
+        self.event = create_event(self.owner, category=self.category, title='Passport Workshop')
+        self.event.certificates_enabled = True
+        self.event.save()
+        self.reg = Registration.objects.create(user=self.user, event=self.event)
+        self.session = AttendanceSession.objects.create(event=self.event)
+        AttendanceRecord.objects.create(session=self.session, user=self.user)
+        second = AttendanceSession.objects.create(event=self.event)
+        AttendanceRecord.objects.create(session=second, user=self.user)
+        self.client.force_login(self.user)
+
+    def test_passport_deduplicates_checkins_and_summarizes_category(self):
+        response = self.client.get(reverse('events:event_passport'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['attended_total'], 1)
+        self.assertEqual(response.context['category_counts'], [('Passport Tech', 1)])
+        self.assertContains(response, 'Download certificate')
+        self.assertEqual(self.client.get(reverse('events:passport_export')).status_code, 200)
+
+    def test_download_issue_and_public_verification(self):
+        from .models import ParticipationCertificate
+        url = reverse('events:certificate_download', args=[self.event.slug])
+        self.assertEqual(self.client.get(url).status_code, 405)
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'application/pdf')
+        self.assertTrue(b''.join(response.streaming_content).startswith(b'%PDF'))
+        cert = ParticipationCertificate.objects.get(registration=self.reg)
+        self.client.logout()
+        verification = reverse('events:verify_certificate', args=[cert.pk])
+        self.assertContains(self.client.get(verification), self.user.username)
+        self.reg.status = 'cancelled'
+        self.reg.save()
+        self.assertEqual(self.client.get(verification).status_code, 404)
+        self.assertNotContains(self.client.get(verification), self.user.username, status_code=404)
+
+    def test_only_attendee_with_enabled_certificate_and_checkin_can_download(self):
+        from .models import AttendanceRecord
+        url = reverse('events:certificate_download', args=[self.event.slug])
+        self.event.certificates_enabled = False
+        self.event.save()
+        self.assertEqual(self.client.post(url).status_code, 404)
+        self.event.certificates_enabled = True
+        self.event.save()
+        AttendanceRecord.objects.filter(user=self.user).delete()
+        self.assertEqual(self.client.post(url).status_code, 404)
+        self.assertEqual(self.client.get(reverse('events:event_passport')).context['attended_total'], 0)
+        self.client.force_login(self.other)
+        self.assertEqual(self.client.post(url).status_code, 404)
+
+    def test_certificate_becomes_invalid_when_disabled(self):
+        from .models import ParticipationCertificate
+        self.client.post(reverse('events:certificate_download', args=[self.event.slug]))
+        certificate = ParticipationCertificate.objects.get(registration=self.reg)
+        self.event.certificates_enabled = False
+        self.event.save()
+        self.assertEqual(self.client.get(reverse('events:verify_certificate', args=[certificate.pk])).status_code, 404)
+
+    def test_passport_export_neutralizes_spreadsheet_formulas(self):
+        self.event.title = '=HYPERLINK("evil")'
+        self.event.save()
+        response = self.client.get(reverse('events:passport_export'))
+        self.assertContains(response, "'=HYPERLINK")
+
+    def test_passport_requires_login(self):
+        self.client.logout()
+        self.assertEqual(self.client.get(reverse('events:event_passport')).status_code, 302)
+        self.assertEqual(self.client.get(reverse('events:passport_export')).status_code, 302)
+
+    def test_public_certificate_lookup(self):
+        from .models import ParticipationCertificate
+        self.client.post(reverse('events:certificate_download', args=[self.event.slug]))
+        cert = ParticipationCertificate.objects.get(registration=self.reg)
+        self.client.logout()
+        lookup = reverse('events:certificate_lookup')
+        self.assertContains(self.client.get(lookup, {'id': 'not-a-uuid'}), 'Enter a valid certificate ID')
+        self.assertRedirects(self.client.get(lookup, {'id': str(cert.pk)}), reverse('events:verify_certificate', args=[cert.pk]))

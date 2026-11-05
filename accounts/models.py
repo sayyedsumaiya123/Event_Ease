@@ -7,6 +7,7 @@ from django.dispatch import receiver
 class UserProfile(models.Model):
     """Extended user profile."""
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    is_organizer = models.BooleanField(default=False, help_text='Can review coordinator applications.')
     phone = models.CharField(max_length=16, blank=True)
     bio = models.TextField(blank=True)
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
@@ -35,7 +36,7 @@ class CoordinatorApplication(models.Model):
     event_type = models.CharField(max_length=20, choices=EVENT_TYPES)
     expected_attendees = models.PositiveIntegerField()
     event_plan = models.TextField(max_length=1000)
-    status = models.CharField(max_length=10, choices=[('pending', 'Pending'), ('approved', 'Approved'), ('revoked', 'Revoked')], default='pending')
+    status = models.CharField(max_length=10, choices=[('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected'), ('revoked', 'Revoked')], default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
 
 
